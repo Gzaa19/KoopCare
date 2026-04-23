@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'otp_page.dart';
 import '../register/register_step1_page.dart';
 
@@ -71,9 +72,10 @@ class LoginPage extends StatelessWidget {
                     color: const Color(0xFFE5E5E5),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const TextField(
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: const InputDecoration(
                       border: InputBorder.none,
                       icon: Icon(Icons.person_outline),
                       hintText: "Masukkan nomor",

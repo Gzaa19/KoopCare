@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import '../register/create_pin_page.dart';
+import 'package:flutter/services.dart';
+import '../../home/beranda_page.dart';
 
 class OtpPage extends StatefulWidget {
   const OtpPage({super.key});
@@ -48,6 +50,7 @@ class _OtpPageState extends State<OtpPage> {
       child: TextField(
         controller: controllers[index],
         keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         textAlign: TextAlign.center,
         maxLength: 1,
         decoration: InputDecoration(
@@ -75,6 +78,41 @@ class _OtpPageState extends State<OtpPage> {
 
   String getOtp() {
     return controllers.map((e) => e.text).join();
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Login Berhasil',
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 300),
+      transitionBuilder: (ctx, animation, _, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutBack,
+        );
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(scale: curved, child: child),
+        );
+      },
+      pageBuilder: (ctx, _, _) => _SuccessDialog(
+        onContinue: () {
+          Navigator.of(ctx, rootNavigator: true).pop();
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (_, a, _) => const BerandaPage(),
+              transitionsBuilder: (_, a, _, child) => FadeTransition(
+                opacity: a,
+                child: child,
+              ),
+              transitionDuration: const Duration(milliseconds: 250),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -148,13 +186,7 @@ class _OtpPageState extends State<OtpPage> {
                         return;
                       }
 
-                      // 👉 PINDAH KE CREATE PIN
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CreatePinPage(),
-                        ),
-                      );
+                      _showSuccessDialog(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6B7F3F),
@@ -183,9 +215,90 @@ class _OtpPageState extends State<OtpPage> {
                 ),
 
                 const SizedBox(height: 30),
+
+                if (kDebugMode)
+                  TextButton(
+                    onPressed: () => _showSuccessDialog(context),
+                    child: const Text(
+                      'Skip (debug)',
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ),
+
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Login Success Dialog ─────────────────────────────────────────────────────
+class _SuccessDialog extends StatelessWidget {
+  final VoidCallback onContinue;
+
+  const _SuccessDialog({required this.onContinue});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 32, 28, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: const BoxDecoration(
+                color: kHijauTua,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.check_rounded, color: kPutih, size: 44),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Login Berhasil!',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1A1A1A),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Selamat datang kembali\ndi KoopCare',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Color(0xFF666666),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: onContinue,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kHijauTua,
+                  foregroundColor: kPutih,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Lanjutkan',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

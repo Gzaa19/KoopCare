@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'features/auth/login/login_page.dart';
+import 'features/home/beranda_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
   runApp(const MyApp());
 }
 
@@ -10,9 +19,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      theme: ThemeData(
+        fontFamily: 'Inter',
+        scaffoldBackgroundColor: kScaffold,
+        colorScheme: ColorScheme.fromSeed(seedColor: kHijauTua),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      home: const LoginPage(),
     );
   }
 }

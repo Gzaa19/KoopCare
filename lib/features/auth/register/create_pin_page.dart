@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'pin_success_page.dart';
 
 class CreatePinPage extends StatefulWidget {
@@ -25,6 +27,7 @@ class _CreatePinPageState extends State<CreatePinPage> {
       child: TextField(
         controller: list[index],
         keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         textAlign: TextAlign.center,
         maxLength: 1,
         obscureText: true,
@@ -204,6 +207,23 @@ class _CreatePinPageState extends State<CreatePinPage> {
                 ),
 
                 const SizedBox(height: 20),
+
+                if (kDebugMode)
+                  Center(
+                    child: TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PinSuccessPage(),
+                        ),
+                      ),
+                      child: const Text(
+                        'Skip (debug)',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                    ),
+                  ),
+
               ],
             ),
           ),

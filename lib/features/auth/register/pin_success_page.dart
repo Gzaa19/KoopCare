@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'register_success_page.dart';
 
 class PinSuccessPage extends StatelessWidget {
   const PinSuccessPage({super.key});
@@ -9,7 +10,10 @@ class PinSuccessPage extends StatelessWidget {
       backgroundColor: Colors.white,
       body: GestureDetector(
         onTap: () {
-          // 👉 nanti bisa ke HomePage
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const RegisterSuccessPage()),
+          );
         },
         child: SafeArea(
           child: Column(
