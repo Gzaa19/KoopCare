@@ -5,15 +5,18 @@ class RegisterSuccessPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color primary = const Color(0xFF6B7F3F);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 🔥 ICON DOKUMEN + CHECK
+              const Spacer(),
+
+              // ICON (pakai icon bawaan dulu, nanti bisa ganti asset)
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
@@ -21,26 +24,16 @@ class RegisterSuccessPage extends StatelessWidget {
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE7E8D8),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: const Color(0xFF6B7F3F),
-                        width: 3,
-                      ),
+                      border: Border.all(color: primary, width: 3),
                     ),
-                    child: const Icon(
-                      Icons.description_outlined,
-                      size: 60,
-                      color: Color(0xFF6B7F3F),
-                    ),
+                    child: const Icon(Icons.description_outlined, size: 60),
                   ),
 
-                  // CHECK ICON KECIL
                   Container(
-                    width: 35,
-                    height: 35,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF6B7F3F),
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: primary,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -54,7 +47,7 @@ class RegisterSuccessPage extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // 🔥 TITLE
+              // TITLE
               const Text(
                 "Pendaftaran berhasil &\nMenunggu verifikasi",
                 textAlign: TextAlign.center,
@@ -63,45 +56,41 @@ class RegisterSuccessPage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // 🔥 DESKRIPSI
+              // DESKRIPSI
               const Text(
-                "Selamat, pendaftaran Anda berhasil!\n\n"
-                "Dokumen anda sedang diverifikasi, kami akan memberitahu Anda via WhatsApp jika sudah selesai.",
+                "Selamat, pendaftaran Anda berhasil!\n\nDokumen anda sedang diverifikasi,\nkami akan memberitahu Anda via\nWhatsApp jika sudah selesai.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.black87,
+                  color: Colors.black54,
                   height: 1.5,
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
 
-              // 🔥 BUTTON
+              // BUTTON
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 55,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context); // balik ke login / sebelumnya
+                    Navigator.pop(context); // balik / lanjut flow
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6B7F3F),
+                    backgroundColor: primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    elevation: 4,
                   ),
                   child: const Text(
                     "Mengerti",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
+
+              const Spacer(),
             ],
           ),
         ),
