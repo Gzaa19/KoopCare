@@ -148,7 +148,7 @@ class _OtpPageState extends State<OtpPage> {
                         return;
                       }
 
-                      // 👉 PINDAH KE CREATE PIN
+                      // PINDAH KE CREATE PIN
                       Navigator.push(
                         context,
                         MaterialPageRoute(

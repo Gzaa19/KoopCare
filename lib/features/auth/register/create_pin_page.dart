@@ -179,7 +179,7 @@ class _CreatePinPageState extends State<CreatePinPage> {
                         return;
                       }
 
-                      // 👉 PIN SUCCESS PAGE
+                      //  PIN SUCCESS PAGE
                       Navigator.push(
                         context,
                         MaterialPageRoute(
