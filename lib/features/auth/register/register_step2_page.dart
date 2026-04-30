@@ -4,7 +4,16 @@ import 'package:image_picker/image_picker.dart';
 import 'register_success_page.dart';
 
 class RegisterStep2Page extends StatefulWidget {
-  const RegisterStep2Page({super.key});
+  final String nama;
+  final String wa;
+  final String nik;
+
+  const RegisterStep2Page({
+    super.key,
+    required this.nama,
+    required this.wa,
+    required this.nik,
+  });
 
   @override
   State<RegisterStep2Page> createState() => _RegisterStep2PageState();
@@ -21,7 +30,10 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
   final ImagePicker picker = ImagePicker();
 
   Future<void> pickImage(bool isKtp) async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+    );
 
     if (pickedFile != null) {
       setState(() {
@@ -38,7 +50,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -52,7 +64,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                 child: Text(
                   "KoopCare",
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: primary,
                   ),
@@ -69,20 +81,35 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
 
               const SizedBox(height: 8),
 
-              LinearProgressIndicator(
-                value: 1,
-                minHeight: 6,
-                color: primary,
-                backgroundColor: Colors.grey,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LinearProgressIndicator(
+                  value: 1,
+                  minHeight: 6,
+                  color: primary,
+                  backgroundColor: Colors.grey[300],
+                ),
               ),
 
               const SizedBox(height: 30),
 
-              buildUploadBox("FOTO e-KTP ASLI", true),
-              buildUploadBox("FOTO SELFIE DENGAN e-KTP", false),
+              //  FOTO KTP
+              buildUploadBox(
+                "FOTO e-KTP ASLI",
+                ktpImage,
+                () => pickImage(true),
+              ),
+
+              //  FOTO SELFIE
+              buildUploadBox(
+                "FOTO SELFIE DENGAN e-KTP",
+                selfieImage,
+                () => pickImage(false),
+              ),
 
               const SizedBox(height: 10),
 
+              // CHECKBOX
               Row(
                 children: [
                   Checkbox(
@@ -101,11 +128,12 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
 
               const SizedBox(height: 20),
 
+              // BUTTON
               SizedBox(
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: agree
+                  onPressed: (agree && ktpImage != null && selfieImage != null)
                       ? () {
                           Navigator.pushReplacement(
                             context,
@@ -115,8 +143,16 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
                           );
                         }
                       : null,
-                  style: ElevatedButton.styleFrom(backgroundColor: primary),
-                  child: const Text("VERIFIKASI"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    "VERIFIKASI",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
 
@@ -128,9 +164,8 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
     );
   }
 
-  Widget buildUploadBox(String title, bool isKtp) {
-    final image = isKtp ? ktpImage : selfieImage;
-
+  //  COMPONENT UPLOAD
+  Widget buildUploadBox(String title, File? image, VoidCallback onTap) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -138,20 +173,30 @@ class _RegisterStep2PageState extends State<RegisterStep2Page> {
         const SizedBox(height: 10),
 
         GestureDetector(
-          onTap: () => pickImage(isKtp),
+          onTap: onTap,
           child: Container(
             height: 150,
             width: double.infinity,
             decoration: BoxDecoration(
-              border: Border.all(color: primary, width: 2),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF9BAA7A),
+                width: 2,
+                style: BorderStyle.solid,
+              ),
             ),
             child: image != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.file(image, fit: BoxFit.cover),
                   )
-                : const Center(child: Icon(Icons.person_outline, size: 40)),
+                : const Center(
+                    child: Icon(
+                      Icons.person_outline,
+                      size: 50,
+                      color: Color(0xFF9BAA7A),
+                    ),
+                  ),
           ),
         ),
 
