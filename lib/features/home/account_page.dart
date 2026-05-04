@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -5,95 +6,266 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFEFEFEF),
-
-
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // 🔥 penting (bawah besar)
-          children: [
-            // HEADER
-            Row(
-              children: [
-                const CircleAvatar(
-                  radius: 25,
-                  backgroundColor: Colors.purple,
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text("KoopCare",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(height: 4),
-                    Text("M.ERSA",
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      children: [
+        // Top Section with light olive background
+        Container(
+          color: const Color(0xFFE6E8DB),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Column(
+            children: [
+              // Row 1: KoopCare
+              Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Color(0xFF222222),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    "KoopCare",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF4C6A2B),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              // Row 2: Profile
+              Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 25,
+                    backgroundColor: Color(0xFF222222),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        "Beri Mesyanti",
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text("Anggota Aktif",
-                        style: TextStyle(color: Colors.grey)),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        "Anggota Aktif",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Green Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF657E3E),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
                   ],
-                )
-              ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text(
+                          "Total Saldo Top Up",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Icon(Icons.visibility, color: Colors.white, size: 20),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Rp 3.500.000 ",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "(updated)",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "Total Pembiayaan",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Rp 1.000.000",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Bottom Section with Menu
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+          child: CustomPaint(
+            painter: DashedRectPainter(
+              color: const Color(0xFFA0A590),
+              strokeWidth: 1.5,
+              gap: 6,
+              radius: 8,
             ),
-
-            const SizedBox(height: 20),
-
-            // CARD
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
+            child: Container(
               decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(16),
+                color: const Color(0xFFE4E7DB),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Total Saldo Top Up",
-                      style: TextStyle(color: Colors.white70)),
-                  SizedBox(height: 5),
-                  Text("Rp 3.500.000 (updated)",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold)),
-                  SizedBox(height: 10),
-                  Text("Total Pembiayaan",
-                      style: TextStyle(color: Colors.white70)),
-                  SizedBox(height: 5),
-                  Text("Rp 1.000.000",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold)),
+                children: [
+                  _menuItem("General info"),
+                  _menuItem("Pengaturan Keamanan"),
+                  _menuItem("Pengaturan Notifikasi"),
+                  _menuItem("Rekening Bank / Kartu"),
+                  _menuItem("FAQ"),
+                  _menuItem("Hubungi Kami"),
+                  _menuItem("Suka? Nilai kami"),
+                  _menuItem("Logout", isLast: true, isLogout: true),
                 ],
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            _menu("General info"),
-            _menu("Pengaturan Keamanan"),
-            _menu("Pengaturan Notifikasi"),
-            _menu("Rekening Bank / Kartu"),
-            _menu("FAQ"),
-            _menu("Hubungi Kami"),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _menu(String title) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        title: Text(title),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      ),
+  Widget _menuItem(String title, {bool isLast = false, bool isLogout = false}) {
+    return Column(
+      children: [
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: isLogout ? Colors.red : Colors.black,
+            ),
+          ),
+          trailing: isLogout
+              ? const Icon(Icons.logout, size: 20, color: Colors.red)
+              : const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Color(0xFF4C6A2B),
+                ),
+          onTap: () {
+            // Action for the menu
+          },
+        ),
+        if (!isLast)
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: Color(0xFFC4CBB1),
+          ),
+      ],
     );
+  }
+}
+
+class DashedRectPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double gap;
+  final double radius;
+
+  DashedRectPainter({
+    required this.color,
+    required this.strokeWidth,
+    required this.gap,
+    required this.radius,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final RRect rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(radius),
+    );
+
+    final Path path = Path()..addRRect(rrect);
+    
+    // Create dashed path
+    final Path dashedPath = Path();
+    for (final PathMetric metric in path.computeMetrics()) {
+      double distance = 0.0;
+      bool draw = true;
+      while (distance < metric.length) {
+        final double len = draw ? gap : gap;
+        if (draw) {
+          dashedPath.addPath(
+            metric.extractPath(distance, distance + len),
+            Offset.zero,
+          );
+        }
+        distance += len;
+        draw = !draw;
+      }
+    }
+    
+    canvas.drawPath(dashedPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }
