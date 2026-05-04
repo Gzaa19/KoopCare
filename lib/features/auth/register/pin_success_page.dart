@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'register_success_page.dart'; // for kPrimary + shared widgets
 
 class PinSuccessPage extends StatelessWidget {
   const PinSuccessPage({super.key});

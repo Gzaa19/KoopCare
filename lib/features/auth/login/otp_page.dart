@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../home/beranda_page.dart';
+import '../../home/main_shell.dart';
 
 class OtpPage extends StatefulWidget {
   const OtpPage({super.key});
@@ -100,15 +101,16 @@ class _OtpPageState extends State<OtpPage> {
       pageBuilder: (ctx, _, _) => _SuccessDialog(
         onContinue: () {
           Navigator.of(ctx, rootNavigator: true).pop();
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).pushAndRemoveUntil(
             PageRouteBuilder(
-              pageBuilder: (_, a, _) => const BerandaPage(),
+              pageBuilder: (_, a, _) => const MainShell(),
               transitionsBuilder: (_, a, _, child) => FadeTransition(
                 opacity: a,
                 child: child,
               ),
               transitionDuration: const Duration(milliseconds: 250),
             ),
+            (route) => false,
           );
         },
       ),

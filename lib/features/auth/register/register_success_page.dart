@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../home/main_shell.dart';
 
 class RegisterSuccessPage extends StatelessWidget {
   const RegisterSuccessPage({super.key});
@@ -75,7 +76,10 @@ class RegisterSuccessPage extends StatelessWidget {
                 height: 55,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.popUntil(context, (route) => route.isFirst);
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const MainShell()),
+                      (route) => false,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primary,

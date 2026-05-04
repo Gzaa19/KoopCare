@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
- 
+import '../financial/pembayaran_detail_page.dart' hide kHijauTua, kPutih, kScaffold;
+
 // ─── Colour tokens ────────────────────────────────────────────────────────────
 const Color kHijauTua    = Color(0xFF4A5E2A);
 const Color kCardGreen   = Color(0xFF556B2F);
-const Color kUserCardTop = Color(0xFFDDE5C8); // light sage green top section
+const Color kUserCardTop = Color(0xFFDDE5C8);
 const Color kAbuAbu      = Color(0xFF9E9E9E);
 const Color kPutih       = Color(0xFFFFFFFF);
-const Color kScaffold    = Color(0xFFFFFFFF);
+const Color kScaffold    = Color(0xFFF5F7F2);
 
 // ─── Beranda Page ─────────────────────────────────────────────────────────────
 class BerandaPage extends StatefulWidget {
@@ -15,11 +15,60 @@ class BerandaPage extends StatefulWidget {
   @override
   State<BerandaPage> createState() => _BerandaPageState();
 }
- 
-class _BerandaPageState extends State<BerandaPage> {
-  int _selectedIndex = 0;
+
+class _BerandaPageState extends State<BerandaPage>
+    with SingleTickerProviderStateMixin {
   bool _balanceVisible = true;
- 
+
+  // Staggered entrance
+  late final AnimationController _ctrl;
+  late final List<Animation<double>> _fades;
+  late final List<Animation<Offset>> _slides;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    // 4 sections: appbar row, balance card, quick actions, pembayaran section
+    _fades = List.generate(4, (i) {
+      final s = i * 0.12;
+      return Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+          parent: _ctrl,
+          curve: Interval(s, (s + 0.5).clamp(0, 1), curve: Curves.easeOut),
+        ),
+      );
+    });
+
+    _slides = List.generate(4, (i) {
+      final s = i * 0.12;
+      return Tween<Offset>(
+        begin: const Offset(0, 0.22),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _ctrl,
+        curve: Interval(s, (s + 0.5).clamp(0, 1), curve: Curves.easeOutCubic),
+      ));
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _ctrl.forward());
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  Widget _animated(int index, Widget child) => FadeTransition(
+        opacity: _fades[index],
+        child: SlideTransition(position: _slides[index], child: child),
+      );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,18 +79,19 @@ class _BerandaPageState extends State<BerandaPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildAppBar(),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
+              _animated(0, _buildAppBar()),
+              const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    _buildUserCard(),
+                    _animated(1, _buildBalanceCard()),
                     const SizedBox(height: 20),
-                    _buildQuickActions(),
-                    const SizedBox(height: 20),
-                    _buildPembiayaanCard(),
+                    _animated(2, _buildQuickActions()),
                     const SizedBox(height: 24),
+                    _animated(3, _buildPembayaranSection()),
+                    const SizedBox(height: 28),
                   ],
                 ),
               ),
@@ -49,50 +99,80 @@ class _BerandaPageState extends State<BerandaPage> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
- 
-  // ── App Bar ───────────────────────────────────────────────────────────────────
+
+  // ── App bar ───────────────────────────────────────────────────────────────
   Widget _buildAppBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 48,
+            height: 48,
             decoration: const BoxDecoration(
-              color: kHijauTua,
+              color: Color(0xFF2C2C2C),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.home_rounded, color: kPutih, size: 22),
+            child: const Icon(Icons.person, color: kPutih, size: 28),
           ),
-          const SizedBox(width: 10),
-          const Text(
-            'KoopCare',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: kHijauTua,
-              letterSpacing: 0.2,
-            ),
+          const SizedBox(width: 12),
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Beri Mesyanti',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                'Anggota Aktif',
+                style: TextStyle(fontSize: 12, color: Color(0xFF888888)),
+              ),
+            ],
           ),
           const Spacer(),
           Stack(
             clipBehavior: Clip.none,
             children: [
-              const Icon(Icons.notifications_outlined, color: kHijauTua, size: 28),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: kPutih,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.07),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.notifications_outlined,
+                    color: Color(0xFF444444), size: 22),
+              ),
               Positioned(
-                top: 0,
-                right: 1,
+                top: -2,
+                right: -2,
                 child: Container(
-                  width: 9,
-                  height: 9,
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                   decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: kScaffold, width: 1.5),
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    '5',
+                    style: TextStyle(
+                      color: kPutih,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -102,371 +182,290 @@ class _BerandaPageState extends State<BerandaPage> {
       ),
     );
   }
- 
-  // ── User + Balance Card ───────────────────────────────────────────────────────
-  Widget _buildUserCard() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Column(
-        children: [
-          // Light sage-green top
-          Container(
-            color: kUserCardTop,
-            padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
-            child: Row(
-              children: [
-                Container(
-                  width: 54,
-                  height: 54,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF2C2C2C),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.person, color: kPutih, size: 32),
-                ),
-                const SizedBox(width: 14),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Beri Mesyanti',
-                      style: TextStyle(
-                        color: Color(0xFF1A1A1A),
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Anggota Aktif',
-                      style: TextStyle(
-                        color: Color(0xFF666666),
-                        fontSize: 12.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+
+  // ── Total Simpanan balance card ───────────────────────────────────────────
+  Widget _buildBalanceCard() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: kPutih,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
- 
-          // Olive-green balance section
-          Container(
-            color: kCardGreen,
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Total Saldo Top Up',
-                        style: TextStyle(
-                          color: Color(0xFFCEDF9A),
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _balanceVisible
-                            ? 'Rp 3.500.000 (updated)'
-                            : 'Rp ••••••••',
-                        style: const TextStyle(
-                          color: kPutih,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total Simpanan',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF888888),
+                  fontWeight: FontWeight.w400,
                 ),
-                GestureDetector(
-                  onTap: () =>
-                      setState(() => _balanceVisible = !_balanceVisible),
-                  child: Icon(
-                    _balanceVisible
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    color: kPutih,
-                    size: 22,
-                  ),
+              ),
+              GestureDetector(
+                onTap: () => setState(() => _balanceVisible = !_balanceVisible),
+                child: Icon(
+                  _balanceVisible
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  color: const Color(0xFF888888),
+                  size: 20,
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, anim) =>
+                FadeTransition(opacity: anim, child: child),
+            child: Text(
+              _balanceVisible ? 'Rp 5.000.000' : 'Rp ••••••••',
+              key: ValueKey(_balanceVisible),
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1A1A1A),
+                letterSpacing: 0.3,
+              ),
             ),
           ),
         ],
       ),
     );
   }
- 
-  // ── Quick Actions ─────────────────────────────────────────────────────────────
+
+  // ── Quick actions ─────────────────────────────────────────────────────────
   Widget _buildQuickActions() {
     final actions = [
-      {'icon': Icons.arrow_upward_rounded, 'label': 'Top Up'},
-      {'icon': Icons.description_outlined, 'label': 'Ajukan\nPinjaman'},
-      {'icon': Icons.swap_horiz_rounded,   'label': 'Transfer'},
-      {'icon': Icons.history_rounded,      'label': 'Riwayat'},
+      {'icon': Icons.savings_outlined,      'label': 'Simpan\nDana'},
+      {'icon': Icons.description_outlined,  'label': 'Ajukan\nPinjaman'},
+      {'icon': Icons.swap_horiz_rounded,    'label': 'Transfer'},
+      {'icon': Icons.history_rounded,       'label': 'Riwayat'},
     ];
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: actions
-          .map((a) => _ActionButton(
-                icon: a['icon'] as IconData,
-                label: a['label'] as String,
-              ))
-          .toList(),
+      children: actions.map((a) {
+        return _QuickAction(
+          icon: a['icon'] as IconData,
+          label: a['label'] as String,
+        );
+      }).toList(),
     );
   }
- 
-  // ── Pembiayaan Aktif Card — dashed border via LayoutBuilder + CustomPaint ──────
-  Widget _buildPembiayaanCard() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // We measure the inner content first, then overlay the dashed border
-        return Stack(
+
+  // ── Pembayaran Aktif section ──────────────────────────────────────────────
+  Widget _buildPembayaranSection() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // White card content
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: kPutih,
-                borderRadius: BorderRadius.circular(14),
+            const Text(
+              'Pembayaran Aktif',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1A1A1A),
               ),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-              child: Column(
+            ),
+            GestureDetector(
+              onTap: () {},
+              child: const Text(
+                'Lihat Semua',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: kHijauTua,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: kPutih,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Pembiayaan Aktif',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: Color(0xFF1A1A1A),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pinjaman Murabahah',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Color(0xFF1A1A1A),
+                          ),
+                        ),
+                        SizedBox(height: 3),
+                        Text(
+                          'Jatuh tempo: 15 Des 2024',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF888888),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Pembiayaan # Rp #IK0100',
-                    style: TextStyle(
-                        fontSize: 13, color: Color(0xFF555555), height: 1.4),
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'Produk : Murabahah - JAK0100',
-                    style: TextStyle(
-                        fontSize: 13, color: Color(0xFF555555), height: 1.4),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kHijauTua,
-                        foregroundColor: kPutih,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Jadwal & Bayar # AKD100',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          letterSpacing: 0.3,
-                        ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F0D8),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'Aktif',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: kHijauTua,
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
- 
-            // Dashed border overlay — Positioned.fill so it always matches the card size
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _DashedBorderPainter(
-                  color: const Color(0xFFB0BDA0),
-                  radius: 14,
-                  dashWidth: 6,
-                  dashSpace: 4,
-                  strokeWidth: 1.5,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
- 
-  // ── Bottom Navigation ─────────────────────────────────────────────────────────
-  Widget _buildBottomNav() {
-    final items = [
-      {'icon': Icons.home_rounded,                    'label': 'Beranda'},
-      {'icon': Icons.account_balance_wallet_outlined, 'label': 'Simpanan'},
-      {'icon': Icons.receipt_long_outlined,           'label': 'Cicilan'},
-      {'icon': Icons.person_outline_rounded,          'label': 'Akun'},
-    ];
- 
-    return Container(
-      decoration: BoxDecoration(
-        color: kPutih,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 62,
-          child: Row(
-            children: List.generate(items.length, (i) {
-              final active = i == _selectedIndex;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _selectedIndex = i),
-                  behavior: HitTestBehavior.opaque,
-                  child: Column(
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        height: 3,
-                        width: active ? 36 : 0,
-                        margin: const EdgeInsets.only(bottom: 6),
-                        decoration: BoxDecoration(
-                          color: kHijauTua,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      Icon(
-                        items[i]['icon'] as IconData,
-                        color: active ? kHijauTua : kAbuAbu,
-                        size: 22,
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        items[i]['label'] as String,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: active ? kHijauTua : kAbuAbu,
-                          fontWeight:
-                              active ? FontWeight.w700 : FontWeight.normal,
-                        ),
-                      ),
-                    ],
+              const SizedBox(height: 16),
+              const Divider(height: 1, color: Color(0xFFEEEEEE)),
+              const SizedBox(height: 14),
+              _finRow('Total Pinjaman',    'Rp 10.000.000', valueColor: const Color(0xFF1A1A1A)),
+              const SizedBox(height: 8),
+              _finRow('Sudah Dibayar',     'Rp 5.000.000',  valueColor: const Color(0xFF1A1A1A)),
+              const SizedBox(height: 8),
+              _finRow('Sisa Pembayaran',   'Rp 5.000.000',  valueColor: const Color(0xFFCC4444)),
+              const SizedBox(height: 14),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: 0.5),
+                  duration: const Duration(milliseconds: 900),
+                  curve: Curves.easeOutCubic,
+                  builder: (_, value, _) => LinearProgressIndicator(
+                    value: value,
+                    minHeight: 8,
+                    backgroundColor: const Color(0xFFEEEEEE),
+                    valueColor: const AlwaysStoppedAnimation<Color>(kHijauTua),
                   ),
                 ),
-              );
-            }),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 350),
+                      pageBuilder: (_, _, _) => const PembayaranDetailPage(),
+                      transitionsBuilder: (_, anim, _, child) => SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(1, 0),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(
+                          parent: anim,
+                          curve: Curves.easeOutCubic,
+                        )),
+                        child: child,
+                      ),
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kHijauTua,
+                    foregroundColor: kPutih,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Bayar Cicilan',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget _finRow(String label, String value, {required Color valueColor}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label,
+            style: const TextStyle(fontSize: 13, color: Color(0xFF666666))),
+        Text(value,
+            style: TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w600, color: valueColor)),
+      ],
     );
   }
 }
- 
-// ─── Quick Action Button ──────────────────────────────────────────────────────
-class _ActionButton extends StatelessWidget {
+
+// ─── Quick Action Widget ──────────────────────────────────────────────────────
+class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
-  const _ActionButton({required this.icon, required this.label});
- 
+
+  const _QuickAction({required this.icon, required this.label});
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
-          width: 64,
-          height: 64,
+          width: 62,
+          height: 62,
           decoration: BoxDecoration(
-            color: kPutih,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFD4DBC8), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            color: const Color(0xFFE8F0D8),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(icon, color: kHijauTua, size: 28),
         ),
-        const SizedBox(height: 7),
+        const SizedBox(height: 8),
         Text(
           label,
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 11,
             color: Color(0xFF333333),
-            height: 1.35,
+            height: 1.3,
           ),
         ),
       ],
     );
   }
-}
- 
-// ─── Dashed Border Painter ────────────────────────────────────────────────────
-// Uses Positioned.fill so canvas size always equals the card size exactly
-class _DashedBorderPainter extends CustomPainter {
-  final Color color;
-  final double radius;
-  final double dashWidth;
-  final double dashSpace;
-  final double strokeWidth;
- 
-  const _DashedBorderPainter({
-    required this.color,
-    required this.radius,
-    required this.dashWidth,
-    required this.dashSpace,
-    required this.strokeWidth,
-  });
- 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
- 
-    final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(
-        strokeWidth / 2,
-        strokeWidth / 2,
-        size.width - strokeWidth,
-        size.height - strokeWidth,
-      ),
-      Radius.circular(radius),
-    );
- 
-    final path = Path()..addRRect(rrect);
- 
-    for (final metric in path.computeMetrics()) {
-      double distance = 0;
-      while (distance < metric.length) {
-        final end = (distance + dashWidth).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(distance, end), paint);
-        distance += dashWidth + dashSpace;
-      }
-    }
-  }
- 
-  @override
-  bool shouldRepaint(covariant _DashedBorderPainter old) =>
-      old.color != color ||
-      old.dashWidth != dashWidth ||
-      old.dashSpace != dashSpace ||
-      old.radius != radius;
 }

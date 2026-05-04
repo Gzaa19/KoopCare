@@ -8,18 +8,6 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFEFEFEF),
 
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 3,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Beranda"),
-          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: "Simpanan"),
-          BottomNavigationBarItem(icon: Icon(Icons.handshake), label: "Cicilan"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Akun"),
-        ],
-      ),
 
       body: SafeArea(
         child: ListView(
