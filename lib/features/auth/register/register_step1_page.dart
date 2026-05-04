@@ -109,6 +109,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page>
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
+
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -131,7 +132,7 @@ class _RegisterStep1PageState extends State<RegisterStep1Page>
                   ),
                 ),
 
-                const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
                 // ── Title ───────────────────────────────────────────────────
                 const Center(
@@ -332,7 +333,29 @@ class StepHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           ),
         ),
-      ],
+      ),
+    );
+  }
+}
+
+// ─── Animated field wrapper ───────────────────────────────────────────────────
+class AnimatedField extends StatelessWidget {
+  final Animation<Offset> slide;
+  final Animation<double> fade;
+  final Widget child;
+
+  const AnimatedField({
+    super.key,
+    required this.slide,
+    required this.fade,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: fade,
+      child: SlideTransition(position: slide, child: child),
     );
   }
 }

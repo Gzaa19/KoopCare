@@ -19,10 +19,9 @@ class LoginPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-
                 const SizedBox(height: 40),
 
-                // 🔥 LOGO
+                // LOGO
                 Container(
                   width: 110,
                   height: 110,
@@ -39,14 +38,11 @@ class LoginPage extends StatelessWidget {
 
                 const SizedBox(height: 30),
 
-                // 🔥 TITLE
+                //  TITLE
                 const Text(
                   "Selamat Datang Kembali",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 40),
@@ -56,16 +52,13 @@ class LoginPage extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "NOMOR WHATSAPP / NIK",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                // 🔥 INPUT
+                //  INPUT
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
@@ -85,7 +78,7 @@ class LoginPage extends StatelessWidget {
 
                 const SizedBox(height: 30),
 
-                // 🔥 BUTTON OTP
+                //  BUTTON OTP
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -94,7 +87,8 @@ class LoginPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => OtpPage(), // ❌ TANPA CONST (fix error)
+                          builder: (context) =>
+                              OtpPage(), // ❌ TANPA CONST (fix error)
                         ),
                       );
                     },
@@ -118,7 +112,7 @@ class LoginPage extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                // 🔥 DAFTAR BARU
+                //  DAFTAR BARU
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -128,7 +122,8 @@ class LoginPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => RegisterStep1Page(), // ❌ tanpa const
+                            builder: (context) =>
+                                RegisterStep1Page(), // ❌ tanpa const
                           ),
                         );
                       },
