@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'register_success_page.dart';
+import 'create_pin_page.dart';
 import 'register_step1_page.dart'; // for kPrimary + shared widgets
 
 class RegisterStep2Page extends StatefulWidget {
@@ -138,7 +138,7 @@ class _RegisterStep2PageState extends State<RegisterStep2Page>
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const RegisterSuccessPage(),
+                              builder: (context) => const CreatePinPage(),
                             ),
                           );
                         }

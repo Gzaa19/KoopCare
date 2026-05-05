@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:koopcare/features/home/FAQ_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -164,14 +165,29 @@ class ProfilePage extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _menuItem("General info"),
-                  _menuItem("Pengaturan Keamanan"),
-                  _menuItem("Pengaturan Notifikasi"),
-                  _menuItem("Rekening Bank / Kartu"),
-                  _menuItem("FAQ"),
-                  _menuItem("Hubungi Kami"),
-                  _menuItem("Suka? Nilai kami"),
-                  _menuItem("Logout", isLast: true, isLogout: true),
+                  _menuItem(context, "General info"),
+                  _menuItem(context, "Pengaturan Keamanan"),
+                  _menuItem(context, "Pengaturan Notifikasi"),
+                  _menuItem(context, "Rekening Bank / Kartu"),
+                  _menuItem(context, "FAQ", onTapCallback: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        transitionDuration: const Duration(milliseconds: 350),
+                        pageBuilder: (_, __, ___) => const FaqPage(),
+                        transitionsBuilder: (_, anim, __, child) => SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(1, 0),
+                            end: Offset.zero,
+                          ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
+                          child: child,
+                        ),
+                      ),
+                    );
+                  }),
+                  _menuItem(context, "Hubungi Kami"),
+                  _menuItem(context, "Suka? Nilai kami"),
+                  _menuItem(context, "Logout", isLast: true, isLogout: true),
                 ],
               ),
             ),
@@ -181,7 +197,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _menuItem(String title, {bool isLast = false, bool isLogout = false}) {
+  Widget _menuItem(BuildContext context, String title, {bool isLast = false, bool isLogout = false, VoidCallback? onTapCallback}) {
     return Column(
       children: [
         ListTile(
@@ -201,9 +217,7 @@ class ProfilePage extends StatelessWidget {
                   size: 16,
                   color: Color(0xFF4C6A2B),
                 ),
-          onTap: () {
-            // Action for the menu
-          },
+          onTap: onTapCallback,
         ),
         if (!isLast)
           const Divider(

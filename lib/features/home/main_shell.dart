@@ -13,13 +13,18 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _selectedIndex = 0;
+  late final List<Widget> _pages;
 
-  static const _pages = <Widget>[
-    BerandaPage(),
-    SimpananDanaPage(),
-    DetailPembiayaanPage(),
-    ProfilePage(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      BerandaPage(onSwitchTab: (i) => setState(() => _selectedIndex = i)),
+      const SimpananDanaPage(),
+      const DetailPembiayaanPage(),
+      const ProfilePage(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

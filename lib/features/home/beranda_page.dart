@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../financial/pembayaran_detail_page.dart' hide kHijauTua, kPutih, kScaffold;
+import '../financial/pengajuan_pembiayaan_page.dart' hide kProdukList, kTenorOptions;
+import '../financial/tarik_tunai_page.dart' hide kHijauTua, kPutih, kScaffold, kBankOptions;
 
 // ─── Colour tokens ────────────────────────────────────────────────────────────
 const Color kHijauTua    = Color(0xFF4A5E2A);
@@ -11,7 +13,8 @@ const Color kScaffold    = Color(0xFFF5F7F2);
 
 // ─── Beranda Page ─────────────────────────────────────────────────────────────
 class BerandaPage extends StatefulWidget {
-  const BerandaPage({super.key});
+  final void Function(int)? onSwitchTab;
+  const BerandaPage({super.key, this.onSwitchTab});
   @override
   State<BerandaPage> createState() => _BerandaPageState();
 }
@@ -63,6 +66,18 @@ class _BerandaPageState extends State<BerandaPage>
     _ctrl.dispose();
     super.dispose();
   }
+
+  PageRouteBuilder<void> _slideRoute(Widget page) => PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 350),
+        pageBuilder: (_, _, _) => page,
+        transitionsBuilder: (_, anim, _, child) => SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
+          child: child,
+        ),
+      );
 
   Widget _animated(int index, Widget child) => FadeTransition(
         opacity: _fades[index],
@@ -258,9 +273,22 @@ class _BerandaPageState extends State<BerandaPage>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: actions.map((a) {
+        final label = a['label'] as String;
         return _QuickAction(
           icon: a['icon'] as IconData,
-          label: a['label'] as String,
+          label: label,
+          onTap: switch (label) {
+            'Simpan\nDana' => () => widget.onSwitchTab?.call(1),
+            'Ajukan\nPinjaman' => () => Navigator.push(
+                  context,
+                  _slideRoute(const PengajuanPembiayaanPage()),
+                ),
+            'Transfer' => () => Navigator.push(
+                  context,
+                  _slideRoute(const TransferPage()),
+                ),
+            _ => null,
+          },
         );
       }).toList(),
     );
@@ -439,33 +467,37 @@ class _BerandaPageState extends State<BerandaPage>
 class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
 
-  const _QuickAction({required this.icon, required this.label});
+  const _QuickAction({required this.icon, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 62,
-          height: 62,
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8F0D8),
-            borderRadius: BorderRadius.circular(16),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 62,
+            height: 62,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F0D8),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, color: kHijauTua, size: 28),
           ),
-          child: Icon(icon, color: kHijauTua, size: 28),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Color(0xFF333333),
-            height: 1.3,
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF333333),
+              height: 1.3,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'beranda_page.dart';
 import '../financial/topup_page.dart';
+import '../financial/tarik_tunai_page.dart' show TransferPage;
 
 // ─── Simpanan Dana Page ───────────────────────────────────────────────────────
 class SimpananDanaPage extends StatefulWidget {
@@ -264,7 +265,24 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
               // Tarik — outlined white
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 350),
+                      pageBuilder: (ctx, a1, a2) => const TransferPage(),
+                      transitionsBuilder: (ctx, anim, a1, child) =>
+                          SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(1, 0),
+                              end: Offset.zero,
+                            ).animate(CurvedAnimation(
+                              parent: anim,
+                              curve: Curves.easeOutCubic,
+                            )),
+                            child: child,
+                          ),
+                    ),
+                  ),
                   icon: const Icon(Icons.keyboard_arrow_up_rounded,
                       size: 18, color: kPutih),
                   label: const Text(
