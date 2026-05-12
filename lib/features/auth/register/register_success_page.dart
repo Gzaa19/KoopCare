@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../home/main_shell.dart';
+import '../../../core/app_colors.dart';
 
 class RegisterSuccessPage extends StatelessWidget {
   const RegisterSuccessPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Color primary = const Color(0xFF6B7F3F);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -26,7 +26,7 @@ class RegisterSuccessPage extends StatelessWidget {
                     height: 120,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: primary, width: 3),
+                      border: Border.all(color: kPrimary, width: 3),
                     ),
                     child: const Icon(Icons.description_outlined, size: 60),
                   ),
@@ -34,7 +34,7 @@ class RegisterSuccessPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: primary,
+                      color: kPrimary,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -82,7 +82,7 @@ class RegisterSuccessPage extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primary,
+                    backgroundColor: kPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),

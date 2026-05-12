@@ -1,36 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'pin_verification.dart' show PinVerificationPage;
-
-// ─── Colour tokens ────────────────────────────────────────────────────────────
-const Color kHijauTua = Color(0xFF4A5E2A);
-const Color kPutih    = Color(0xFFFFFFFF);
-const Color kScaffold = Color(0xFFFFFFFF);
-
-const List<String> kBankOptions = [
-  'Bank Syariah Indonesia',
-  'BCA',
-  'Mandiri',
-  'BNI',
-  'BRI',
-  'CIMB Niaga',
-  'Danamon',
-];
+import '../../core/app_colors.dart';
+import '../../core/app_constants.dart';
+import '../../core/widgets/dashed_border_painter.dart';
 
 // ─── Withdrawable balance (would come from API in production) ─────────────────
 const int kSaldoBisaDitarik = 3500000;
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-  ));
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: TransferPage(),
-  ));
-}
 
 // ─── Transfer / Tarik Page ────────────────────────────────────────────────────
 class TransferPage extends StatefulWidget {
@@ -310,7 +286,7 @@ class _TransferPageState extends State<TransferPage>
         // Dashed border overlay
         Positioned.fill(
           child: CustomPaint(
-            painter: _DashedBorderPainter(
+            painter: DashedBorderPainter(
               color: const Color(0xFFB0BDA0),
               radius: 14,
               dashWidth: 6,
@@ -572,7 +548,7 @@ class _TransferSuccessPageState extends State<TransferSuccessPage>
                               color: const Color(0xFFE5E5E5), width: 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha:0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
@@ -713,7 +689,7 @@ class _TransferSuccessPageState extends State<TransferSuccessPage>
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withValues(alpha:0.15),
               blurRadius: 4,
               offset: const Offset(1, 2))
         ],
@@ -746,52 +722,4 @@ class _TransferSuccessPageState extends State<TransferSuccessPage>
       ],
     );
   }
-}
-
-// ─── Dashed Border Painter ────────────────────────────────────────────────────
-class _DashedBorderPainter extends CustomPainter {
-  final Color color;
-  final double radius;
-  final double dashWidth;
-  final double dashSpace;
-  final double strokeWidth;
-
-  const _DashedBorderPainter({
-    required this.color,
-    required this.radius,
-    required this.dashWidth,
-    required this.dashSpace,
-    required this.strokeWidth,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(strokeWidth / 2, strokeWidth / 2,
-          size.width - strokeWidth, size.height - strokeWidth),
-      Radius.circular(radius),
-    );
-
-    final path = Path()..addRRect(rrect);
-    for (final metric in path.computeMetrics()) {
-      double d = 0;
-      while (d < metric.length) {
-        final end = (d + dashWidth).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(d, end), paint);
-        d += dashWidth + dashSpace;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedBorderPainter old) =>
-      old.color != color ||
-      old.dashWidth != dashWidth ||
-      old.dashSpace != dashSpace;
 }

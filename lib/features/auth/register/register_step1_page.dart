@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'register_step2_page.dart';
 
-// ─── Shared colour token (keep in sync with your app theme) ──────────────────
-const Color kPrimary = Color(0xFF6B7F3F);
+import '../../../core/app_colors.dart';
 
 class RegisterStep1Page extends StatefulWidget {
   const RegisterStep1Page({super.key});

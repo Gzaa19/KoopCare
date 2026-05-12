@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
-import '../financial/pembayaran_detail_page.dart' hide kHijauTua, kPutih, kScaffold;
-import '../financial/pengajuan_pembiayaan_page.dart' hide kProdukList, kTenorOptions;
-import '../financial/tarik_tunai_page.dart' hide kHijauTua, kPutih, kScaffold, kBankOptions;
-
-// ─── Colour tokens ────────────────────────────────────────────────────────────
-const Color kHijauTua    = Color(0xFF4A5E2A);
-const Color kCardGreen   = Color(0xFF556B2F);
-const Color kUserCardTop = Color(0xFFDDE5C8);
-const Color kAbuAbu      = Color(0xFF9E9E9E);
-const Color kPutih       = Color(0xFFFFFFFF);
-const Color kScaffold    = Color(0xFFF5F7F2);
+import '../financial/pembayaran_detail_page.dart';
+import '../financial/pengajuan_pembiayaan_page.dart';
+import '../financial/tarik_tunai_page.dart' show TransferPage;
+import '../../core/app_colors.dart';
 
 // ─── Beranda Page ─────────────────────────────────────────────────────────────
 class BerandaPage extends StatefulWidget {

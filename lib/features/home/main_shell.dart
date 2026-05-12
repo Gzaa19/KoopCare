@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'beranda_page.dart';
+import '../../core/app_colors.dart';
 import 'account_page.dart';
 import 'simpanan_dana_page.dart';
 import 'cicilan_page.dart';

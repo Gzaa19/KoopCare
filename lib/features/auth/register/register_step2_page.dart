@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'create_pin_page.dart';
-import 'register_step1_page.dart'; // for kPrimary + shared widgets
+import '../../../core/app_colors.dart';
 
 class RegisterStep2Page extends StatefulWidget {
   final String nama;
@@ -27,7 +27,6 @@ class _RegisterStep2PageState extends State<RegisterStep2Page>
   Uint8List? ktpBytes;
   Uint8List? selfieBytes;
   bool agree = false;
-  bool _isLoading = false;
 
   final ImagePicker _picker = ImagePicker();
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ai_scoring_shared.dart';
+import '../../core/app_colors.dart';
 
 // ─── AI Processing Page ────────────────────────────────────────────────────────
 class AiScoringProcessingPage extends StatefulWidget {
@@ -69,7 +69,7 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kScaffold,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -384,7 +384,7 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           shape: BoxShape.circle,
           border: Border.all(color: color, width: 2),
         ),

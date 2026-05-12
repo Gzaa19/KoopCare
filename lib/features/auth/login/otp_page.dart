@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../home/beranda_page.dart';
 import '../../home/main_shell.dart';
+import '../../../core/app_colors.dart';
 
 class OtpPage extends StatefulWidget {
   const OtpPage({super.key});
@@ -62,7 +62,7 @@ class _OtpPageState extends State<OtpPage> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF6B7F3F)),
+            borderSide: const BorderSide(color: kPrimary),
           ),
         ),
         onChanged: (value) {
@@ -136,7 +136,7 @@ class _OtpPageState extends State<OtpPage> {
                   width: 110,
                   height: 110,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6B7F3F),
+                    color: kPrimary,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Icon(
@@ -191,7 +191,7 @@ class _OtpPageState extends State<OtpPage> {
                       _showSuccessDialog(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6B7F3F),
+                      backgroundColor: kPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

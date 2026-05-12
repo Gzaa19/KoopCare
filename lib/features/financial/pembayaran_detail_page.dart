@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
-// ─── Colour tokens ────────────────────────────────────────────────────────────
-const Color kHijauTua = Color(0xFF4A5E2A);
-const Color kPutih    = Color(0xFFFFFFFF);
-const Color kScaffold = Color(0xFFF5F7F2);
+import '../../core/app_colors.dart';
 
 class PembayaranDetailPage extends StatefulWidget {
   const PembayaranDetailPage({super.key});

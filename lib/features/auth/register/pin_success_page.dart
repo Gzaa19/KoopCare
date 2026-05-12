@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'register_success_page.dart'; // for kPrimary + shared widgets
+import 'register_success_page.dart';
+import '../../../core/app_colors.dart';
 
 class PinSuccessPage extends StatelessWidget {
   const PinSuccessPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Color primary = const Color(0xFF6B7F3F);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -34,13 +34,13 @@ class PinSuccessPage extends StatelessWidget {
                     child: Icon(
                       Icons.description_outlined,
                       size: 70,
-                      color: primary,
+                      color: kPrimary,
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: primary,
+                      color: kPrimary,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.check, color: Colors.white),

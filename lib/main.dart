@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'features/auth/login/login_page.dart';
-import 'features/home/beranda_page.dart';
+import 'core/app_colors.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

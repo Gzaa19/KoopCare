@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'pin_success_page.dart';
+import '../../../core/app_colors.dart';
 
 class CreatePinPage extends StatefulWidget {
   const CreatePinPage({super.key});
@@ -41,7 +42,7 @@ class _CreatePinPageState extends State<CreatePinPage> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF6B7F3F)),
+            borderSide: const BorderSide(color: kPrimary),
           ),
         ),
         onChanged: (value) {
@@ -97,7 +98,7 @@ class _CreatePinPageState extends State<CreatePinPage> {
                     width: 110,
                     height: 110,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6B7F3F),
+                      color: kPrimary,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: const Icon(
@@ -191,7 +192,7 @@ class _CreatePinPageState extends State<CreatePinPage> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6B7F3F),
+                      backgroundColor: kPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

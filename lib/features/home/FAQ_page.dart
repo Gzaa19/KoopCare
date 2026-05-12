@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-// ─── Colour tokens ────────────────────────────────────────────────────────────
-const Color kHijauTua = Color(0xFF4A5E2A);
-const Color kPutih    = Color(0xFFFFFFFF);
-const Color kScaffold = Color(0xFFF5F7F2);
+import '../../core/app_colors.dart';
 
 // ─── FAQ data model ───────────────────────────────────────────────────────────
 class _FaqItem {
@@ -69,19 +64,6 @@ const List<_FaqItem> kFaqData = [
   ),
 ];
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-  ));
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: FaqPage(),
-  ));
-}
-
 class FaqPage extends StatefulWidget {
   const FaqPage({super.key});
 
@@ -135,7 +117,7 @@ class _FaqPageState extends State<FaqPage> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha:0.05),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),

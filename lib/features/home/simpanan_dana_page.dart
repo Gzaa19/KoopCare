@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'beranda_page.dart';
 import '../financial/topup_page.dart';
 import '../financial/tarik_tunai_page.dart' show TransferPage;
+import '../../core/app_colors.dart';
+import '../../core/widgets/dashed_border_painter.dart';
 
 // ─── Simpanan Dana Page ───────────────────────────────────────────────────────
 class SimpananDanaPage extends StatefulWidget {
@@ -391,7 +392,7 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
         // Dashed border overlay
         Positioned.fill(
           child: CustomPaint(
-            painter: _DashedBorderPainter(
+            painter: DashedBorderPainter(
               color: const Color(0xFFB0BDA0),
               radius: 14,
               dashWidth: 6,
@@ -404,53 +405,4 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
     );
   }
 
-}
-
-// ─── Dashed Border Painter ────────────────────────────────────────────────────
-class _DashedBorderPainter extends CustomPainter {
-  final Color color;
-  final double radius;
-  final double dashWidth;
-  final double dashSpace;
-  final double strokeWidth;
-
-  const _DashedBorderPainter({
-    required this.color,
-    required this.radius,
-    required this.dashWidth,
-    required this.dashSpace,
-    required this.strokeWidth,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(strokeWidth / 2, strokeWidth / 2,
-          size.width - strokeWidth, size.height - strokeWidth),
-      Radius.circular(radius),
-    );
-
-    final path = Path()..addRRect(rrect);
-    for (final metric in path.computeMetrics()) {
-      double distance = 0;
-      while (distance < metric.length) {
-        final end = (distance + dashWidth).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(distance, end), paint);
-        distance += dashWidth + dashSpace;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedBorderPainter old) =>
-      old.color != color ||
-      old.dashWidth != dashWidth ||
-      old.dashSpace != dashSpace ||
-      old.radius != radius;
 }

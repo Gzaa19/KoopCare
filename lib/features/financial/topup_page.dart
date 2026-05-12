@@ -1,18 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../home/beranda_page.dart';
 import 'topup_success_page.dart';
-
-// ─── Bank options ─────────────────────────────────────────────────────────────
-const List<String> kBankOptions = [
-  'Bank Syariah Indonesia',
-  'BCA',
-  'Mandiri',
-  'BNI',
-  'BRI',
-  'CIMB Niaga',
-  'Danamon',
-];
+import '../../core/app_colors.dart';
+import '../../core/app_constants.dart';
 
 class TopUpPage extends StatefulWidget {
   const TopUpPage({super.key});

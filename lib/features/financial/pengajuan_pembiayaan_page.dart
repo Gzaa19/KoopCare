@@ -1,22 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../home/beranda_page.dart';
 import '../AI_scoring/ai_scoring_step1_2.dart';
-
-// ─── Produk data ──────────────────────────────────────────────────────────────
-const List<Map<String, String>> kProdukList = [
-  {'id': 'murabahah',  'label': 'Murabahah (Jual Beli)'},
-  {'id': 'mudharabah', 'label': 'Mudharabah (Bagi Hasil)'},
-  {'id': 'musyarakah', 'label': 'Musyarakah (Kemitraan Usaha)'},
-  {'id': 'ijarah',     'label': 'Ijarah (Sewa Menyewa)'},
-  {'id': 'istishna',   'label': 'Istishna (Pemesanan Barang)'},
-  {'id': 'salam',      'label': 'Salam (Pembelian Dimuka)'},
-  {'id': 'qardhul',    'label': 'Qardhul Hasan (Pinjaman Kebajikan)'},
-  {'id': 'rahn',       'label': 'Rahn (Gadai Syariah)'},
-];
-
-// ─── Tenor options ────────────────────────────────────────────────────────────
-const List<int> kTenorOptions = [6, 12, 18, 24];
+import '../../core/app_colors.dart';
+import '../../core/app_constants.dart';
+import '../../core/widgets/dashed_border_painter.dart';
 
 class PengajuanPembiayaanPage extends StatefulWidget {
   const PengajuanPembiayaanPage({super.key});
@@ -396,7 +383,7 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
         ),
         Positioned.fill(
           child: CustomPaint(
-            painter: _DashedBorderPainter(
+            painter: DashedBorderPainter(
               color: const Color(0xFFB8B8B8),
               radius: 12,
               dashWidth: 6,
@@ -480,52 +467,4 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
       ],
     );
   }
-}
-
-// ─── Dashed Border Painter ────────────────────────────────────────────────────
-class _DashedBorderPainter extends CustomPainter {
-  final Color color;
-  final double radius;
-  final double dashWidth;
-  final double dashSpace;
-  final double strokeWidth;
-
-  const _DashedBorderPainter({
-    required this.color,
-    required this.radius,
-    required this.dashWidth,
-    required this.dashSpace,
-    required this.strokeWidth,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(strokeWidth / 2, strokeWidth / 2,
-          size.width - strokeWidth, size.height - strokeWidth),
-      Radius.circular(radius),
-    );
-
-    final path = Path()..addRRect(rrect);
-    for (final metric in path.computeMetrics()) {
-      double d = 0;
-      while (d < metric.length) {
-        final end = (d + dashWidth).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(d, end), paint);
-        d += dashWidth + dashSpace;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedBorderPainter old) =>
-      old.color != color ||
-      old.dashWidth != dashWidth ||
-      old.dashSpace != dashSpace;
 }

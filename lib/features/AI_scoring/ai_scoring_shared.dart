@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-
-// ─── Colour tokens ────────────────────────────────────────────────────────────
-const Color kHijauTua = Color(0xFF4A5E2A);
-const Color kPutih    = Color(0xFFFFFFFF);
-const Color kScaffold = Color(0xFFFFFFFF);
-const Color kFieldBg  = Color(0xFFF0F0F0);
+import '../../core/app_colors.dart';
 
 // ─── Dropdown option data ─────────────────────────────────────────────────────
 const List<String> kJenisKelamin    = ['Laki-laki', 'Perempuan'];
@@ -190,7 +185,7 @@ class AiStepScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kScaffold,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [

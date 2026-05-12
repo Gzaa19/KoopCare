@@ -1,24 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:math' as math;
-
-// ─── Colour tokens ────────────────────────────────────────────────────────────
-const Color kHijauTua  = Color(0xFF4A5E2A);
-const Color kHijauMuda = Color(0xFF6B8F3E);
-const Color kPutih     = Color(0xFFFFFFFF);
-const Color kScaffold  = Color(0xFFFFFFFF);
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-  ));
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: PinVerificationPage(),
-  ));
-}
+import '../../core/app_colors.dart';
 
 class PinVerificationPage extends StatefulWidget {
   const PinVerificationPage({super.key});
@@ -480,7 +462,7 @@ class _ShieldIllustration extends StatelessWidget {
                 border: Border.all(color: kPutih, width: 2.5),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: Colors.black.withValues(alpha:0.15),
                     blurRadius: 6,
                     offset: const Offset(0, 3),
                   ),
