@@ -49,9 +49,23 @@ class _AiScoringStep3PageState extends State<AiScoringStep3Page> {
       currentStep: 3,
       totalSteps: 4,
       canNext: _canNext,
+      // Pass ALL collected data forward to ProcessingPage
       onNext: () => Navigator.push(
         context,
-        _slideRoute(const AiScoringProcessingPage()),
+        _slideRoute(AiScoringProcessingPage(
+          jenisKelamin:     widget.jenisKelamin,
+          tanggalLahir:     widget.tanggalLahir,
+          pendidikan:       widget.pendidikan,
+          statusNikah:      widget.statusNikah,
+          statusTempat:     widget.statusTempat,
+          transportasi:     widget.transportasi,
+          pekerjaan:        widget.pekerjaan,
+          sumberPenghasilan: widget.sumberPenghasilan,
+          aset:             _aset!,
+          tanggungan:       _tanggungan!,
+          pendapatan:       _pendapatan!,
+          jumlahPinjaman:   _jumlahPinjaman!,
+        )),
       ),
       fields: [
         AiDropdownField(

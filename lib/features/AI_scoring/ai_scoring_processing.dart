@@ -1,9 +1,40 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
+import 'ai_scoring_service.dart';
 
 // ─── AI Processing Page ────────────────────────────────────────────────────────
+// Receives all 12 form fields, calls Railway ML API on load,
+// then shows the real LAYAK / TIDAK_LAYAK result.
 class AiScoringProcessingPage extends StatefulWidget {
-  const AiScoringProcessingPage({super.key});
+  // All data from Steps 1–3
+  final String jenisKelamin;
+  final String tanggalLahir;
+  final String pendidikan;
+  final String statusNikah;
+  final String statusTempat;
+  final String transportasi;
+  final String pekerjaan;
+  final String sumberPenghasilan;
+  final String aset;
+  final String tanggungan;
+  final String pendapatan;
+  final String jumlahPinjaman;
+
+  const AiScoringProcessingPage({
+    super.key,
+    required this.jenisKelamin,
+    required this.tanggalLahir,
+    required this.pendidikan,
+    required this.statusNikah,
+    required this.statusTempat,
+    required this.transportasi,
+    required this.pekerjaan,
+    required this.sumberPenghasilan,
+    required this.aset,
+    required this.tanggungan,
+    required this.pendapatan,
+    required this.jumlahPinjaman,
+  });
 
   @override
   State<AiScoringProcessingPage> createState() =>
@@ -12,15 +43,17 @@ class AiScoringProcessingPage extends StatefulWidget {
 
 class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
     with TickerProviderStateMixin {
-  // Robot idle bounce animation
+
+  // ── API state ──────────────────────────────────────────────────────────────
+  AiScoringResult? _result;
+  String? _errorMessage;
+  bool _apiDone = false;
+
+  // ── Animations ─────────────────────────────────────────────────────────────
   late final AnimationController _bounceCtrl;
   late final Animation<double> _bounceAnim;
-
-  // Coin spin animation
   late final AnimationController _spinCtrl;
   late final Animation<double> _spinAnim;
-
-  // Entrance
   late final AnimationController _entranceCtrl;
   late final Animation<double> _fade;
   late final Animation<Offset> _slide;
@@ -54,8 +87,10 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
         .animate(CurvedAnimation(
             parent: _entranceCtrl, curve: Curves.easeOutCubic));
 
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _entranceCtrl.forward());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _entranceCtrl.forward();
+      _callMlApi(); // start API call immediately
+    });
   }
 
   @override
@@ -66,6 +101,90 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
     super.dispose();
   }
 
+  // ── Call ML API ────────────────────────────────────────────────────────────
+
+  Future<void> _callMlApi() async {
+    try {
+      final result = await AiScoringService.predict(
+        jenisKelamin:      widget.jenisKelamin,
+        tanggalLahir:      widget.tanggalLahir,
+        pendidikan:        widget.pendidikan,
+        statusNikah:       widget.statusNikah,
+        statusTempat:      widget.statusTempat,
+        transportasi:      widget.transportasi,
+        pekerjaan:         widget.pekerjaan,
+        sumberPenghasilan: widget.sumberPenghasilan,
+        aset:              widget.aset,
+        tanggungan:        widget.tanggungan,
+        pendapatan:        widget.pendapatan,
+        jumlahPinjaman:    widget.jumlahPinjaman,
+      );
+      if (!mounted) return;
+      setState(() {
+        _result  = result;
+        _apiDone = true;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'Gagal menghubungi sistem AI.\nSilakan coba lagi.';
+        _apiDone = true;
+      });
+    }
+  }
+
+  // ── Show result dialog ─────────────────────────────────────────────────────
+
+  void _showResult() {
+    if (_errorMessage != null) {
+      _showErrorDialog();
+      return;
+    }
+    if (_result == null) return;
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 350),
+      transitionBuilder: (_, anim, __, child) {
+        final curved =
+            CurvedAnimation(parent: anim, curve: Curves.easeOutBack);
+        return ScaleTransition(
+            scale: curved,
+            child: FadeTransition(opacity: anim, child: child));
+      },
+      pageBuilder: (ctx, _, __) => _ResultDialog(result: _result!),
+    );
+  }
+
+  void _showErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Gagal'),
+        content: Text(_errorMessage!),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() { _apiDone = false; _errorMessage = null; });
+              _callMlApi();
+            },
+            child: const Text('Coba Lagi'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Kembali'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,7 +192,7 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
       body: SafeArea(
         child: Column(
           children: [
-            // ── KoopCare header ───────────────────────────────────────────
+            // Header
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Row(
@@ -112,7 +231,7 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // ── Robot illustration ──────────────────────────
+                        // Robot
                         AnimatedBuilder(
                           animation: _bounceAnim,
                           builder: (_, child) => Transform.translate(
@@ -124,16 +243,51 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
 
                         const SizedBox(height: 40),
 
-                        // ── Processing text ─────────────────────────────
-                        const Text(
-                          'Mohon waktunya sebentar, Tim AI Kami sedang menghitung skor kelayakan kredit Anda. Proses ini membutuhkan beberapa menit.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF555555),
-                            height: 1.6,
-                          ),
+                        // Status text
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          child: _apiDone
+                              ? _errorMessage != null
+                                  ? Text(
+                                      _errorMessage!,
+                                      key: const ValueKey('error'),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.redAccent,
+                                          height: 1.6),
+                                    )
+                                  : Text(
+                                      _result!.isApproved
+                                          ? 'Analisis selesai!\nSistem AI telah mengevaluasi profil kredit Anda.'
+                                          : 'Analisis selesai.\nKami telah mengevaluasi profil kredit Anda.',
+                                      key: const ValueKey('done'),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFF555555),
+                                          height: 1.6),
+                                    )
+                              : const Text(
+                                  'Mohon waktunya sebentar, Tim AI Kami sedang menghitung skor kelayakan kredit Anda.',
+                                  key: ValueKey('loading'),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFF555555),
+                                      height: 1.6),
+                                ),
                         ),
+
+                        // Loading indicator while waiting
+                        if (!_apiDone) ...[
+                          const SizedBox(height: 20),
+                          const SizedBox(
+                            width: 28, height: 28,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.5, color: kHijauTua),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -141,7 +295,7 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
               ),
             ),
 
-            // ── Steps bar + button ────────────────────────────────────────
+            // Progress bar
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
               child: Column(
@@ -176,47 +330,28 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
               ),
             ),
 
+            // Button — disabled while loading, shows result when done
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
               child: SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () => _showResultSheet(context),
+                  onPressed: _apiDone ? _showResult : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kHijauTua,
+                    disabledBackgroundColor: const Color(0xFFB8C8A0),
                     foregroundColor: kPutih,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text(
-                    'Tunggu Sebentar',
-                    style: TextStyle(
+                  child: Text(
+                    _apiDone ? 'Lihat Hasil' : 'Menghitung...',
+                    style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-              ),
-            ),
-
-            // ── Preview result buttons (demo) ─────────────────────────────
-            Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _previewBtn(
-                    icon: Icons.check_rounded,
-                    color: kHijauTua,
-                    onTap: () => _showResultDialog(context, approved: true),
-                  ),
-                  const SizedBox(width: 16),
-                  _previewBtn(
-                    icon: Icons.close_rounded,
-                    color: Colors.redAccent,
-                    onTap: () => _showResultDialog(context, approved: false),
-                  ),
-                ],
               ),
             ),
           ],
@@ -225,7 +360,8 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
     );
   }
 
-  // ── Robot illustration ────────────────────────────────────────────────────
+  // ── Robot illustration (unchanged) ─────────────────────────────────────────
+
   Widget _buildRobotIllustration() {
     return SizedBox(
       width: 200,
@@ -233,49 +369,36 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Robot body
           Positioned(
             bottom: 0,
             child: Container(
-              width: 90,
-              height: 80,
+              width: 90, height: 80,
               decoration: BoxDecoration(
                 color: const Color(0xFFEEEEEE),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                    color: const Color(0xFFCCCCCC), width: 2),
+                border: Border.all(color: const Color(0xFFCCCCCC), width: 2),
               ),
             ),
           ),
-          // Robot head
           Positioned(
             top: 10,
             child: Container(
-              width: 80,
-              height: 70,
+              width: 80, height: 70,
               decoration: BoxDecoration(
                 color: const Color(0xFFEEEEEE),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                    color: const Color(0xFFCCCCCC), width: 2),
+                border: Border.all(color: const Color(0xFFCCCCCC), width: 2),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Eyes
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _robotEye(),
-                      const SizedBox(width: 14),
-                      _robotEye(),
-                    ],
+                    children: [_robotEye(), const SizedBox(width: 14), _robotEye()],
                   ),
                   const SizedBox(height: 8),
-                  // Mouth
                   Container(
-                    width: 30,
-                    height: 6,
+                    width: 30, height: 6,
                     decoration: BoxDecoration(
                       color: kHijauTua,
                       borderRadius: BorderRadius.circular(3),
@@ -285,50 +408,38 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
               ),
             ),
           ),
-          // Antenna
           Positioned(
             top: 0,
             child: Column(
               children: [
                 Container(
-                  width: 8,
-                  height: 8,
+                  width: 8, height: 8,
                   decoration: const BoxDecoration(
-                    color: kHijauTua,
-                    shape: BoxShape.circle,
-                  ),
+                      color: kHijauTua, shape: BoxShape.circle),
                 ),
                 Container(width: 3, height: 12, color: const Color(0xFFCCCCCC)),
               ],
             ),
           ),
-          // Arms
           Positioned(
-            bottom: 20,
-            left: 10,
-            child: _robotArm(isLeft: true),
+            bottom: 20, left: 10,
+            child: _robotArm(),
           ),
           Positioned(
-            bottom: 20,
-            right: 10,
-            child: _robotArm(isLeft: false),
+            bottom: 20, right: 10,
+            child: _robotArm(),
           ),
-          // Spinning coin
           Positioned(
-            top: 20,
-            right: 20,
+            top: 20, right: 20,
             child: AnimatedBuilder(
               animation: _spinAnim,
               builder: (_, __) => Transform(
                 alignment: Alignment.center,
                 transform: Matrix4.rotationY(_spinAnim.value * 3.14159 * 2),
                 child: Container(
-                  width: 28,
-                  height: 28,
+                  width: 28, height: 28,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFF5C542),
-                    shape: BoxShape.circle,
-                  ),
+                      color: Color(0xFFF5C542), shape: BoxShape.circle),
                   child: const Center(
                     child: Text('\$',
                         style: TextStyle(
@@ -340,10 +451,8 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
               ),
             ),
           ),
-          // Gear icon
           Positioned(
-            bottom: 10,
-            right: 16,
+            bottom: 10, right: 16,
             child: Icon(Icons.settings_outlined,
                 color: const Color(0xFF888888), size: 22),
           ),
@@ -353,8 +462,7 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
   }
 
   Widget _robotEye() => Container(
-        width: 14,
-        height: 14,
+        width: 14, height: 14,
         decoration: BoxDecoration(
           color: kHijauTua,
           shape: BoxShape.circle,
@@ -362,73 +470,38 @@ class _AiScoringProcessingPageState extends State<AiScoringProcessingPage>
         ),
       );
 
-  Widget _robotArm({required bool isLeft}) => Container(
-        width: 16,
-        height: 40,
+  Widget _robotArm() => Container(
+        width: 16, height: 40,
         decoration: BoxDecoration(
           color: const Color(0xFFDDDDDD),
           borderRadius: BorderRadius.circular(8),
-          border:
-              Border.all(color: const Color(0xFFCCCCCC), width: 1.5),
+          border: Border.all(color: const Color(0xFFCCCCCC), width: 1.5),
         ),
       );
-
-  Widget _previewBtn({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-          border: Border.all(color: color, width: 2),
-        ),
-        child: Icon(icon, color: color, size: 22),
-      ),
-    );
-  }
-
-  void _showResultSheet(BuildContext context) {
-    // In production this would poll API result;
-    // for demo, show both options
-    _showResultDialog(context, approved: true);
-  }
-
-  void _showResultDialog(BuildContext context, {required bool approved}) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black54,
-      transitionDuration: const Duration(milliseconds: 350),
-      transitionBuilder: (_, anim, __, child) {
-        final curved = CurvedAnimation(
-            parent: anim, curve: Curves.easeOutBack);
-        return ScaleTransition(
-            scale: curved,
-            child: FadeTransition(opacity: anim, child: child));
-      },
-      pageBuilder: (ctx, _, __) => _ResultDialog(approved: approved),
-    );
-  }
 }
 
-// ─── Result Dialog ────────────────────────────────────────────────────────────
+// ─── Result Dialog ─────────────────────────────────────────────────────────────
+
 class _ResultDialog extends StatelessWidget {
-  final bool approved;
-  const _ResultDialog({required this.approved});
+  final AiScoringResult result;
+  const _ResultDialog({required this.result});
 
   @override
   Widget build(BuildContext context) {
+    final approved     = result.isApproved;
+    final scoreColor   = approved ? kHijauTua : Colors.redAccent;
+    final riskLabel    = result.riskLevel == 'low'
+        ? 'Rendah'
+        : result.riskLevel == 'medium'
+            ? 'Sedang'
+            : 'Tinggi';
+    final defaultPct   = (result.probDefault * 100).toStringAsFixed(1);
+
     return Center(
       child: Material(
         color: Colors.transparent,
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.78,
+          width: MediaQuery.of(context).size.width * 0.82,
           decoration: BoxDecoration(
             color: kPutih,
             borderRadius: BorderRadius.circular(20),
@@ -437,42 +510,37 @@ class _ResultDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon circle
+              // Icon
               Container(
-                width: 64,
-                height: 64,
+                width: 64, height: 64,
                 decoration: BoxDecoration(
-                  color: approved
-                      ? kHijauTua
-                      : Colors.redAccent,
+                  color: scoreColor,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   approved ? Icons.check_rounded : Icons.close_rounded,
-                  color: kPutih,
-                  size: 36,
+                  color: kPutih, size: 36,
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
               // Title
               Text(
-                approved ? 'SELAMAT XXXX' : 'MOHON MAAF',
-                style: const TextStyle(
+                approved ? 'SELAMAT!' : 'MOHON MAAF',
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A1A),
+                  color: scoreColor,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
-              // Body text
               Text(
                 approved
-                    ? 'Pengajuan pembiayaan anda\n(RP 1.000.000) DI-SETUJUI.'
-                    : 'Pengajuan pembiayaan anda\n(RP 1.000.000) TIDAK DI-SETUJUI.',
+                    ? 'Pengajuan pembiayaan Anda\nDISETUJUI oleh sistem AI.'
+                    : 'Pengajuan pembiayaan Anda\nbelum dapat disetujui saat ini.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 13,
@@ -481,32 +549,47 @@ class _ResultDialog extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 22),
+              const SizedBox(height: 20),
 
-              // LANJUT button
-              SizedBox(
+              // Score details
+              Container(
                 width: double.infinity,
-                height: 46,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    _scoreRow('Skor AI', '${result.aiScore}/100'),
+                    const SizedBox(height: 6),
+                    _scoreRow('Risiko Gagal Bayar', '$defaultPct%'),
+                    const SizedBox(height: 6),
+                    _scoreRow('Level Risiko', riskLabel),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Button
+              SizedBox(
+                width: double.infinity, height: 46,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // close dialog
-                    // Pop back to Beranda
-                    Navigator.of(context)
-                        .popUntil((r) => r.isFirst);
+                    Navigator.of(context).pop();
+                    Navigator.of(context).popUntil((r) => r.isFirst);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kHijauTua,
                     foregroundColor: kPutih,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text(
-                    'LANJUT',
-                    style: TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  child: const Text('LANJUT',
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -515,4 +598,18 @@ class _ResultDialog extends StatelessWidget {
       ),
     );
   }
+
+  Widget _scoreRow(String label, String value) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 13, color: Color(0xFF666666))),
+          Text(value,
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A1A))),
+        ],
+      );
 }
