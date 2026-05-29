@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../AI_scoring/ai_scoring_step1_2.dart';
+import '../ai_scoring/presentation/pages/ai_scoring_step1_page.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_constants.dart';
 import '../../core/widgets/dashed_border_painter.dart';

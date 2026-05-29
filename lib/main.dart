@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'features/auth/login/login_page.dart';
-import 'features/home/main_shell.dart';
-import 'services/auth_service.dart';
-import 'core/app_colors.dart';
 
-void main() {
+import 'core/app_colors.dart';
+import 'core/di/service_locator.dart';
+import 'core/theme/app_theme.dart';
+import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/presentation/pages/login_page.dart';
+import 'features/home/main_shell.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await configureDependencies();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -23,13 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Inter',
-        scaffoldBackgroundColor: kScaffold,
-        colorScheme: ColorScheme.fromSeed(seedColor: kHijauTua),
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-      ),
+      theme: AppTheme.light(),
       home: const _AuthGate(),
     );
   }
@@ -44,7 +42,7 @@ class _AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: AuthService.isLoggedIn(),
+      future: getIt<AuthRepository>().isLoggedIn(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Scaffold(
