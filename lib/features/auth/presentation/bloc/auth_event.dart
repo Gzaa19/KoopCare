@@ -20,3 +20,14 @@ class AuthLoginRequested extends AuthEvent {
 class AuthLogoutRequested extends AuthEvent {
   const AuthLogoutRequested();
 }
+
+/// Fired on app start to restore the cached user (name + balance) from
+/// SharedPreferences without a network call.
+class AuthUserRestoreRequested extends AuthEvent {
+  const AuthUserRestoreRequested();
+}
+
+/// Fired when the home page needs fresh balance data from the backend.
+class AuthProfileRefreshRequested extends AuthEvent {
+  const AuthProfileRefreshRequested();
+}

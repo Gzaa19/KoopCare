@@ -1,12 +1,48 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/app_colors.dart';
-import 'register_success_page.dart';
+import '../../../../core/di/service_locator.dart';
+import '../../../../core/router/route_names.dart';
+import '../../domain/repositories/auth_repository.dart';
 
-/// "PIN created" interstitial. Tap anywhere to advance to the final
-/// `RegisterSuccessPage`.
-class PinSuccessPage extends StatelessWidget {
-  const PinSuccessPage({super.key});
+/// "PIN created" interstitial.
+///
+/// Jika [ktpFilePath] dan [selfieFilePath] tersedia, KYC di-submit ke BE
+/// di background segera setelah halaman ini muncul. Token sudah tersedia
+/// karena register berhasil sebelum halaman ini dibuka.
+///
+/// Tap anywhere → [RegisterSuccessPage].
+class PinSuccessPage extends StatefulWidget {
+  final String? ktpFilePath;
+  final String? selfieFilePath;
+
+  const PinSuccessPage({super.key, this.ktpFilePath, this.selfieFilePath});
+
+  @override
+  State<PinSuccessPage> createState() => _PinSuccessPageState();
+}
+
+class _PinSuccessPageState extends State<PinSuccessPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Submit KYC di background — tidak block UI, gagal pun tidak apa-apa.
+    // User bisa submit ulang dari menu profil nanti.
+    if (widget.ktpFilePath != null && widget.selfieFilePath != null) {
+      _submitKycSilently();
+    }
+  }
+
+  Future<void> _submitKycSilently() async {
+    try {
+      await getIt<AuthRepository>().submitKyc(
+        ktpFilePath: widget.ktpFilePath!,
+        selfieFilePath: widget.selfieFilePath!,
+      );
+    } catch (_) {
+      // Gagal silently — user tetap bisa lanjut, KYC bisa diulang nanti
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +50,7 @@ class PinSuccessPage extends StatelessWidget {
       backgroundColor: Colors.white,
       body: GestureDetector(
         onTap: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const RegisterSuccessPage()),
-          );
+          Navigator.pushReplacementNamed(context, RouteNames.registerDone);
         },
         child: Center(
           child: Column(

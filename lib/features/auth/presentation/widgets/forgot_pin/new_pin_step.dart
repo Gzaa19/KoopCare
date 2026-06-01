@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:koopcare/core/app_colors.dart';
 
-/// Stage 3: enter the new PIN twice (set + confirm).
 class NewPinStep extends StatelessWidget {
   final TextEditingController newPinController;
   final TextEditingController confirmPinController;
@@ -17,42 +17,119 @@ class NewPinStep extends StatelessWidget {
     return Column(
       children: [
         _PinField(label: 'PIN Baru', controller: newPinController),
-        const SizedBox(height: 16),
-        _PinField(label: 'Konfirmasi PIN Baru', controller: confirmPinController),
+        const SizedBox(height: 18),
+        _PinField(
+          label: 'Konfirmasi PIN Baru',
+          controller: confirmPinController,
+        ),
       ],
     );
   }
 }
 
-class _PinField extends StatelessWidget {
+class _PinField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
 
   const _PinField({required this.label, required this.controller});
 
   @override
+  State<_PinField> createState() => _PinFieldState();
+}
+
+class _PinFieldState extends State<_PinField> {
+  final _focusNode = FocusNode();
+  bool _isFocused = false;
+  bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      setState(() => _isFocused = _focusNode.hasFocus);
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            widget.label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: Color(0xFF1D2E14),
+            ),
+          ),
+        ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: const Color(0xFFE5E5E5),
-            borderRadius: BorderRadius.circular(12),
+            color: kPutih,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _isFocused ? kHijauTua : const Color(0xFFE8F0D8),
+              width: _isFocused ? 1.8 : 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _isFocused
+                    ? kHijauTua.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.015),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: TextField(
-            controller: controller,
-            obscureText: true,
+            controller: widget.controller,
+            focusNode: _focusNode,
+            obscureText: _obscure,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             maxLength: 6,
-            decoration: const InputDecoration(
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              color: Color(0xFF1A1A1A),
+              letterSpacing: 3,
+            ),
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               border: InputBorder.none,
               counterText: '',
-              icon: Icon(Icons.lock_outline),
+              prefixIcon: const Icon(
+                Icons.lock_outline_rounded,
+                color: kHijauTua,
+                size: 20,
+              ),
+              hintText: '••••••',
+              hintStyle: const TextStyle(
+                fontWeight: FontWeight.normal,
+                color: Color(0xFFAAAAAA),
+                fontSize: 14,
+                letterSpacing: 3,
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  color: kHijauTua,
+                  size: 20,
+                ),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              ),
             ),
           ),
         ),

@@ -20,13 +20,12 @@ class AuthState extends Equatable {
   const AuthState.loading() : this(status: AuthStatus.loading);
 
   const AuthState.authenticated(AuthUser user)
-      : this(status: AuthStatus.authenticated, user: user);
+    : this(status: AuthStatus.authenticated, user: user);
 
-  const AuthState.unauthenticated()
-      : this(status: AuthStatus.unauthenticated);
+  const AuthState.unauthenticated() : this(status: AuthStatus.unauthenticated);
 
   const AuthState.error(String message)
-      : this(status: AuthStatus.error, errorMessage: message);
+    : this(status: AuthStatus.error, errorMessage: message);
 
   @override
   List<Object?> get props => [status, user, errorMessage];

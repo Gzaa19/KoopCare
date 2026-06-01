@@ -29,7 +29,8 @@ class AiStepHeader extends StatelessWidget {
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
+              color: Color(0xFF1D2E14),
+              letterSpacing: 0.2,
             ),
           ),
         ),
@@ -60,7 +61,7 @@ class AiStepHeader extends StatelessWidget {
             value: v,
             minHeight: 6,
             color: kHijauTua,
-            backgroundColor: const Color(0xFFDDDDDD),
+            backgroundColor: const Color(0xFFE8F0D8),
             borderRadius: BorderRadius.circular(10),
           ),
         ),

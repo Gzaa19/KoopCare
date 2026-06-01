@@ -1,31 +1,29 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../../core/app_colors.dart';
-import '../../../../core/di/service_locator.dart';
+import 'package:koopcare/core/app_colors.dart';
+import 'package:koopcare/core/di/service_locator.dart';
+import 'package:koopcare/core/widgets/app_widgets.dart';
+import '../../../../core/router/route_args.dart';
+import '../../../../core/router/route_names.dart';
 import '../bloc/register/register_bloc.dart';
 import '../bloc/register/register_event.dart';
 import '../bloc/register/register_state.dart';
 import '../widgets/register/pin_input_row.dart';
-import 'pin_success_page.dart';
 
-/// Final registration step: user picks a 6-digit PIN; we hit `/register`,
-/// cache the JWT, and route to [PinSuccessPage].
-///
-/// The full registration form was assembled across the Step1/Step2 pages and
-/// arrives here via constructor parameters. This page owns the PIN inputs
-/// and dispatches a single [RegisterSubmitted] event.
 class CreatePinPage extends StatelessWidget {
   final String fullName;
   final String noWa;
   final String nik;
+  final String ktpFilePath;
+  final String selfieFilePath;
 
   const CreatePinPage({
     super.key,
     required this.fullName,
     required this.noWa,
     required this.nik,
+    required this.ktpFilePath,
+    required this.selfieFilePath,
   });
 
   @override
@@ -36,6 +34,8 @@ class CreatePinPage extends StatelessWidget {
         fullName: fullName,
         noWa: noWa,
         nik: nik,
+        ktpFilePath: ktpFilePath,
+        selfieFilePath: selfieFilePath,
       ),
     );
   }
@@ -45,11 +45,15 @@ class _CreatePinView extends StatefulWidget {
   final String fullName;
   final String noWa;
   final String nik;
+  final String ktpFilePath;
+  final String selfieFilePath;
 
   const _CreatePinView({
     required this.fullName,
     required this.noWa,
     required this.nik,
+    required this.ktpFilePath,
+    required this.selfieFilePath,
   });
 
   @override
@@ -57,10 +61,14 @@ class _CreatePinView extends StatefulWidget {
 }
 
 class _CreatePinViewState extends State<_CreatePinView> {
-  final List<TextEditingController> _pinCtrls =
-      List.generate(6, (_) => TextEditingController());
-  final List<TextEditingController> _confirmCtrls =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _pinCtrls = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
+  final List<TextEditingController> _confirmCtrls = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
 
   String? _localError;
 
@@ -89,19 +97,25 @@ class _CreatePinViewState extends State<_CreatePinView> {
     }
     setState(() => _localError = null);
 
-    context.read<RegisterBloc>().add(RegisterSubmitted(
-          fullName: widget.fullName,
-          phone: widget.noWa,
-          nik: widget.nik,
-          pin: pinValue,
-        ));
+    context.read<RegisterBloc>().add(
+          RegisterSubmitted(
+            fullName: widget.fullName,
+            phone: widget.noWa,
+            nik: widget.nik,
+            pin: pinValue,
+          ),
+        );
   }
 
   void _onStateChanged(BuildContext context, RegisterState state) {
     if (state.status == RegisterStatus.success) {
-      Navigator.pushReplacement(
+      Navigator.pushReplacementNamed(
         context,
-        MaterialPageRoute(builder: (_) => const PinSuccessPage()),
+        RouteNames.pinSuccess,
+        arguments: PinSuccessArgs(
+          ktpFilePath: widget.ktpFilePath,
+          selfieFilePath: widget.selfieFilePath,
+        ),
       );
     }
   }
@@ -109,163 +123,180 @@ class _CreatePinViewState extends State<_CreatePinView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kScaffold,
       resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: BlocConsumer<RegisterBloc, RegisterState>(
-          listenWhen: (a, b) => a.status != b.status,
-          listener: _onStateChanged,
-          builder: (context, state) {
-            final isLoading = state.status == RegisterStatus.submitting;
-            final errorText = isLoading
-                ? null
-                : (_localError ??
-                    (state.status == RegisterStatus.error
-                        ? state.errorMessage
-                        : null));
+      body: Stack(
+        children: [
+          const AmbientOrbBackground(),
+          SafeArea(
+            child: BlocConsumer<RegisterBloc, RegisterState>(
+              listenWhen: (a, b) => a.status != b.status,
+              listener: _onStateChanged,
+              builder: (context, state) {
+                final isLoading = state.status == RegisterStatus.submitting;
+                final errorText = isLoading
+                    ? null
+                    : (_localError ??
+                        (state.status == RegisterStatus.error
+                            ? state.errorMessage
+                            : null));
 
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(Icons.arrow_back),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Center(
-                      child: Container(
-                        width: 110,
-                        height: 110,
-                        decoration: BoxDecoration(
-                          color: kPrimary,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: const Icon(
-                          Icons.lock_outline,
-                          color: Colors.white,
-                          size: 50,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    const Center(
-                      child: Text(
-                        'Akun anda sudah aktif!',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Center(
-                      child: Text(
-                        'Buat 6-digit PIN Keamanan.',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    const Text(
-                      'Buat PIN',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 15),
-                    PinInputRow(controllers: _pinCtrls),
-                    const SizedBox(height: 30),
-                    const Text(
-                      'Konfirmasi PIN',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 15),
-                    PinInputRow(controllers: _confirmCtrls),
-                    if (errorText != null) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.shade200),
-                        ),
-                        child: Text(
-                          errorText,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 40),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: isLoading ? null : _onSubmit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: kPutih,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xFFE8F0D8), width: 1.2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
                                 ),
-                              )
-                            : const Text(
-                                'Simpan & Lanjut',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                              ],
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.arrow_back_rounded, color: kHijauTua),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          const Text(
+                            'Buat PIN Keamanan',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1D2E14),
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Pilih 6 digit angka untuk mengamankan akun KoopCare Anda. Jangan gunakan angka berurutan atau yang mudah ditebak.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF666666),
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Text(
+                          'Masukkan PIN Baru',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Color(0xFF1D2E14),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      PinInputRow(controllers: _pinCtrls),
+                      const SizedBox(height: 28),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Text(
+                          'Konfirmasi PIN Baru',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Color(0xFF1D2E14),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      PinInputRow(controllers: _confirmCtrls),
+                      if (errorText != null) ...[
+                        const SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEECEB),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFFCD5D2), width: 1.2),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline_rounded, color: Color(0xFFD32F2F), size: 18),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  errorText,
+                                  style: const TextStyle(
+                                    color: Color(0xFFD32F2F),
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                      ),
-                    ),
-                    if (kDebugMode) ...[
-                      const SizedBox(height: 16),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const PinSuccessPage(),
-                            ),
+                            ],
                           ),
-                          child: const Text(
-                            'Skip (debug)',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
+                        ),
+                      ],
+                      const SizedBox(height: 40),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: kHijauTua.withValues(alpha: 0.25),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : _onSubmit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kHijauTua,
+                              foregroundColor: kPutih,
+                              disabledBackgroundColor: kHijauTua.withValues(alpha: 0.5),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
                             ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Simpan & Lanjut',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 32),
                     ],
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

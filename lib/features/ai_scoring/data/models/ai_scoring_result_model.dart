@@ -1,26 +1,38 @@
 import '../../domain/entities/ai_scoring_result.dart';
 
-/// Data-layer DTO that knows how to deserialize the ML API response and
-/// project it onto the domain [AiScoringResult] entity.
+/// Data-layer DTO that deserializes the `GET /loans/:id` response body
+/// (`data` sub-object) into the domain [AiScoringResult] entity.
 class AiScoringResultModel extends AiScoringResult {
   const AiScoringResultModel({
+    required super.loanId,
     required super.recommendation,
     required super.probDefault,
     required super.riskLevel,
     required super.aiScore,
+    super.maxApprovedAmount,
   });
 
-  factory AiScoringResultModel.fromJson(Map<String, dynamic> json) {
-    final rec = _parseRecommendation(json['recommendation'] as String?);
-    final prob = (json['prob_default'] as num?)?.toDouble() ?? 0.5;
+  /// [loanId] is passed in separately (from the apply response) because the
+  /// poll endpoint's `data` object also contains it, but we already have it.
+  factory AiScoringResultModel.fromJson(
+    int loanId,
+    Map<String, dynamic> json,
+  ) {
+    final rec = _parseRecommendation(json['ai_recommendation'] as String?);
+    final prob = double.tryParse(json['prob_default']?.toString() ?? '') ?? 0.5;
     final risk = _parseRiskLevel(json['risk_level'] as String?);
-    // Mirror backend convention: LAYAK → 80, TIDAK_LAYAK → 20.
-    final score = rec == AiRecommendation.layak ? 80 : 20;
+    final score = int.tryParse(json['ai_score']?.toString() ?? '') ??
+        (rec == AiRecommendation.layak ? 80 : 20);
+    final maxAmount =
+        double.tryParse(json['max_approved_amount']?.toString() ?? '');
+
     return AiScoringResultModel(
+      loanId: loanId,
       recommendation: rec,
       probDefault: prob,
       riskLevel: risk,
       aiScore: score,
+      maxApprovedAmount: maxAmount,
     );
   }
 
@@ -29,12 +41,12 @@ class AiScoringResultModel extends AiScoringResult {
   }
 
   static AiRiskLevel _parseRiskLevel(String? raw) {
-    switch (raw) {
-      case 'low':
+    switch (raw?.toUpperCase()) {
+      case 'LOW':
         return AiRiskLevel.low;
-      case 'medium':
+      case 'MEDIUM':
         return AiRiskLevel.medium;
-      case 'high':
+      case 'HIGH':
       default:
         return AiRiskLevel.high;
     }

@@ -21,13 +21,6 @@ class DioClient {
     return dio;
   }
 
-  /// Standalone client for the ML credit-scoring service. No auth.
-  static Dio createMl() {
-    final dio = _baseDio(Env.mlApiBaseUrl);
-    dio.interceptors.add(ErrorInterceptor());
-    return dio;
-  }
-
   static Dio _baseDio(String baseUrl) {
     return Dio(
       BaseOptions(

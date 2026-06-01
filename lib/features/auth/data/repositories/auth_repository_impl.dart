@@ -32,6 +32,7 @@ class AuthRepositoryImpl implements AuthRepository {
         pin: pin,
       );
       await localDataSource.cacheToken(result.token);
+      await localDataSource.cacheUser(result.user);
       return result.user;
     });
   }
@@ -55,6 +56,7 @@ class AuthRepositoryImpl implements AuthRepository {
         monthlyIncome: monthlyIncome,
       );
       await localDataSource.cacheToken(result.token);
+      await localDataSource.cacheUser(result.user);
       return result.user;
     });
   }
@@ -76,6 +78,31 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<AuthUser?> getCachedUser() => localDataSource.readUser();
+
+  @override
+  Future<Either<Failure, AuthUser>> refreshProfile() {
+    return _guard(() async {
+      final user = await remoteDataSource.getProfile();
+      await localDataSource.cacheUser(user);
+      return user;
+    });
+  }
+
+  @override
+  Future<Either<Failure, void>> submitKyc({
+    required String ktpFilePath,
+    required String selfieFilePath,
+  }) {
+    return _guard(
+      () => remoteDataSource.submitKyc(
+        ktpFilePath: ktpFilePath,
+        selfieFilePath: selfieFilePath,
+      ),
+    );
+  }
+
+  @override
   Future<Either<Failure, void>> requestOtp(String identifier) {
     return _guard(() => remoteDataSource.requestOtp(identifier));
   }
@@ -85,10 +112,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String identifier,
     required String otp,
   }) {
-    return _guard(() => remoteDataSource.verifyOtp(
-          identifier: identifier,
-          otp: otp,
-        ));
+    return _guard(
+      () => remoteDataSource.verifyOtp(identifier: identifier, otp: otp),
+    );
   }
 
   @override
@@ -97,11 +123,13 @@ class AuthRepositoryImpl implements AuthRepository {
     required String otp,
     required String newPin,
   }) {
-    return _guard(() => remoteDataSource.resetPin(
-          identifier: identifier,
-          otp: otp,
-          newPin: newPin,
-        ));
+    return _guard(
+      () => remoteDataSource.resetPin(
+        identifier: identifier,
+        otp: otp,
+        newPin: newPin,
+      ),
+    );
   }
 
   // ── Internals ──────────────────────────────────────────────────────────

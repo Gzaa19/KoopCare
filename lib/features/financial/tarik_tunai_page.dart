@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'pin_verification.dart' show PinVerificationPage;
 import '../../core/app_colors.dart';
 import '../../core/app_constants.dart';
+import '../../core/router/route_names.dart';
 import '../../core/widgets/dashed_border_painter.dart';
 
 // ─── Withdrawable balance (would come from API in production) ─────────────────
@@ -171,26 +171,7 @@ class _TransferPageState extends State<TransferPage>
                 height: 52,
                 child: ElevatedButton(
                   onPressed: (_canSubmit && !_exceedsBalance)
-                      ? () => Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              transitionDuration:
-                                  const Duration(milliseconds: 350),
-                              pageBuilder: (ctx, a1, a2) =>
-                                  const PinVerificationPage(),
-                              transitionsBuilder: (ctx, anim, a1, child) =>
-                                  SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: const Offset(1, 0),
-                                      end: Offset.zero,
-                                    ).animate(CurvedAnimation(
-                                      parent: anim,
-                                      curve: Curves.easeOutCubic,
-                                    )),
-                                    child: child,
-                                  ),
-                            ),
-                          )
+                      ? () => Navigator.pushNamed(context, RouteNames.pinVerify)
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kHijauTua,

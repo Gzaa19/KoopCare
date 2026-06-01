@@ -1,42 +1,57 @@
 import 'package:equatable/equatable.dart';
 
-/// All 12 fields collected across the AI scoring multi-step UI.
+/// All fields collected across the AI scoring multi-step UI plus the loan
+/// parameters carried forward from [PengajuanPembiayaanPage].
 ///
-/// Values are the **Indonesian display labels** the user picked from
-/// dropdowns (e.g. `'Laki-laki'`, `'Rp 1–3 juta'`). Mapping to the ML API
-/// contract happens in the data layer — domain stays free of API details.
+/// The 11 profile fields (Indonesian display labels) are mapped to the
+/// BE profile endpoint in the data layer. [sumberPenghasilan] and [aset]
+/// are intentionally omitted — BE hardcodes `name_income_type='Working'`
+/// and derives collateral from `own_car`/`own_realty`.
+///
+/// [loanAmount], [loanTenor], [loanPurpose], [loanType] come from the
+/// Pengajuan page and are sent to `POST /loans/apply`.
 class AiScoringInput extends Equatable {
-  // Step 1 — identitas
+  // ── Step 1 — identitas ──────────────────────────────────────────────
   final String jenisKelamin;
   final String tanggalLahir;
   final String pendidikan;
   final String statusNikah;
 
-  // Step 2 — keseharian
-  final String statusTempat;
-  final String transportasi;
-  final String pekerjaan;
+  // ── Step 2 — keseharian ─────────────────────────────────────────────
+  final String punyaProperti;
+  final String punyaKendaraan;
   final String sumberPenghasilan;
+  final String pekerjaan;
+  final String lamaBekerja;
+  final String lamaNomorHp;
 
-  // Step 3 — finansial
-  final String aset;
+  // ── Step 3 — finansial (3 fields; jumlahPinjaman removed) ───────────
   final String tanggungan;
   final String pendapatan;
-  final String jumlahPinjaman;
+
+  // ── Loan params from PengajuanPembiayaanPage ────────────────────────
+  final double loanAmount;
+  final int loanTenor;
+  final String loanPurpose;
+  final String loanType; // 'MURABAHAH' | 'QARDHUL_HASAN'
 
   const AiScoringInput({
     required this.jenisKelamin,
     required this.tanggalLahir,
     required this.pendidikan,
     required this.statusNikah,
-    required this.statusTempat,
-    required this.transportasi,
-    required this.pekerjaan,
+    required this.punyaProperti,
+    required this.punyaKendaraan,
     required this.sumberPenghasilan,
-    required this.aset,
+    required this.pekerjaan,
+    required this.lamaBekerja,
+    required this.lamaNomorHp,
     required this.tanggungan,
     required this.pendapatan,
-    required this.jumlahPinjaman,
+    required this.loanAmount,
+    required this.loanTenor,
+    required this.loanPurpose,
+    required this.loanType,
   });
 
   @override
@@ -45,13 +60,17 @@ class AiScoringInput extends Equatable {
         tanggalLahir,
         pendidikan,
         statusNikah,
-        statusTempat,
-        transportasi,
-        pekerjaan,
+        punyaProperti,
+        punyaKendaraan,
         sumberPenghasilan,
-        aset,
+        pekerjaan,
+        lamaBekerja,
+        lamaNomorHp,
         tanggungan,
         pendapatan,
-        jumlahPinjaman,
+        loanAmount,
+        loanTenor,
+        loanPurpose,
+        loanType,
       ];
 }

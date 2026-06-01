@@ -1,66 +1,71 @@
 import '../../domain/entities/ai_scoring_input.dart';
 
 /// Translates the Indonesian dropdown labels collected by the UI into the
-/// exact field values expected by the ML API.
+/// exact field values expected by `PUT /api/v1/mobile/profile`.
 ///
-/// Lives in the data layer because it only exists to bridge UI ↔ API
-/// contract — the domain entities stay free of those magic strings.
+/// Lives in the data layer — domain entities stay free of API details.
+///
+/// Fields intentionally omitted:
+/// - `sumberPenghasilan` / `aset` — BE hardcodes `name_income_type='Working'`
+///   and derives collateral from `own_car`/`own_realty`. No column in DB.
 class AiScoringFieldMapper {
   const AiScoringFieldMapper();
 
-  Map<String, dynamic> toMlPayload(AiScoringInput input) {
-    final income = _income(input.pendapatan);
-    final loanAmount = _loanAmount(input.jumlahPinjaman);
-    final children = _children(input.tanggungan);
-    const tenor = 12; // default tenor in months
-    final annuity = loanAmount / tenor;
-    final famMembers = children + 1; // children + self
-
+  /// Returns the body for `PUT /api/v1/mobile/profile`.
+  Map<String, dynamic> toProfilePayload(AiScoringInput input) {
     return {
-      'tenure_months': 1,
-      'monthly_income': income,
-      'loan_amount': loanAmount,
-      'loan_purpose': 'others',
-      'existing_loan_balance': 0,
-      'has_collateral': _hasCollateral(input.aset),
       'code_gender': _gender(input.jenisKelamin),
-      'name_income_type': _incomeType(input.sumberPenghasilan),
-      'name_education_type': _education(input.pendidikan),
-      'name_family_status': _familyStatus(input.statusNikah),
-      'occupation_type': _occupation(input.pekerjaan),
-      'flag_own_car': _ownCar(input.transportasi),
-      'flag_own_realty': _ownRealty(input.statusTempat),
-      'cnt_children': children,
-      'cnt_fam_members': famMembers,
-      'amt_income_total': income,
-      'amt_credit': loanAmount,
-      'amt_annuity': annuity,
-      'amt_goods_price': loanAmount,
-      'days_birth': _daysBirth(input.tanggalLahir),
-      'days_employed': -1825, // default ~5 years
-      'days_last_phone_change': -180,
+      'birth_date': _birthDate(input.tanggalLahir),
+      'education': _education(input.pendidikan),
+      'family_status': _familyStatus(input.statusNikah),
+      'income_type': _incomeType(input.sumberPenghasilan),
+      'own_realty': _ownRealty(input.punyaProperti),
+      'own_car': _ownCar(input.punyaKendaraan),
+      'occupation': _occupation(input.pekerjaan),
+      'children_count': _children(input.tanggungan),
+      'family_members': _children(input.tanggungan) + 1, // children + self
+      'monthly_income': _income(input.pendapatan),
+      'employed_days': _employedDays(input.lamaBekerja),
+      'last_phone_change_days': _lastPhoneChange(input.lamaNomorHp),
     };
   }
 
-  // ── Field-level mappers ────────────────────────────────────────────────
-
-  int _daysBirth(String tanggalLahir) {
-    switch (tanggalLahir) {
-      case '< 25 tahun':
-        return -8000; // ~22 years
-      case '25–35 tahun':
-        return -10950; // ~30 years
-      case '36–45 tahun':
-        return -14600; // ~40 years
-      case '> 45 tahun':
-        return -18250; // ~50 years
-      default:
-        return -10950;
-    }
+  /// Returns the body for `POST /api/v1/mobile/loans/apply`.
+  Map<String, dynamic> toLoanPayload(AiScoringInput input) {
+    return {
+      'amount': input.loanAmount,
+      'tenor': input.loanTenor,
+      'purpose': input.loanPurpose,
+      'type': input.loanType,
+    };
   }
+
+  // ── Profile field mappers ──────────────────────────────────────────────
 
   String _gender(String jenisKelamin) =>
       jenisKelamin == 'Laki-laki' ? 'M' : 'F';
+
+  /// Converts an age-range label to an approximate ISO-8601 birth date.
+  String _birthDate(String tanggalLahir) {
+    final now = DateTime.now();
+    final int approxAge;
+    switch (tanggalLahir) {
+      case '< 25 tahun':
+        approxAge = 22;
+      case '25–35 tahun':
+        approxAge = 30;
+      case '36–45 tahun':
+        approxAge = 40;
+      case '> 45 tahun':
+        approxAge = 50;
+      default:
+        approxAge = 30;
+    }
+    final birth = DateTime(now.year - approxAge, now.month, now.day);
+    return '${birth.year.toString().padLeft(4, '0')}'
+        '-${birth.month.toString().padLeft(2, '0')}'
+        '-${birth.day.toString().padLeft(2, '0')}';
+  }
 
   String _education(String pendidikan) {
     switch (pendidikan) {
@@ -93,39 +98,61 @@ class AiScoringFieldMapper {
     }
   }
 
-  String _ownRealty(String statusTempat) =>
-      statusTempat == 'Milik Pribadi' ? 'Y' : 'N';
-
-  String _ownCar(String transportasi) =>
-      (transportasi == 'Mobil' || transportasi == 'Motor & Mobil') ? 'Y' : 'N';
-
-  String _occupation(String pekerjaan) {
-    switch (pekerjaan) {
-      case 'PNS':
-        return 'Core staff';
-      case 'Swasta':
-        return 'Laborers';
-      case 'Wiraswasta':
-        return 'Sales staff';
-      case 'Freelance':
-      case 'Tidak Bekerja':
-        return 'Low-skill Laborers';
-      default:
-        return 'Laborers';
-    }
-  }
-
-  String _incomeType(String sumberPenghasilan) {
-    switch (sumberPenghasilan) {
-      case 'Gaji':
-      case 'Lainnya':
+  String _incomeType(String sumber) {
+    switch (sumber) {
+      case 'Karyawan (Working)':
         return 'Working';
-      case 'Usaha':
+      case 'Pengusaha / Wiraswasta (Commercial Associate)':
         return 'Commercial associate';
-      case 'Investasi':
+      case 'Ibu Rumah Tangga (State Servant)':
+        return 'State servant';
+      case 'Pensiunan (Pensioner)':
         return 'Pensioner';
       default:
         return 'Working';
+    }
+  }
+
+  bool _ownRealty(String punyaProperti) => punyaProperti == 'Ya';
+
+  bool _ownCar(String punyaKendaraan) => punyaKendaraan == 'Ya';
+
+  String _occupation(String pekerjaan) {
+    switch (pekerjaan) {
+      case 'Buruh (Laborers)':
+        return 'Laborers';
+      case 'Staf Inti (Core Staff)':
+        return 'Core staff';
+      case 'Staf Penjualan (Sales Staff)':
+        return 'Sales staff';
+      case 'Manajer (Managers)':
+        return 'Managers';
+      case 'Driver':
+        return 'Drivers';
+      case 'Staf Akuntansi (Accountants)':
+        return 'Accountants';
+      case 'Petugas Medis (Medicine Staff)':
+        return 'Medicine staff';
+      case 'Staf Keamanan (Security Staff)':
+        return 'Security staff';
+      case 'Pekerja Masak (Cooking Staff)':
+        return 'Cooking staff';
+      case 'Pekerja Kebersihan (Cleaning Staff)':
+        return 'Cleaning staff';
+      case 'Agen Properti (Realty Agents)':
+        return 'Realty agents';
+      case 'Pekerja HR (HR Staff)':
+        return 'HR staff';
+      case 'IT Staff':
+        return 'IT staff';
+      case 'Sekretaris (Secretaries)':
+        return 'Secretaries';
+      case 'Penjaga (Waiters/Barmen Staff)':
+        return 'Waiters/barmen staff';
+      case 'Pekerja Swasta Rendah (Low-skill Laborers)':
+        return 'Low-skill Laborers';
+      default:
+        return 'Laborers';
     }
   }
 
@@ -151,23 +178,33 @@ class AiScoringFieldMapper {
     }
   }
 
-  double _loanAmount(String jumlahPinjaman) {
-    switch (jumlahPinjaman) {
-      case 'Rp 500.000':
-        return 500000;
-      case 'Rp 1.000.000':
-        return 1000000;
-      case 'Rp 3.000.000':
-        return 3000000;
-      case 'Rp 5.000.000':
-        return 5000000;
-      case 'Rp 10.000.000':
-        return 10000000;
+  int _employedDays(String lamaBekerja) {
+    switch (lamaBekerja) {
+      case '< 1 tahun':
+        return -180; // 6 months
+      case '1–3 tahun':
+        return -730; // 2 years
+      case '3–5 tahun':
+        return -1460; // 4 years
+      case '> 5 tahun':
+        return -2190; // 6 years
       default:
-        return 1000000;
+        return -1825; // 5 years
     }
   }
 
-  int _hasCollateral(String aset) =>
-      (aset == 'Tanah' || aset == 'Kendaraan') ? 1 : 0;
+  int _lastPhoneChange(String lamaNomorHp) {
+    switch (lamaNomorHp) {
+      case '< 6 bulan':
+        return -90; // 3 months
+      case '6–12 bulan':
+        return -270; // 9 months
+      case '1–2 tahun':
+        return -540; // 1.5 years
+      case '> 2 tahun':
+        return -1095; // 3 years
+      default:
+        return -180; // 6 months
+    }
+  }
 }

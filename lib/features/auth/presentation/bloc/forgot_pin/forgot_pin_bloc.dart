@@ -20,16 +20,14 @@ class ForgotPinBloc extends Bloc<ForgotPinEvent, ForgotPinState> {
     required RequestOtpUseCase requestOtpUseCase,
     required VerifyOtpUseCase verifyOtpUseCase,
     required ResetPinUseCase resetPinUseCase,
-  })  : _requestOtpUseCase = requestOtpUseCase,
-        _verifyOtpUseCase = verifyOtpUseCase,
-        _resetPinUseCase = resetPinUseCase,
-        super(const ForgotPinState.initial()) {
+  }) : _requestOtpUseCase = requestOtpUseCase,
+       _verifyOtpUseCase = verifyOtpUseCase,
+       _resetPinUseCase = resetPinUseCase,
+       super(const ForgotPinState.initial()) {
     on<ForgotPinOtpRequested>(_onOtpRequested);
     on<ForgotPinOtpVerified>(_onOtpVerified);
     on<ForgotPinReset>(_onReset);
-    on<ForgotPinResetState>(
-      (_, emit) => emit(const ForgotPinState.initial()),
-    );
+    on<ForgotPinResetState>((_, emit) => emit(const ForgotPinState.initial()));
   }
 
   Future<void> _onOtpRequested(

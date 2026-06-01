@@ -8,21 +8,37 @@ class AuthUserModel extends AuthUser {
     required super.name,
     required super.phone,
     super.email,
+    super.balance,
   });
 
+  /// Parses from the `user` object inside login/register responses.
+  /// Balance is not included in those responses — it comes from GET /profile.
   factory AuthUserModel.fromJson(Map<String, dynamic> json) {
     return AuthUserModel(
       id: json['id'] as int,
       name: json['name'] as String,
       phone: json['phone'] as String,
       email: json['email'] as String?,
+      balance: (json['balance'] as num?)?.toDouble() ?? 0,
+    );
+  }
+
+  /// Parses from the `data` object inside GET /profile response.
+  factory AuthUserModel.fromProfileJson(Map<String, dynamic> json) {
+    return AuthUserModel(
+      id: json['id'] as int,
+      name: json['full_name'] as String,
+      phone: json['phone'] as String,
+      email: json['email'] as String?,
+      balance: (json['balance'] as num?)?.toDouble() ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'phone': phone,
-        if (email != null) 'email': email,
-      };
+    'id': id,
+    'name': name,
+    'phone': phone,
+    if (email != null) 'email': email,
+    'balance': balance,
+  };
 }

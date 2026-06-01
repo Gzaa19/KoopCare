@@ -1,23 +1,16 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../../core/app_colors.dart';
-import '../../../../core/di/service_locator.dart';
+import 'package:koopcare/core/app_colors.dart';
+import 'package:koopcare/core/di/service_locator.dart';
+import 'package:koopcare/core/widgets/app_widgets.dart';
 import '../bloc/forgot_pin/forgot_pin_bloc.dart';
 import '../bloc/forgot_pin/forgot_pin_event.dart';
 import '../bloc/forgot_pin/forgot_pin_state.dart';
 import '../widgets/forgot_pin/identifier_step.dart';
-import '../widgets/forgot_pin/new_pin_step.dart';
 import '../widgets/forgot_pin/otp_step.dart';
+import '../widgets/forgot_pin/new_pin_step.dart';
 
-/// Forgot-PIN flow: identifier → OTP → new PIN → completed.
-///
-/// Backend interactions live in [ForgotPinBloc]. This page only owns:
-///   - Form input controllers (text fields)
-///   - The OTP resend countdown (UI affordance, not a business state)
-///   - Navigation/snackbar reactions to bloc state transitions
 class ForgotPinPage extends StatelessWidget {
   const ForgotPinPage({super.key});
 
@@ -37,18 +30,48 @@ class _ForgotPinView extends StatefulWidget {
   State<_ForgotPinView> createState() => _ForgotPinViewState();
 }
 
-class _ForgotPinViewState extends State<_ForgotPinView> {
+class _ForgotPinViewState extends State<_ForgotPinView> with SingleTickerProviderStateMixin {
   static const int _resendSeconds = 59;
 
   final _identifierCtrl = TextEditingController();
-  final List<TextEditingController> _otpCtrls =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _otpCtrls = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final _newPinCtrl = TextEditingController();
   final _confirmPinCtrl = TextEditingController();
 
   Timer? _countdownTimer;
   int _countdown = _resendSeconds;
   String? _localError;
+
+  late final AnimationController _entranceCtrl;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _entranceCtrl, curve: Curves.easeOut),
+    );
+
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.15),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _entranceCtrl, curve: Curves.easeOutCubic),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _entranceCtrl.forward();
+    });
+  }
 
   @override
   void dispose() {
@@ -59,12 +82,11 @@ class _ForgotPinViewState extends State<_ForgotPinView> {
     }
     _newPinCtrl.dispose();
     _confirmPinCtrl.dispose();
+    _entranceCtrl.dispose();
     super.dispose();
   }
 
   String get _otpValue => _otpCtrls.map((c) => c.text).join();
-
-  // ── Submit handlers ────────────────────────────────────────────────────
 
   void _onPrimaryAction(ForgotPinStage stage) {
     final bloc = context.read<ForgotPinBloc>();
@@ -84,10 +106,12 @@ class _ForgotPinViewState extends State<_ForgotPinView> {
           return;
         }
         setState(() => _localError = null);
-        bloc.add(ForgotPinOtpVerified(
-          identifier: _identifierCtrl.text.trim(),
-          otp: _otpValue,
-        ));
+        bloc.add(
+          ForgotPinOtpVerified(
+            identifier: _identifierCtrl.text.trim(),
+            otp: _otpValue,
+          ),
+        );
 
       case ForgotPinStage.enterNewPin:
         final newPin = _newPinCtrl.text.trim();
@@ -100,29 +124,34 @@ class _ForgotPinViewState extends State<_ForgotPinView> {
           return;
         }
         setState(() => _localError = null);
-        bloc.add(ForgotPinReset(
-          identifier: _identifierCtrl.text.trim(),
-          otp: _otpValue,
-          newPin: newPin,
-        ));
+        bloc.add(
+          ForgotPinReset(
+            identifier: _identifierCtrl.text.trim(),
+            otp: _otpValue,
+            newPin: newPin,
+          ),
+        );
 
       case ForgotPinStage.completed:
-        // Handled by listener — no submit at this stage.
         break;
     }
   }
 
-  // ── Listener: react to stage transitions ───────────────────────────────
-
   void _onStateChanged(BuildContext context, ForgotPinState state) {
-    if (state.stage == ForgotPinStage.enterOtp && state.status == ForgotPinStatus.idle) {
-      // Just transitioned into OTP stage → start the resend countdown.
+    if (state.stage == ForgotPinStage.enterOtp &&
+        state.status == ForgotPinStatus.idle) {
       _startCountdown();
     }
     if (state.stage == ForgotPinStage.completed) {
       Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PIN berhasil direset. Silakan masuk.')),
+        SnackBar(
+          content: const Text('PIN berhasil direset. Silakan masuk.'),
+          backgroundColor: kHijauTua,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       );
     }
   }
@@ -149,12 +178,10 @@ class _ForgotPinViewState extends State<_ForgotPinView> {
         );
   }
 
-  // ── UI helpers ─────────────────────────────────────────────────────────
-
   String _titleFor(ForgotPinStage stage) {
     switch (stage) {
       case ForgotPinStage.enterIdentifier:
-        return 'Lupa PIN';
+        return 'Lupa PIN Koperasi';
       case ForgotPinStage.enterOtp:
         return 'Verifikasi OTP';
       case ForgotPinStage.enterNewPin:
@@ -166,163 +193,223 @@ class _ForgotPinViewState extends State<_ForgotPinView> {
   String _subtitleFor(ForgotPinStage stage) {
     switch (stage) {
       case ForgotPinStage.enterIdentifier:
-        return 'Masukkan nomor WhatsApp terdaftar';
+        return 'Masukkan nomor WhatsApp terdaftar Anda untuk mengirim kode OTP';
       case ForgotPinStage.enterOtp:
-        return 'Kode OTP telah dikirim ke WhatsApp Anda';
+        return 'Kode verifikasi OTP telah dikirim melalui WhatsApp terdaftar Anda';
       case ForgotPinStage.enterNewPin:
       case ForgotPinStage.completed:
-        return 'Masukkan PIN baru 6 digit';
+        return 'Buat 6 digit PIN keamanan baru untuk transaksi syariah Anda';
     }
   }
 
   String _buttonLabelFor(ForgotPinStage stage) {
     switch (stage) {
       case ForgotPinStage.enterIdentifier:
-        return 'KIRIM OTP';
+        return 'Kirim Kode OTP';
       case ForgotPinStage.enterOtp:
-        return 'VERIFIKASI';
+        return 'Verifikasi & Lanjut';
       case ForgotPinStage.enterNewPin:
       case ForgotPinStage.completed:
-        return 'SIMPAN PIN';
+        return 'Simpan PIN Baru';
     }
   }
-
-  // ── Build ──────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: BlocConsumer<ForgotPinBloc, ForgotPinState>(
-          listenWhen: (a, b) => a.stage != b.stage,
-          listener: _onStateChanged,
-          builder: (context, state) {
-            final stage = state.stage;
-            final isLoading = state.status == ForgotPinStatus.loading;
-            final errorText = isLoading
-                ? null
-                : (_localError ??
-                    (state.status == ForgotPinStatus.error
-                        ? state.errorMessage
-                        : null));
+      backgroundColor: kScaffold,
+      resizeToAvoidBottomInset: true,
+      body: Stack(
+        children: [
+          const AmbientOrbBackground(),
+          SafeArea(
+            child: BlocConsumer<ForgotPinBloc, ForgotPinState>(
+              listenWhen: (a, b) => a.stage != b.stage,
+              listener: _onStateChanged,
+              builder: (context, state) {
+                final stage = state.stage;
+                final isLoading = state.status == ForgotPinStatus.loading;
+                final errorText = isLoading
+                    ? null
+                    : (_localError ??
+                        (state.status == ForgotPinStatus.error
+                            ? state.errorMessage
+                            : null));
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-
-                  Container(
-                    width: 110,
-                    height: 110,
-                    decoration: BoxDecoration(
-                      color: kPrimary,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: const Icon(
-                      Icons.lock_reset,
-                      color: Colors.white,
-                      size: 50,
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  Text(
-                    _titleFor(stage),
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Text(
-                    _subtitleFor(stage),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  if (stage == ForgotPinStage.enterIdentifier)
-                    IdentifierStep(controller: _identifierCtrl),
-                  if (stage == ForgotPinStage.enterOtp)
-                    OtpStep(
-                      controllers: _otpCtrls,
-                      countdown: _countdown,
-                      onResend: _resendOtp,
-                    ),
-                  if (stage == ForgotPinStage.enterNewPin ||
-                      stage == ForgotPinStage.completed)
-                    NewPinStep(
-                      newPinController: _newPinCtrl,
-                      confirmPinController: _confirmPinCtrl,
-                    ),
-
-                  if (errorText != null) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.shade200),
-                      ),
-                      child: Text(
-                        errorText,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 30),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed:
-                          isLoading ? null : () => _onPrimaryAction(stage),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 4,
-                      ),
-                      child: isLoading
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
+                return FadeTransition(
+                  opacity: _fadeAnim,
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: kPutih,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: const Color(0xFFE8F0D8), width: 1.2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.03),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.arrow_back_rounded, color: kHijauTua),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
                               ),
-                            )
-                          : Text(
-                              _buttonLabelFor(stage),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                              const SizedBox(width: 16),
+                               Text(
+                                _titleFor(stage),
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1D2E14),
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          Center(
+                            child: Container(
+                              width: 82,
+                              height: 82,
+                              decoration: BoxDecoration(
+                                color: kPutih,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(color: const Color(0xFFE8F0D8), width: 1.2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: kHijauTua.withValues(alpha: 0.08),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.lock_reset_rounded,
+                                color: kHijauTua,
+                                size: 42,
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            _subtitleFor(stage),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          if (stage == ForgotPinStage.enterIdentifier)
+                            IdentifierStep(controller: _identifierCtrl),
+                          if (stage == ForgotPinStage.enterOtp)
+                            OtpStep(
+                              controllers: _otpCtrls,
+                              countdown: _countdown,
+                              onResend: _resendOtp,
+                            ),
+                          if (stage == ForgotPinStage.enterNewPin ||
+                              stage == ForgotPinStage.completed)
+                            NewPinStep(
+                              newPinController: _newPinCtrl,
+                              confirmPinController: _confirmPinCtrl,
+                            ),
+                          if (errorText != null) ...[
+                            const SizedBox(height: 20),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEECEB),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFFCD5D2), width: 1.2),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.error_outline_rounded, color: Color(0xFFD32F2F), size: 18),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      errorText,
+                                      style: const TextStyle(
+                                        color: Color(0xFFD32F2F),
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 36),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: kHijauTua.withValues(alpha: 0.25),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                onPressed: isLoading ? null : () => _onPrimaryAction(stage),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: kHijauTua,
+                                  foregroundColor: kPutih,
+                                  disabledBackgroundColor: kHijauTua.withValues(alpha: 0.5),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: isLoading
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Text(
+                                        _buttonLabelFor(stage),
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
                     ),
                   ),
-
-                  const SizedBox(height: 30),
-                ],
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

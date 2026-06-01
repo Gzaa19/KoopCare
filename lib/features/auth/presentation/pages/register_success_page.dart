@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/app_colors.dart';
-import '../../../home/main_shell.dart';
+import '../../../../core/router/route_names.dart';
 
 /// Final "registration complete" screen. Button routes the user into the
 /// authenticated `MainShell`.
@@ -66,8 +66,8 @@ class RegisterSuccessPage extends StatelessWidget {
                 height: 55,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const MainShell()),
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      RouteNames.home,
                       (route) => false,
                     );
                   },

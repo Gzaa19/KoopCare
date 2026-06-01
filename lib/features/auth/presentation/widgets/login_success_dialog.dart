@@ -23,8 +23,10 @@ class LoginSuccessDialog extends StatelessWidget {
       barrierColor: Colors.black54,
       transitionDuration: const Duration(milliseconds: 300),
       transitionBuilder: (ctx, animation, _, child) {
-        final curved =
-            CurvedAnimation(parent: animation, curve: Curves.easeOutBack);
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutBack,
+        );
         return FadeTransition(
           opacity: animation,
           child: ScaleTransition(scale: curved, child: child),
@@ -84,8 +86,7 @@ class LoginSuccessDialog extends StatelessWidget {
                 ),
                 child: const Text(
                   'Lanjutkan',
-                  style:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

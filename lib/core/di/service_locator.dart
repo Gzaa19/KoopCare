@@ -21,15 +21,23 @@ import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/forgot_pin/forgot_pin_bloc.dart';
 import '../../features/auth/presentation/bloc/register/register_bloc.dart';
+import '../../features/financial/data/repositories/loan_repository.dart';
+import '../../features/financial/presentation/bloc/loan/loan_bloc.dart';
+import '../../features/notification/data/datasources/notification_remote_datasource.dart';
+import '../../features/notification/data/repositories/notification_repository_impl.dart';
+import '../../features/notification/domain/repositories/notification_repository.dart';
+import '../../features/notification/presentation/bloc/notification_bloc.dart';
+import '../../features/profile/data/datasources/profile_remote_datasource.dart';
+import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/domain/usecases/get_profile_usecase.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../network/dio_client.dart';
 import '../network/network_info.dart';
+import '../notifications/notification_service.dart';
 
 /// Global service locator. Use [getIt] anywhere a dependency is needed.
 final GetIt getIt = GetIt.instance;
-
-/// Named injection tag for the ML-API Dio instance, so we can register two
-/// distinct [Dio] singletons (auth-protected vs. ML).
-const String mlDioInstanceName = 'mlDio';
 
 /// Wires up the application's dependency graph.
 ///
@@ -41,6 +49,9 @@ Future<void> configureDependencies() async {
   await _registerCore();
   _registerAuth();
   _registerAiScoring();
+  _registerNotification();
+  _registerFinancial();
+  _registerProfile();
 }
 
 // ── Core ────────────────────────────────────────────────────────────────
@@ -50,12 +61,9 @@ Future<void> _registerCore() async {
   getIt.registerSingleton<SharedPreferences>(sharedPreferences);
   // Default Dio = koperasi backend (auth-protected).
   getIt.registerLazySingleton<Dio>(DioClient.create);
-  // Standalone Dio for the ML API — registered under a name to disambiguate.
-  getIt.registerLazySingleton<Dio>(
-    DioClient.createMl,
-    instanceName: mlDioInstanceName,
-  );
   getIt.registerLazySingleton<NetworkInfo>(() => const AlwaysOnlineNetworkInfo());
+  // Local notification service (singleton — initialized in main).
+  getIt.registerSingleton<NotificationService>(NotificationService());
 }
 
 // ── Auth feature ────────────────────────────────────────────────────────
@@ -88,7 +96,7 @@ void _registerAuth() {
 
   // BLoCs — factory so each page gets a fresh instance
   getIt.registerFactory(
-    () => AuthBloc(loginUseCase: getIt(), logoutUseCase: getIt()),
+    () => AuthBloc(loginUseCase: getIt(), logoutUseCase: getIt(), authRepository: getIt()),
   );
   getIt.registerFactory(
     () => RegisterBloc(registerUseCase: getIt()),
@@ -107,9 +115,10 @@ void _registerAuth() {
 void _registerAiScoring() {
   getIt.registerLazySingleton(() => const AiScoringFieldMapper());
 
+  // Uses the main auth-protected Dio (same BE as profile/loans endpoints).
   getIt.registerLazySingleton<AiScoringRemoteDataSource>(
     () => AiScoringRemoteDataSourceImpl(
-      getIt<Dio>(instanceName: mlDioInstanceName),
+      getIt<Dio>(),
       getIt(),
     ),
   );
@@ -124,4 +133,61 @@ void _registerAiScoring() {
   getIt.registerLazySingleton(() => PredictAiScoreUseCase(getIt()));
 
   getIt.registerFactory(() => AiScoringBloc(predictUseCase: getIt()));
+}
+
+// ── Notification feature ────────────────────────────────────────────────
+
+void _registerNotification() {
+  getIt.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(getIt()),
+  );
+
+  getIt.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(
+      remoteDataSource: getIt(),
+      networkInfo: getIt(),
+    ),
+  );
+
+  // Singleton so polling state persists across the whole app session.
+  getIt.registerLazySingleton(
+    () => NotificationBloc(
+      repository: getIt(),
+      notificationService: getIt(),
+    ),
+  );
+}
+
+// ── Financial feature ────────────────────────────────────────────────────────
+
+void _registerFinancial() {
+  getIt.registerLazySingleton<LoanRepository>(
+    () => LoanRepository(dio: getIt()),
+  );
+  getIt.registerFactory<LoanBloc>(
+    () => LoanBloc(repository: getIt()),
+  );
+}
+
+// ── Profile feature ───────────────────────────────────────────────────────
+
+void _registerProfile() {
+  // Data source — uses the main auth-protected Dio (same BE as /profile).
+  getIt.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(getIt()),
+  );
+
+  // Repository
+  getIt.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(
+      remoteDataSource: getIt(),
+      networkInfo: getIt(),
+    ),
+  );
+
+  // Use case
+  getIt.registerLazySingleton(() => GetProfileUseCase(getIt()));
+
+  // BLoC — factory so each page gets a fresh instance.
+  getIt.registerFactory(() => ProfileBloc(getProfileUseCase: getIt()));
 }

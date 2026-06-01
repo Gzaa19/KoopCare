@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'topup_success_page.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_constants.dart';
+import '../../core/router/route_names.dart';
 
 class TopUpPage extends StatefulWidget {
   const TopUpPage({super.key});
@@ -153,17 +153,9 @@ class _TopUpPageState extends State<TopUpPage>
                 child: ElevatedButton(
                   onPressed: _canSubmit
                       ? () {
-                          Navigator.push(
+                          Navigator.pushNamed(
                             context,
-                            PageRouteBuilder(
-                              transitionDuration:
-                                  const Duration(milliseconds: 350),
-                              pageBuilder: (_, __, ___) =>
-                                  const TopUpSuccessPage(),
-                              transitionsBuilder: (_, anim, __, child) =>
-                                  FadeTransition(
-                                      opacity: anim, child: child),
-                            ),
+                            RouteNames.topupSuccess,
                           );
                         }
                       : null,

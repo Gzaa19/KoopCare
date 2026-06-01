@@ -13,8 +13,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final RegisterUseCase _registerUseCase;
 
   RegisterBloc({required RegisterUseCase registerUseCase})
-      : _registerUseCase = registerUseCase,
-        super(const RegisterState.initial()) {
+    : _registerUseCase = registerUseCase,
+      super(const RegisterState.initial()) {
     on<RegisterSubmitted>(_onSubmitted);
     on<RegisterReset>((_, emit) => emit(const RegisterState.initial()));
   }

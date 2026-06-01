@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -122,30 +123,66 @@ class _AiScoringProcessingViewState extends State<_AiScoringProcessingView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: BlocBuilder<AiScoringBloc, AiScoringState>(
-          builder: (context, state) {
-            final isDone = state.status == AiScoringStatus.success ||
-                state.status == AiScoringStatus.error;
-            return Column(
-              children: [
-                _buildHeader(),
-                Expanded(
-                  child: FadeTransition(
-                    opacity: _fade,
-                    child: SlideTransition(
-                      position: _slide,
-                      child: _buildBody(state),
+      backgroundColor: kScaffold,
+      body: Stack(
+        children: [
+          // Ambient glowing orbs background
+          Positioned(
+            top: -150,
+            left: -150,
+            child: Container(
+              width: 380,
+              height: 380,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFE8F0D8).withValues(alpha: 0.75),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -150,
+            right: -150,
+            child: Container(
+              width: 380,
+              height: 380,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFDDE5C8).withValues(alpha: 0.65),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+              child: const SizedBox.shrink(),
+            ),
+          ),
+
+          SafeArea(
+            child: BlocBuilder<AiScoringBloc, AiScoringState>(
+              builder: (context, state) {
+                final isDone = state.status == AiScoringStatus.success ||
+                    state.status == AiScoringStatus.error;
+                return Column(
+                  children: [
+                    _buildHeader(),
+                    Expanded(
+                      child: FadeTransition(
+                        opacity: _fade,
+                        child: SlideTransition(
+                          position: _slide,
+                          child: _buildBody(state),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                _buildProgressBar(),
-                _buildActionButton(state, isDone),
-              ],
-            );
-          },
-        ),
+                    _buildProgressBar(),
+                    _buildActionButton(state, isDone),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -157,21 +194,29 @@ class _AiScoringProcessingViewState extends State<_AiScoringProcessingView>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 30,
-            height: 30,
-            decoration: const BoxDecoration(
-              color: Color(0xFF2C2C2C),
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            child: const Icon(Icons.home_rounded, color: kPutih, size: 16),
+            child: const Icon(Icons.home_rounded, color: kHijauTua, size: 18),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           const Text(
-            'KoopCare',
+            'KoopCare AI',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
+              color: Color(0xFF1D2E14),
+              letterSpacing: 0.2,
             ),
           ),
         ],
@@ -280,7 +325,7 @@ class _AiScoringProcessingViewState extends State<_AiScoringProcessingView>
               value: v,
               minHeight: 6,
               color: kHijauTua,
-              backgroundColor: const Color(0xFFDDDDDD),
+              backgroundColor: const Color(0xFFE8F0D8),
               borderRadius: BorderRadius.circular(10),
             ),
           ),
@@ -292,9 +337,22 @@ class _AiScoringProcessingViewState extends State<_AiScoringProcessingView>
   Widget _buildActionButton(AiScoringState state, bool isDone) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-      child: SizedBox(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
         width: double.infinity,
         height: 52,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: isDone
+              ? [
+                  BoxShadow(
+                    color: kHijauTua.withValues(alpha: 0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, 5),
+                  ),
+                ]
+              : null,
+        ),
         child: ElevatedButton(
           onPressed: isDone
               ? () {
@@ -314,7 +372,7 @@ class _AiScoringProcessingViewState extends State<_AiScoringProcessingView>
             foregroundColor: kPutih,
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
           child: Text(

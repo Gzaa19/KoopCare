@@ -21,37 +21,52 @@ class AiDropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasVal = value != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '$number. ${label.toUpperCase()}',
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF444444),
-            letterSpacing: 0.3,
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            '$number. ${label.toUpperCase()}',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1D2E14),
+              letterSpacing: 0.3,
+            ),
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          height: 48,
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 50,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-            color: kFieldBg,
-            borderRadius: BorderRadius.circular(10),
+            color: kPutih,
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: value != null
-                  ? kHijauTua.withValues(alpha: 0.5)
-                  : Colors.transparent,
-              width: 1.2,
+              color: hasVal ? kHijauTua : const Color(0xFFE8F0D8),
+              width: hasVal ? 1.8 : 1.2,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: hasVal
+                    ? kHijauTua.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.01),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
               isExpanded: true,
-              hint: const SizedBox.shrink(),
+              hint: const Text(
+                'Pilih jawaban',
+                style: TextStyle(color: Color(0xFF888888), fontSize: 13),
+              ),
               icon: const Icon(
                 Icons.keyboard_arrow_down_rounded,
                 color: Color(0xFF888888),
@@ -66,6 +81,7 @@ class AiDropdownField extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF1A1A1A),
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),

@@ -13,10 +13,7 @@ class VerifyOtpUseCase implements UseCase<void, VerifyOtpParams> {
 
   @override
   Future<Either<Failure, void>> call(VerifyOtpParams params) {
-    return repository.verifyOtp(
-      identifier: params.identifier,
-      otp: params.otp,
-    );
+    return repository.verifyOtp(identifier: params.identifier, otp: params.otp);
   }
 }
 

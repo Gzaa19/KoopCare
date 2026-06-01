@@ -102,7 +102,9 @@ class _PinVerificationPageState extends State<PinVerificationPage>
 
   void _onClear() {
     setState(() {
-      for (int i = 0; i < _pinLength; i++) _pin[i] = '';
+      for (int i = 0; i < _pinLength; i++) {
+        _pin[i] = '';
+      }
       _currentIndex = 0;
     });
   }

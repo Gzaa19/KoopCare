@@ -1,16 +1,12 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-
-import '../../../../core/app_colors.dart';
+import 'package:koopcare/core/app_colors.dart';
+import 'package:koopcare/core/widgets/app_widgets.dart';
 import '../widgets/register/animated_field.dart';
 import '../widgets/register/register_text_field.dart';
 import '../widgets/register/step_header.dart';
-import 'register_step2_page.dart';
+import '../../../../core/router/route_args.dart';
+import '../../../../core/router/route_names.dart';
 
-/// Step 1 of registration: collect name, WhatsApp number, NIK.
-///
-/// This step is a pure form — no backend calls, no BLoC. The collected
-/// values are passed forward via the [RegisterStep2Page] constructor.
 class RegisterStep1Page extends StatefulWidget {
   const RegisterStep1Page({super.key});
 
@@ -38,29 +34,34 @@ class _RegisterStep1PageState extends State<RegisterStep1Page>
       duration: const Duration(milliseconds: 700),
     );
 
-    // Staggered slide+fade for each of the 3 fields.
     _slideAnims = List.generate(3, (i) {
-      final start = i * 0.15;
+      final start = i * 0.12;
       final end = start + 0.55;
       return Tween<Offset>(
-        begin: const Offset(0, 0.3),
+        begin: const Offset(0, 0.2),
         end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _entranceCtrl,
-        curve: Interval(start, end, curve: Curves.easeOutCubic),
-      ));
+      ).animate(
+        CurvedAnimation(
+          parent: _entranceCtrl,
+          curve: Interval(start, end, curve: Curves.easeOutCubic),
+        ),
+      );
     });
 
     _fadeAnims = List.generate(3, (i) {
-      final start = i * 0.15;
+      final start = i * 0.12;
       final end = start + 0.55;
-      return Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-        parent: _entranceCtrl,
-        curve: Interval(start, end, curve: Curves.easeOut),
-      ));
+      return Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+          parent: _entranceCtrl,
+          curve: Interval(start, end, curve: Curves.easeOut),
+        ),
+      );
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _entranceCtrl.forward());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _entranceCtrl.forward(),
+    );
   }
 
   @override
@@ -76,28 +77,13 @@ class _RegisterStep1PageState extends State<RegisterStep1Page>
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
 
-    Navigator.push(
+    Navigator.pushNamed(
       context,
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 400),
-        pageBuilder: (_, _, _) => RegisterStep2Page(
-          nama: _namaCtrl.text.trim(),
-          noWa: _waCtrl.text.trim(),
-          nik: _nikCtrl.text.trim(),
-        ),
-        transitionsBuilder: (_, animation, _, child) {
-          final slide = Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-          ));
-          return SlideTransition(
-            position: slide,
-            child: FadeTransition(opacity: animation, child: child),
-          );
-        },
+      RouteNames.register2,
+      arguments: Register2Args(
+        nama: _namaCtrl.text.trim(),
+        noWa: _waCtrl.text.trim(),
+        nik: _nikCtrl.text.trim(),
       ),
     );
   }
@@ -105,130 +91,144 @@ class _RegisterStep1PageState extends State<RegisterStep1Page>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kScaffold,
       resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: kPrimary),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Center(
-                  child: Text(
-                    'KoopCare',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: kPrimary,
+      body: Stack(
+        children: [
+          const AmbientOrbBackground(),
+          SafeArea(
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: kPutih,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFFE8F0D8), width: 1.2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back_rounded, color: kHijauTua),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const Text(
+                          'Buat Akun Baru',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1D2E14),
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const StepHeader(current: 1, total: 2),
-                const SizedBox(height: 30),
-                AnimatedField(
-                  slide: _slideAnims[0],
-                  fade: _fadeAnims[0],
-                  child: RegisterTextField(
-                    label: 'NAMA LENGKAP (SESUAI KTP)',
-                    controller: _namaCtrl,
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Nama wajib diisi'
-                        : null,
-                  ),
-                ),
-                AnimatedField(
-                  slide: _slideAnims[1],
-                  fade: _fadeAnims[1],
-                  child: RegisterTextField(
-                    label: 'NOMOR WHATSAPP AKTIF',
-                    controller: _waCtrl,
-                    isNumeric: true,
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Nomor WhatsApp wajib diisi';
-                      }
-                      if (v.trim().length < 10) return 'Nomor tidak valid';
-                      return null;
-                    },
-                  ),
-                ),
-                AnimatedField(
-                  slide: _slideAnims[2],
-                  fade: _fadeAnims[2],
-                  child: RegisterTextField(
-                    label: 'NIK (NOMOR INDUK KEPENDUDUKAN)',
-                    controller: _nikCtrl,
-                    isNumeric: true,
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'NIK wajib diisi';
-                      if (v.trim().length != 16) return 'NIK harus 16 digit';
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: _onNext,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kPrimary,
-                      elevation: 4,
-                      shadowColor: Colors.black26,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                    const SizedBox(height: 24),
+                    const StepHeader(current: 1, total: 2),
+                    const SizedBox(height: 32),
+                    AnimatedField(
+                      slide: _slideAnims[0],
+                      fade: _fadeAnims[0],
+                      child: RegisterTextField(
+                        label: 'Nama Lengkap (Sesuai KTP)',
+                        controller: _namaCtrl,
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'Nama wajib diisi'
+                            : null,
                       ),
                     ),
-                    child: const Text(
-                      'BERIKUTNYA',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    AnimatedField(
+                      slide: _slideAnims[1],
+                      fade: _fadeAnims[1],
+                      child: RegisterTextField(
+                        label: 'Nomor WhatsApp Aktif',
+                        controller: _waCtrl,
+                        isNumeric: true,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'Nomor WhatsApp wajib diisi';
+                          }
+                          if (v.trim().length < 10) {
+                            return 'Nomor tidak valid';
+                          }
+                          return null;
+                        },
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                if (kDebugMode)
-                  Center(
-                    child: TextButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const RegisterStep2Page(
-                            nama: 'Debug User',
-                            noWa: '08123456789',
-                            nik: '1234567890123456',
+                    AnimatedField(
+                      slide: _slideAnims[2],
+                      fade: _fadeAnims[2],
+                      child: RegisterTextField(
+                        label: 'NIK (Nomor Induk Kependudukan)',
+                        controller: _nikCtrl,
+                        isNumeric: true,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'NIK wajib diisi';
+                          }
+                          if (v.trim().length != 16) {
+                            return 'NIK harus 16 digit';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 36),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: kHijauTua.withValues(alpha: 0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _onNext,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kHijauTua,
+                            foregroundColor: kPutih,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text(
+                            'Lanjutkan',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                      child: const Text(
-                        'Skip (debug)',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
                     ),
-                  ),
-              ],
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

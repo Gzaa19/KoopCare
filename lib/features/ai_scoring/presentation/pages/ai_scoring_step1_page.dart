@@ -2,17 +2,28 @@ import 'package:flutter/material.dart';
 
 import '../widgets/ai_dropdown_field.dart';
 import '../widgets/ai_scoring_options.dart';
-import '../widgets/ai_scoring_route.dart';
 import '../widgets/ai_step_scaffold.dart';
-import 'ai_scoring_step2_page.dart';
+import '../../../../core/router/route_args.dart';
+import '../../../../core/router/route_names.dart';
 
 /// Step 1 — fields 1–4: gender, age range, education, marital status.
 ///
-/// Pure form, no backend call. Values are passed forward via the next page's
-/// constructor — when all 12 fields are collected, the processing page will
-/// fire the prediction.
+/// Loan parameters ([loanAmount], [loanTenor], [loanPurpose], [loanType])
+/// are carried forward from [PengajuanPembiayaanPage] via constructor and
+/// propagated through each step until [AiScoringProcessingPage].
 class AiScoringStep1Page extends StatefulWidget {
-  const AiScoringStep1Page({super.key});
+  final double loanAmount;
+  final int loanTenor;
+  final String loanPurpose;
+  final String loanType;
+
+  const AiScoringStep1Page({
+    super.key,
+    required this.loanAmount,
+    required this.loanTenor,
+    required this.loanPurpose,
+    required this.loanType,
+  });
 
   @override
   State<AiScoringStep1Page> createState() => _AiScoringStep1PageState();
@@ -37,14 +48,19 @@ class _AiScoringStep1PageState extends State<AiScoringStep1Page> {
       currentStep: 1,
       totalSteps: 4,
       canNext: _canNext,
-      onNext: () => Navigator.push(
+      onNext: () => Navigator.pushNamed(
         context,
-        slideRoute(AiScoringStep2Page(
+        RouteNames.aiStep2,
+        arguments: AiStep2Args(
+          loanAmount: widget.loanAmount,
+          loanTenor: widget.loanTenor,
+          loanPurpose: widget.loanPurpose,
+          loanType: widget.loanType,
           jenisKelamin: _jenisKelamin!,
           tanggalLahir: _tanggalLahir!,
           pendidikan: _pendidikan!,
           statusNikah: _statusNikah!,
-        )),
+        ),
       ),
       fields: [
         AiDropdownField(

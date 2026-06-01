@@ -41,4 +41,18 @@ abstract class AuthRepository {
     required String otp,
     required String newPin,
   });
+
+  /// Returns the locally-cached user (name + balance) without a network call.
+  /// Returns null if no user has been cached yet.
+  Future<AuthUser?> getCachedUser();
+
+  /// Fetches the latest profile from the backend and updates the local cache.
+  Future<Either<Failure, AuthUser>> refreshProfile();
+
+  /// Submits KYC photos as multipart/form-data to `POST /kyc/submit`.
+  /// Photos are uploaded to Cloudinary via the backend.
+  Future<Either<Failure, void>> submitKyc({
+    required String ktpFilePath,
+    required String selfieFilePath,
+  });
 }

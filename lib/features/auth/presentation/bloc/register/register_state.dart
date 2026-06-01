@@ -20,10 +20,10 @@ class RegisterState extends Equatable {
   const RegisterState.submitting() : this(status: RegisterStatus.submitting);
 
   const RegisterState.success(AuthUser user)
-      : this(status: RegisterStatus.success, user: user);
+    : this(status: RegisterStatus.success, user: user);
 
   const RegisterState.error(String message)
-      : this(status: RegisterStatus.error, errorMessage: message);
+    : this(status: RegisterStatus.error, errorMessage: message);
 
   @override
   List<Object?> get props => [status, user, errorMessage];

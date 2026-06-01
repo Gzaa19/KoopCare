@@ -8,19 +8,9 @@
 class Env {
   Env._();
 
-  /// Base URL for the mobile API.
-  ///
-  /// - Android emulator → `http://10.0.2.2:3000/api/v1/mobile`
-  /// - Physical device  → `http://<lan-ip>:3000/api/v1/mobile`
-  /// - Production       → `https://api.koopcare.com/api/v1/mobile`
-  static const String apiBaseUrl = 'http://192.168.1.2:3000/api/v1/mobile';
-
-  /// Base URL for the standalone ML credit-scoring service.
-  ///
-  /// This is a separate FastAPI deployment on Railway, not part of the main
-  /// koperasi backend. No auth required.
-  static const String mlApiBaseUrl =
-      'https://koopcare-mlops-credit-scoring-api-production.up.railway.app';
+  /// Base URL for the mobile API (production — Railway deployment).
+  static const String apiBaseUrl =
+      'https://koopcare-admin-production.up.railway.app/api/v1/mobile';
 
   /// Default network timeout for HTTP requests.
   static const Duration networkTimeout = Duration(seconds: 15);

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../ai_scoring/presentation/pages/ai_scoring_step1_page.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_constants.dart';
+import '../../core/router/route_args.dart';
+import '../../core/router/route_names.dart';
+import '../../core/widgets/app_widgets.dart';
 import '../../core/widgets/dashed_border_painter.dart';
 
 class PengajuanPembiayaanPage extends StatefulWidget {
@@ -20,6 +22,12 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
   final _jumlahCtrl = TextEditingController();
   final _tujuanCtrl = TextEditingController();
   int?   _selectedTenor;
+
+  // ── Focus Nodes for Premium Border Highlights ─────────────────────────────
+  final _jumlahFocus = FocusNode();
+  final _tujuanFocus = FocusNode();
+  bool _jumlahHasFocus = false;
+  bool _tujuanHasFocus = false;
 
   // ── Staggered entrance ────────────────────────────────────────────────────
   late final AnimationController _ctrl;
@@ -43,6 +51,13 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
   @override
   void initState() {
     super.initState();
+
+    _jumlahFocus.addListener(() {
+      setState(() => _jumlahHasFocus = _jumlahFocus.hasFocus);
+    });
+    _tujuanFocus.addListener(() {
+      setState(() => _tujuanHasFocus = _tujuanFocus.hasFocus);
+    });
 
     _ctrl = AnimationController(
       vsync: this,
@@ -73,6 +88,8 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
 
   @override
   void dispose() {
+    _jumlahFocus.dispose();
+    _tujuanFocus.dispose();
     _ctrl.dispose();
     _jumlahCtrl.dispose();
     _tujuanCtrl.dispose();
@@ -98,59 +115,69 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kScaffold,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _animated(0, _buildAppBar(context)),
+      body: Stack(
+        children: [
+          const AmbientOrbBackground(),
 
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _animated(1, _buildPilihProduk()),
-                    const SizedBox(height: 22),
+          SafeArea(
+            child: Column(
+              children: [
+                _animated(0, _buildAppBar(context)),
 
-                    _animated(2,
-                      _buildInputField(
-                        label: 'Jumlah Pembiayaan (Rp)',
-                        controller: _jumlahCtrl,
-                        hint: '',
-                        isNumeric: true,
-                        prefixText: _jumlahCtrl.text.isNotEmpty ? 'Rp. ' : null,
-                      ),
-                    ),
-                    const SizedBox(height: 22),
-
-                    _animated(3,
-                      _buildInputField(
-                        label: 'Tujuan Pembiayaan',
-                        controller: _tujuanCtrl,
-                        hint: '',
-                      ),
-                    ),
-                    const SizedBox(height: 22),
-
-                    _animated(4, _buildTenorDropdown()),
-                    const SizedBox(height: 22),
-
-                    _animated(5, Column(
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildCicilanCard(),
-                        const SizedBox(height: 24),
-                        _buildSubmitButton(),
-                        const SizedBox(height: 24),
-                        _buildFooterNote(),
+                        _animated(1, _buildPilihProduk()),
+                        const SizedBox(height: 22),
+
+                        _animated(2,
+                          _buildInputField(
+                            label: 'Jumlah Pembiayaan (Rp)',
+                            controller: _jumlahCtrl,
+                            focusNode: _jumlahFocus,
+                            isFocused: _jumlahHasFocus,
+                            hint: 'Masukkan nominal pembiayaan',
+                            isNumeric: true,
+                            prefixText: _jumlahCtrl.text.isNotEmpty ? 'Rp. ' : null,
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+
+                        _animated(3,
+                          _buildInputField(
+                            label: 'Tujuan Pembiayaan',
+                            controller: _tujuanCtrl,
+                            focusNode: _tujuanFocus,
+                            isFocused: _tujuanHasFocus,
+                            hint: 'Masukkan tujuan pengajuan',
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+
+                        _animated(4, _buildTenorDropdown()),
+                        const SizedBox(height: 22),
+
+                        _animated(5, Column(
+                          children: [
+                            _buildCicilanCard(),
+                            const SizedBox(height: 28),
+                            _buildSubmitButton(),
+                            const SizedBox(height: 24),
+                            _buildFooterNote(),
+                          ],
+                        )),
                       ],
-                    )),
-                  ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -164,23 +191,31 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
           GestureDetector(
             onTap: () => Navigator.maybePop(context),
             child: Container(
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F2),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.arrow_back_ios_new_rounded,
-                  size: 16, color: Color(0xFF333333)),
+              child: const Icon(Icons.arrow_back_rounded,
+                  size: 20, color: kHijauTua),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           const Text(
-            'Pengajuan Pembiayaan Baru',
+            'Ajukan Pembiayaan',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
+              color: Color(0xFF1D2E14),
+              letterSpacing: 0.2,
             ),
           ),
         ],
@@ -190,24 +225,41 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
 
   // ── Pilih Produk ──────────────────────────────────────────────────────────
   Widget _buildPilihProduk() {
+    final hasVal = _selectedProdukId != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Pilih Produk Pembiayaan',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF333333),
+        const Padding(
+          padding: EdgeInsets.only(left: 4),
+          child: Text(
+            'Pilih Produk Pembiayaan',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: Color(0xFF1D2E14),
+            ),
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
           decoration: BoxDecoration(
             color: kPutih,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFDDDDDD), width: 1.2),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: hasVal ? kHijauTua : const Color(0xFFE8F0D8),
+              width: hasVal ? 1.8 : 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: hasVal
+                    ? kHijauTua.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -224,7 +276,9 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
                         value: p['id'],
                         child: Text(p['label']!,
                             style: const TextStyle(
-                                fontSize: 14, color: Color(0xFF1A1A1A))),
+                                fontSize: 14,
+                                color: Color(0xFF1A1A1A),
+                                fontWeight: FontWeight.w600)),
                       ))
                   .toList(),
               onChanged: (v) => setState(() => _selectedProdukId = v),
@@ -239,6 +293,8 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
   Widget _buildInputField({
     required String label,
     required TextEditingController controller,
+    required FocusNode focusNode,
+    required bool isFocused,
     String hint = '',
     bool isNumeric = false,
     String? prefixText,
@@ -246,41 +302,74 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            label,
             style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF333333))),
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: Color(0xFF1D2E14),
+            ),
+          ),
+        ),
         const SizedBox(height: 8),
-        Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 52,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: kPutih,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFDDDDDD), width: 1.2),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isFocused ? kHijauTua : const Color(0xFFE8F0D8),
+              width: isFocused ? 1.8 : 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isFocused
+                    ? kHijauTua.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
             children: [
               if (prefixText != null)
-                Text(prefixText,
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Text(
+                    prefixText,
                     style: const TextStyle(
-                        fontSize: 14, color: Color(0xFF333333))),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                  ),
+                ),
               Expanded(
                 child: TextField(
                   controller: controller,
+                  focusNode: focusNode,
                   keyboardType:
                       isNumeric ? TextInputType.number : TextInputType.text,
                   inputFormatters: isNumeric
                       ? [FilteringTextInputFormatter.digitsOnly]
                       : null,
                   style: const TextStyle(
-                      fontSize: 14, color: Color(0xFF1A1A1A)),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1A1A),
+                  ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: hint,
                     hintStyle: const TextStyle(
-                        color: Color(0xFFAAAAAA), fontSize: 14),
+                      color: Color(0xFFAAAAAA),
+                      fontSize: 14,
+                    ),
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -296,31 +385,48 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
 
   // ── Tenor dropdown ────────────────────────────────────────────────────────
   Widget _buildTenorDropdown() {
+    final hasVal = _selectedTenor != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Tenor (Bulan)',
-          style: TextStyle(
+        const Padding(
+          padding: EdgeInsets.only(left: 4),
+          child: Text(
+            'Tenor (Bulan)',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
               fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF333333)),
+              color: Color(0xFF1D2E14),
+            ),
+          ),
         ),
         const SizedBox(height: 8),
-        Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
           decoration: BoxDecoration(
             color: kPutih,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFDDDDDD), width: 1.2),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: hasVal ? kHijauTua : const Color(0xFFE8F0D8),
+              width: hasVal ? 1.8 : 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: hasVal
+                    ? kHijauTua.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<int>(
               value: _selectedTenor,
               isExpanded: true,
               hint: const Text(
-                '6 / 12 / 18 / 24',
+                'Pilih tenor pembayaran',
                 style: TextStyle(color: Color(0xFF888888), fontSize: 14),
               ),
               icon: const Icon(Icons.keyboard_arrow_down_rounded,
@@ -330,7 +436,9 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
                         value: t,
                         child: Text('$t Bulan',
                             style: const TextStyle(
-                                fontSize: 14, color: Color(0xFF1A1A1A))),
+                                fontSize: 14,
+                                color: Color(0xFF1A1A1A),
+                                fontWeight: FontWeight.w600)),
                       ))
                   .toList(),
               onChanged: (v) => setState(() => _selectedTenor = v),
@@ -349,29 +457,39 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(12),
+            color: kPutih,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Cicilan Per Bulan (Estimasi)',
-                style: TextStyle(fontSize: 12, color: Color(0xFF888888)),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF888888),
+                  letterSpacing: 0.3,
+                ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: Text(
                   _cicilanEstimasi,
                   key: ValueKey(_cicilanEstimasi),
                   style: TextStyle(
-                    fontSize: hasCicilan ? 16 : 14,
-                    fontWeight: hasCicilan
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                    fontSize: hasCicilan ? 20 : 15,
+                    fontWeight: FontWeight.bold,
                     color: hasCicilan
                         ? kHijauTua
                         : const Color(0xFF888888),
@@ -382,13 +500,17 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
           ),
         ),
         Positioned.fill(
-          child: CustomPaint(
-            painter: DashedBorderPainter(
-              color: const Color(0xFFB8B8B8),
-              radius: 12,
-              dashWidth: 6,
-              dashSpace: 4,
-              strokeWidth: 1.5,
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: DashedBorderPainter(
+                color: hasCicilan
+                    ? kHijauTua.withValues(alpha: 0.4)
+                    : const Color(0xFFDDE5C8),
+                radius: 16,
+                dashWidth: 6,
+                dashSpace: 4,
+                strokeWidth: 1.5,
+              ),
             ),
           ),
         ),
@@ -398,31 +520,41 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
 
   // ── Submit button ─────────────────────────────────────────────────────────
   Widget _buildSubmitButton() {
-    return SizedBox(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
       width: double.infinity,
       height: 52,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: _canSubmit
+            ? [
+                BoxShadow(
+                  color: kHijauTua.withValues(alpha: 0.2),
+                  blurRadius: 12,
+                  offset: const Offset(0, 5),
+                ),
+              ]
+            : null,
+      ),
       child: ElevatedButton(
         onPressed: _canSubmit
-            ? () => Navigator.push(
+            ? () {
+                final amount =
+                    double.tryParse(_jumlahCtrl.text.trim()) ?? 0;
+                final type = _selectedProdukId == 'QARDHUL_HASAN'
+                    ? 'QARDHUL_HASAN'
+                    : 'MURABAHAH';
+                Navigator.pushNamed(
                   context,
-                  PageRouteBuilder(
-                    transitionDuration: const Duration(milliseconds: 350),
-                    pageBuilder: (_, _, _) => const AiScoringStep1Page(),
-                    transitionsBuilder: (_, anim, _, child) => FadeTransition(
-                      opacity: anim,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(1, 0),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(
-                          parent: anim,
-                          curve: Curves.easeOutCubic,
-                        )),
-                        child: child,
-                      ),
-                    ),
+                  RouteNames.aiStep1,
+                  arguments: AiStep1Args(
+                    loanAmount: amount,
+                    loanTenor: _selectedTenor!,
+                    loanPurpose: _tujuanCtrl.text.trim(),
+                    loanType: type,
                   ),
-                )
+                );
+              }
             : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: kHijauTua,
@@ -430,7 +562,7 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
           foregroundColor: kPutih,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
         child: const Text(
@@ -449,18 +581,20 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
           'Proses AI Scoring akan dimulai setelah pengiriman.',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             color: Color(0xFF888888),
+            fontWeight: FontWeight.w500,
             height: 1.5,
           ),
         ),
-        SizedBox(height: 4),
+        SizedBox(height: 2),
         Text(
           'AI Scoring akan berjalan otomatis.',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             color: Color(0xFF888888),
+            fontWeight: FontWeight.w500,
             height: 1.5,
           ),
         ),

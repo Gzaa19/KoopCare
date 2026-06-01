@@ -8,7 +8,7 @@ class _FaqItem {
   const _FaqItem(this.question, this.answer);
 }
 
-const List<_FaqItem> kFaqData = [
+const List<_FaqItem> _kFaqData = [
   _FaqItem(
     'Apa itu KoopCare',
     'KoopCare adalah aplikasi digital resmi dari koperasi kami yang memudahkan '
@@ -125,11 +125,11 @@ class _FaqPageState extends State<FaqPage> {
                       ),
                       clipBehavior: Clip.hardEdge,
                       child: Column(
-                        children: List.generate(kFaqData.length, (i) {
+                        children: List.generate(_kFaqData.length, (i) {
                           return _FaqTile(
-                            item: kFaqData[i],
+                            item: _kFaqData[i],
                             isOpen: _openIndex == i,
-                            isLast: i == kFaqData.length - 1,
+                            isLast: i == _kFaqData.length - 1,
                             onTap: () => setState(() {
                               _openIndex = _openIndex == i ? null : i;
                             }),
