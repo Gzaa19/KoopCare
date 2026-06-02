@@ -8,6 +8,7 @@ class AuthUserModel extends AuthUser {
     required super.name,
     required super.phone,
     super.email,
+    required super.status,
     super.balance,
   });
 
@@ -19,6 +20,7 @@ class AuthUserModel extends AuthUser {
       name: json['name'] as String,
       phone: json['phone'] as String,
       email: json['email'] as String?,
+      status: json['status'] as String? ?? 'INACTIVE',
       balance: (json['balance'] as num?)?.toDouble() ?? 0,
     );
   }
@@ -30,6 +32,7 @@ class AuthUserModel extends AuthUser {
       name: json['full_name'] as String,
       phone: json['phone'] as String,
       email: json['email'] as String?,
+      status: json['status'] as String? ?? 'INACTIVE',
       balance: (json['balance'] as num?)?.toDouble() ?? 0,
     );
   }
@@ -39,6 +42,7 @@ class AuthUserModel extends AuthUser {
     'name': name,
     'phone': phone,
     if (email != null) 'email': email,
+    'status': status,
     'balance': balance,
   };
 }

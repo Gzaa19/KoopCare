@@ -9,6 +9,7 @@ class AuthUser extends Equatable {
   final String name;
   final String phone;
   final String? email;
+  final String status;
 
   /// Current simpanan balance in Rupiah. Defaults to 0 until a profile
   /// fetch or login response provides the real value.
@@ -19,6 +20,7 @@ class AuthUser extends Equatable {
     required this.name,
     required this.phone,
     this.email,
+    required this.status,
     this.balance = 0,
   });
 
@@ -27,6 +29,7 @@ class AuthUser extends Equatable {
     String? name,
     String? phone,
     String? email,
+    String? status,
     double? balance,
   }) {
     return AuthUser(
@@ -34,10 +37,11 @@ class AuthUser extends Equatable {
       name: name ?? this.name,
       phone: phone ?? this.phone,
       email: email ?? this.email,
+      status: status ?? this.status,
       balance: balance ?? this.balance,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, phone, email, balance];
+  List<Object?> get props => [id, name, phone, email, status, balance];
 }

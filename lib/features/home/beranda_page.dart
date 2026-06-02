@@ -147,7 +147,7 @@ class _BerandaPageState extends State<BerandaPage>
                               const SizedBox(height: 14),
                               _animated(2, _buildFinStats(user, activeLoan)),
                               const SizedBox(height: 20),
-                              _animated(3, _buildQuickActions()),
+                              _animated(3, _buildQuickActions(user)),
                               const SizedBox(height: 24),
                               _animated(4, _buildPembayaranSection(activeLoan)),
                               const SizedBox(height: 28),
@@ -653,7 +653,7 @@ class _BerandaPageState extends State<BerandaPage>
   }
 
   // ── Quick actions ─────────────────────────────────────────────────────────
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(AuthUser? user) {
     final actions = [
       {'icon': Icons.savings_outlined, 'label': 'Simpan\nDana'},
       {'icon': Icons.description_outlined, 'label': 'Ajukan\nPinjaman'},
@@ -671,10 +671,16 @@ class _BerandaPageState extends State<BerandaPage>
           label: label,
           onTap: switch (label) {
             'Simpan\nDana' => () => widget.onSwitchTab?.call(1),
-            'Ajukan\nPinjaman' => () => Navigator.pushNamed(
-              context,
-              RouteNames.pengajuan,
-            ),
+            'Ajukan\nPinjaman' => () {
+              if (user?.status != 'ACTIVE') {
+                _showAccountInactiveDialog(context);
+              } else {
+                Navigator.pushNamed(
+                  context,
+                  RouteNames.pengajuan,
+                );
+              }
+            },
             'Transfer' => () => Navigator.pushNamed(
               context,
               RouteNames.transfer,
@@ -683,6 +689,80 @@ class _BerandaPageState extends State<BerandaPage>
           },
         );
       }).toList(),
+    );
+  }
+
+  void _showAccountInactiveDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        backgroundColor: kPutih,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50.withValues(alpha: 0.8),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.lock_outline_rounded,
+                  color: Colors.orange.shade700,
+                  size: 36,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Fitur Terkunci',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1D2E14),
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Pengajuan pinjaman hanya dapat dilakukan jika akun Anda telah aktif dan diverifikasi oleh Admin.\n\nPastikan pengajuan KYC Anda sudah disetujui.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF666666),
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kHijauTua,
+                    foregroundColor: kPutih,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    'Mengerti',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
