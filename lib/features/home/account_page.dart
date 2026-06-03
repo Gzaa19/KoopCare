@@ -179,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                               ),
                               const SizedBox(height: 20),
                               _buildLogoutButton(context),
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 110),
                             ],
                           ),
                         ),

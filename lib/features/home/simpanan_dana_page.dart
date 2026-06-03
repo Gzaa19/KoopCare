@@ -13,6 +13,8 @@ import '../../core/widgets/dashed_border_painter.dart';
 import '../auth/presentation/bloc/auth_bloc.dart';
 import '../auth/presentation/bloc/auth_event.dart';
 import '../auth/presentation/bloc/auth_state.dart';
+import '../auth/domain/entities/auth_user.dart';
+import '../../core/widgets/app_widgets.dart';
 
 class SimpananDanaPage extends StatefulWidget {
   const SimpananDanaPage({super.key});
@@ -124,8 +126,8 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
                               const SizedBox(height: 28),
                               _buildSectionTitle("Aktivitas Pembiayaan Anda"),
                               const SizedBox(height: 12),
-                              _buildLoanStatusSection(activeLoan),
-                              const SizedBox(height: 32),
+                              _buildLoanStatusSection(activeLoan, user),
+                              const SizedBox(height: 110),
                             ],
                           ),
                         ),
@@ -397,9 +399,9 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
     );
   }
 
-  Widget _buildLoanStatusSection(LoanModel? loan) {
+  Widget _buildLoanStatusSection(LoanModel? loan, AuthUser? user) {
     if (loan == null) {
-      return _buildNoLoanCard();
+      return _buildNoLoanCard(user);
     }
 
     final isPending = loan.status == 'PENDING';
@@ -572,7 +574,7 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
     );
   }
 
-  Widget _buildNoLoanCard() {
+  Widget _buildNoLoanCard(AuthUser? user) {
     return Stack(
       children: [
         Container(
@@ -619,10 +621,16 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(
-                    context,
-                    RouteNames.pengajuan,
-                  ),
+                  onPressed: () {
+                    if (user?.status != 'ACTIVE') {
+                      showAccountInactiveDialog(context);
+                    } else {
+                      Navigator.pushNamed(
+                        context,
+                        RouteNames.pengajuan,
+                      );
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kHijauTua,
                     foregroundColor: kPutih,

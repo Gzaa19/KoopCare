@@ -197,3 +197,82 @@ class AppEmptyView extends StatelessWidget {
     );
   }
 }
+
+// ─── Account Inactive Dialog ──────────────────────────────────────────────────
+
+/// Displays a premium minimalist dialog informing the user that the loan feature
+/// is locked because their KYC/account is not yet approved by the admin.
+void showAccountInactiveDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      backgroundColor: kPutih,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50.withValues(alpha: 0.8),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.lock_outline_rounded,
+                color: Colors.orange.shade700,
+                size: 36,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Fitur Terkunci',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1D2E14),
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Pengajuan pinjaman hanya dapat dilakukan jika akun Anda telah aktif dan diverifikasi oleh Admin.\n\nPastikan pengajuan KYC Anda sudah disetujui.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xFF666666),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kHijauTua,
+                  foregroundColor: kPutih,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: const Text(
+                  'Mengerti',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+

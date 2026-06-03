@@ -117,6 +117,7 @@ class DetailPembiayaanPage extends StatelessWidget {
                                 ),
                               ),
                             ],
+                            const SizedBox(height: 110),
                           ],
                         ),
                       ),
