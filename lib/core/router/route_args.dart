@@ -1,4 +1,4 @@
-import 'package:koopcare/features/financial/data/models/loan_model.dart';
+import 'package:koopcare/features/loan/data/models/loan_model.dart';
 import 'package:koopcare/features/ai_scoring/domain/entities/ai_scoring_input.dart';
 
 /// Type-safe argument classes for routes that require parameters.

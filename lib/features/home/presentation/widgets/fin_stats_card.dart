@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/app_colors.dart';
-import '../../../financial/data/models/loan_model.dart';
+import '../../../loan/data/models/loan_model.dart';
 
 /// Two-column financial stats row: AI Credit Limit + Active Billing.
 class FinStatsCard extends StatelessWidget {

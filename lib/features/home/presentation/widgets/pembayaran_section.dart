@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/app_colors.dart';
 import '../../../../core/router/route_args.dart';
 import '../../../../core/router/route_names.dart';
-import '../../../financial/data/models/loan_model.dart';
+import '../../../loan/data/models/loan_model.dart';
 
 /// Section that shows the active loan / payment card.
 /// Returns [SizedBox.shrink] when there is no active loan.

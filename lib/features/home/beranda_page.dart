@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/di/service_locator.dart';
-import '../financial/data/models/loan_model.dart';
-import '../financial/presentation/bloc/loan/loan_bloc.dart';
-import '../financial/presentation/bloc/loan/loan_event.dart';
-import '../financial/presentation/bloc/loan/loan_state.dart';
+import '../loan/data/models/loan_model.dart';
+import '../loan/presentation/bloc/loan_bloc.dart';
+import '../loan/presentation/bloc/loan_event.dart';
+import '../loan/presentation/bloc/loan_state.dart';
 import '../../core/app_colors.dart';
 import '../auth/presentation/bloc/auth_bloc.dart';
 import '../auth/presentation/bloc/auth_event.dart';

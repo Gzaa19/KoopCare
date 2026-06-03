@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'beranda_page.dart';
 import '../../core/widgets/custom_bottom_nav.dart';
-import 'account_page.dart';
-import 'simpanan_dana_page.dart';
-import 'cicilan_page.dart';
+import 'package:koopcare/features/account/presentation/pages/account_page.dart';
+import 'package:koopcare/features/simpanan_dana/presentation/pages/simpanan_dana_page.dart';
+import 'package:koopcare/features/cicilan/presentation/pages/cicilan_page.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
