@@ -129,62 +129,73 @@ class _BerandaPageState extends State<BerandaPage>
                         );
                   }
 
-                  return SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 16),
-                        _animated(
-                          0,
-                          BerandaAppBar(
-                            user: user,
-                            greeting: _getGreeting(),
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      context
+                          .read<AuthBloc>()
+                          .add(const AuthProfileRefreshRequested());
+                      // also refresh loans
+                      _loanBloc.add(const FetchLoans());
+                      await Future.delayed(const Duration(milliseconds: 600));
+                    },
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          _animated(
+                            0,
+                            BerandaAppBar(
+                              user: user,
+                              greeting: _getGreeting(),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            children: [
-                              _animated(
-                                1,
-                                BalanceCard(
-                                  user: user,
-                                  balanceVisible: _balanceVisible,
-                                  onToggleVisibility: () => setState(
-                                    () => _balanceVisible = !_balanceVisible,
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Column(
+                              children: [
+                                _animated(
+                                  1,
+                                  BalanceCard(
+                                    user: user,
+                                    balanceVisible: _balanceVisible,
+                                    onToggleVisibility: () => setState(
+                                      () => _balanceVisible = !_balanceVisible,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 14),
-                              _animated(
-                                2,
-                                FinStatsCard(activeLoan: activeLoan),
-                              ),
-                              const SizedBox(height: 20),
-                              _animated(
-                                3,
-                                QuickActions(
-                                  user: user,
-                                  onSwitchTab: widget.onSwitchTab,
+                                const SizedBox(height: 14),
+                                _animated(
+                                  2,
+                                  FinStatsCard(activeLoan: activeLoan),
                                 ),
-                              ),
-                              const SizedBox(height: 24),
-                              _animated(
-                                4,
-                                PembayaranSection(
-                                  activeLoan: activeLoan,
-                                  onViewAll: () => widget.onSwitchTab?.call(2),
+                                const SizedBox(height: 20),
+                                _animated(
+                                  3,
+                                  QuickActions(
+                                    user: user,
+                                    onSwitchTab: widget.onSwitchTab,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 110),
-                            ],
+                                const SizedBox(height: 24),
+                                _animated(
+                                  4,
+                                  PembayaranSection(
+                                    activeLoan: activeLoan,
+                                    onViewAll: () =>
+                                        widget.onSwitchTab?.call(2),
+                                  ),
+                                ),
+                                const SizedBox(height: 110),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  );
+                  ); // <-- Added closing parenthesis for RefreshIndicator
                 },
               ),
             ),

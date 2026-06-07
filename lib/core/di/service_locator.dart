@@ -32,6 +32,12 @@ import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/domain/usecases/get_profile_usecase.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/wallet/data/datasources/topup_remote_datasource.dart';
+import '../../features/wallet/data/repositories/wallet_repository_impl.dart';
+import '../../features/wallet/domain/repositories/wallet_repository.dart';
+import '../../features/wallet/domain/usecases/create_topup_usecase.dart';
+import '../../features/wallet/domain/usecases/get_topup_status_usecase.dart';
+import '../../features/wallet/presentation/bloc/topup_bloc.dart';
 import '../network/dio_client.dart';
 import '../network/network_info.dart';
 import '../notifications/notification_service.dart';
@@ -52,6 +58,7 @@ Future<void> configureDependencies() async {
   _registerNotification();
   _registerFinancial();
   _registerProfile();
+  _registerWallet();
 }
 
 // ── Core ────────────────────────────────────────────────────────────────
@@ -61,7 +68,9 @@ Future<void> _registerCore() async {
   getIt.registerSingleton<SharedPreferences>(sharedPreferences);
   // Default Dio = koperasi backend (auth-protected).
   getIt.registerLazySingleton<Dio>(DioClient.create);
-  getIt.registerLazySingleton<NetworkInfo>(() => const AlwaysOnlineNetworkInfo());
+  getIt.registerLazySingleton<NetworkInfo>(
+    () => const AlwaysOnlineNetworkInfo(),
+  );
   // Local notification service (singleton — initialized in main).
   getIt.registerSingleton<NotificationService>(NotificationService());
 }
@@ -96,11 +105,13 @@ void _registerAuth() {
 
   // BLoCs — factory so each page gets a fresh instance
   getIt.registerFactory(
-    () => AuthBloc(loginUseCase: getIt(), logoutUseCase: getIt(), authRepository: getIt()),
+    () => AuthBloc(
+      loginUseCase: getIt(),
+      logoutUseCase: getIt(),
+      authRepository: getIt(),
+    ),
   );
-  getIt.registerFactory(
-    () => RegisterBloc(registerUseCase: getIt()),
-  );
+  getIt.registerFactory(() => RegisterBloc(registerUseCase: getIt()));
   getIt.registerFactory(
     () => ForgotPinBloc(
       requestOtpUseCase: getIt(),
@@ -117,10 +128,7 @@ void _registerAiScoring() {
 
   // Uses the main auth-protected Dio (same BE as profile/loans endpoints).
   getIt.registerLazySingleton<AiScoringRemoteDataSource>(
-    () => AiScoringRemoteDataSourceImpl(
-      getIt<Dio>(),
-      getIt(),
-    ),
+    () => AiScoringRemoteDataSourceImpl(getIt<Dio>(), getIt()),
   );
 
   getIt.registerLazySingleton<AiScoringRepository>(
@@ -151,10 +159,7 @@ void _registerNotification() {
 
   // Singleton so polling state persists across the whole app session.
   getIt.registerLazySingleton(
-    () => NotificationBloc(
-      repository: getIt(),
-      notificationService: getIt(),
-    ),
+    () => NotificationBloc(repository: getIt(), notificationService: getIt()),
   );
 }
 
@@ -164,9 +169,7 @@ void _registerFinancial() {
   getIt.registerLazySingleton<LoanRepository>(
     () => LoanRepository(dio: getIt()),
   );
-  getIt.registerFactory<LoanBloc>(
-    () => LoanBloc(repository: getIt()),
-  );
+  getIt.registerFactory<LoanBloc>(() => LoanBloc(repository: getIt()));
 }
 
 // ── Profile feature ───────────────────────────────────────────────────────
@@ -179,10 +182,8 @@ void _registerProfile() {
 
   // Repository
   getIt.registerLazySingleton<ProfileRepository>(
-    () => ProfileRepositoryImpl(
-      remoteDataSource: getIt(),
-      networkInfo: getIt(),
-    ),
+    () =>
+        ProfileRepositoryImpl(remoteDataSource: getIt(), networkInfo: getIt()),
   );
 
   // Use case
@@ -190,4 +191,22 @@ void _registerProfile() {
 
   // BLoC — factory so each page gets a fresh instance.
   getIt.registerFactory(() => ProfileBloc(getProfileUseCase: getIt()));
+}
+
+// ── Wallet feature ─────────────────────────────────────────────────────────
+void _registerWallet() {
+  getIt.registerLazySingleton<TopupRemoteDataSource>(
+    () => TopupRemoteDataSourceImpl(getIt()),
+  );
+
+  getIt.registerLazySingleton<WalletRepository>(
+    () => WalletRepositoryImpl(remoteDataSource: getIt(), networkInfo: getIt()),
+  );
+
+  getIt.registerLazySingleton(() => CreateTopupUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetTopupStatusUseCase(getIt()));
+
+  getIt.registerFactory(
+    () => TopupBloc(createTopup: getIt(), getStatus: getIt()),
+  );
 }

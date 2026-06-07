@@ -94,45 +94,54 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
                 }
 
                 return SafeArea(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: FadeTransition(
-                      opacity: _fadeAnim,
-                      child: SlideTransition(
-                        position: _slideAnim,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Simpanan Dana',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1D2E14),
-                                  letterSpacing: 0.2,
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      context
+                          .read<AuthBloc>()
+                          .add(const AuthProfileRefreshRequested());
+                      _loanBloc.add(const FetchLoans());
+                      await Future.delayed(const Duration(milliseconds: 600));
+                    },
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: FadeTransition(
+                        opacity: _fadeAnim,
+                        child: SlideTransition(
+                          position: _slideAnim,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'Simpanan Dana',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1D2E14),
+                                    letterSpacing: 0.2,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 20),
-                              SimpananUserRowWidget(name: name),
-                              const SizedBox(height: 20),
-                              WalletCardWidget(balance: balance),
-                              const SizedBox(height: 28),
-                              const Text(
-                                "Aktivitas Pembiayaan Anda",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1D2E14),
-                                  letterSpacing: 0.2,
+                                const SizedBox(height: 20),
+                                SimpananUserRowWidget(name: name),
+                                const SizedBox(height: 20),
+                                WalletCardWidget(balance: balance, status: user?.status),
+                                const SizedBox(height: 28),
+                                const Text(
+                                  "Aktivitas Pembiayaan Anda",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1D2E14),
+                                    letterSpacing: 0.2,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 12),
-                              LoanStatusWidget(loan: activeLoan, user: user),
-                              const SizedBox(height: 110),
-                            ],
+                                const SizedBox(height: 12),
+                                LoanStatusWidget(loan: activeLoan, user: user),
+                                const SizedBox(height: 110),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -142,8 +151,8 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
               },
             ),
           );
-        },
-      ),
+        }, // <-- Added closing brace/parenthesis
+      ), // <-- Added closing parenthesis
     );
   }
 }

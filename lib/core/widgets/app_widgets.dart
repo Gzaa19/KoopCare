@@ -238,7 +238,7 @@ void showAccountInactiveDialog(BuildContext context) {
             ),
             const SizedBox(height: 10),
             const Text(
-              'Pengajuan pinjaman hanya dapat dilakukan jika akun Anda telah aktif dan diverifikasi oleh Admin.\n\nPastikan pengajuan KYC Anda sudah disetujui.',
+              'Fitur keuangan hanya dapat digunakan jika akun Anda telah aktif dan diverifikasi oleh Admin.\n\nPastikan pengajuan KYC Anda sudah disetujui.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
@@ -274,5 +274,19 @@ void showAccountInactiveDialog(BuildContext context) {
       ),
     ),
   );
+}
+
+/// Runs [action] only if the account is verified (ACTIVE). Otherwise shows
+/// the KYC-locked dialog. Use to gate all financial features behind approval.
+void guardVerified(
+  BuildContext context, {
+  required String? status,
+  required VoidCallback action,
+}) {
+  if (status == 'ACTIVE') {
+    action();
+  } else {
+    showAccountInactiveDialog(context);
+  }
 }
 

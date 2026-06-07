@@ -37,16 +37,15 @@ class QuickActions extends StatelessWidget {
           label: label,
           onTap: switch (label) {
             'Simpan\nDana' => () => onSwitchTab?.call(1),
-            'Ajukan\nPinjaman' => () {
-                if (user?.status != 'ACTIVE') {
-                  showAccountInactiveDialog(context);
-                } else {
-                  Navigator.pushNamed(context, RouteNames.pengajuan);
-                }
-              },
-            'Transfer' => () => Navigator.pushNamed(
+            'Ajukan\nPinjaman' => () => guardVerified(
                   context,
-                  RouteNames.transfer,
+                  status: user?.status,
+                  action: () => Navigator.pushNamed(context, RouteNames.pengajuan),
+                ),
+            'Transfer' => () => guardVerified(
+                  context,
+                  status: user?.status,
+                  action: () => Navigator.pushNamed(context, RouteNames.transfer),
                 ),
             _ => null,
           },

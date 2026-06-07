@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/router/route_names.dart';
+import 'package:koopcare/core/widgets/app_widgets.dart';
 
 class WalletCardWidget extends StatefulWidget {
   final double balance;
+  final String? status;
 
   const WalletCardWidget({
     super.key,
     required this.balance,
+    this.status,
   });
 
   @override
@@ -136,9 +139,10 @@ class _WalletCardWidgetState extends State<WalletCardWidget> {
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => Navigator.pushNamed(
+                          onPressed: () => guardVerified(
                             context,
-                            RouteNames.topup,
+                            status: widget.status,
+                            action: () => Navigator.pushNamed(context, RouteNames.topup),
                           ),
                           icon: const Icon(Icons.add_rounded, size: 16, color: kHijauTua),
                           label: const Text(
@@ -162,9 +166,10 @@ class _WalletCardWidgetState extends State<WalletCardWidget> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () => Navigator.pushNamed(
+                          onPressed: () => guardVerified(
                             context,
-                            RouteNames.transfer,
+                            status: widget.status,
+                            action: () => Navigator.pushNamed(context, RouteNames.transfer),
                           ),
                           icon: const Icon(Icons.keyboard_arrow_up_rounded, size: 18, color: kPutih),
                           label: const Text(

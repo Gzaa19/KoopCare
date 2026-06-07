@@ -10,7 +10,8 @@ class Env {
 
   /// Base URL for the mobile API (production — Railway deployment).
   static const String apiBaseUrl =
-      'https://koopcare-admin-production.up.railway.app/api/v1/mobile';
+      //https://koopcare-admin-production.up.railway.app/api/v1/mobile';//
+      'https://defrayable-disingenuously-annalisa.ngrok-free.dev/api/v1/mobile';
 
   /// Default network timeout for HTTP requests.
   static const Duration networkTimeout = Duration(seconds: 15);
