@@ -112,10 +112,12 @@ class _BerandaPageState extends State<BerandaPage>
               value: _loanBloc,
               child: BlocBuilder<LoanBloc, LoanState>(
                 builder: (context, loanState) {
-                  // Resolve the most relevant active loan
+                  // Resolve the most relevant active loan for the summary cards.
                   LoanModel? activeLoan;
+                  int loanCount = 0;
                   if (loanState is LoanLoaded && loanState.loans.isNotEmpty) {
                     final loans = loanState.loans;
+                    loanCount = loans.length;
                     activeLoan = loans.cast<LoanModel?>().firstWhere(
                           (l) => l!.status == 'ACTIVE',
                           orElse: () => loans.cast<LoanModel?>().firstWhere(
@@ -188,6 +190,17 @@ class _BerandaPageState extends State<BerandaPage>
                                         widget.onSwitchTab?.call(2),
                                   ),
                                 ),
+                                // When there are multiple loans, the summary
+                                // above shows only the most relevant one — this
+                                // banner tells the user there are more and
+                                // routes them to the cicilan tab to pick.
+                                if (loanCount > 1) ...[
+                                  const SizedBox(height: 12),
+                                  _MultiLoanBanner(
+                                    count: loanCount,
+                                    onTap: () => widget.onSwitchTab?.call(2),
+                                  ),
+                                ],
                                 const SizedBox(height: 110),
                               ],
                             ),
@@ -195,13 +208,53 @@ class _BerandaPageState extends State<BerandaPage>
                         ],
                       ),
                     ),
-                  ); // <-- Added closing parenthesis for RefreshIndicator
+                  );
                 },
               ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+// ── Banner shown when the member has more than one loan ───────────────────────
+class _MultiLoanBanner extends StatelessWidget {
+  final int count;
+  final VoidCallback onTap;
+  const _MultiLoanBanner({required this.count, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE8F0D8),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.layers_outlined, size: 20, color: kHijauTua),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Anda memiliki $count pembiayaan. Ketuk untuk melihat semua.',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1D2E14),
+                ),
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded,
+                size: 13, color: kHijauTua),
+          ],
+        ),
+      ),
     );
   }
 }

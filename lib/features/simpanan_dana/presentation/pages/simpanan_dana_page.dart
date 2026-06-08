@@ -63,6 +63,22 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
     super.dispose();
   }
 
+  // Order loans so the most relevant appear first.
+  int _statusRank(String status) {
+    switch (status) {
+      case 'ACTIVE':
+        return 0;
+      case 'APPROVED':
+        return 1;
+      case 'PENDING':
+        return 2;
+      case 'PAID_OFF':
+        return 3;
+      default:
+        return 4;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,20 +93,12 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
             value: _loanBloc,
             child: BlocBuilder<LoanBloc, LoanState>(
               builder: (context, loanState) {
-                LoanModel? activeLoan;
+                // Build a sorted list of ALL loans (instead of picking one).
+                List<LoanModel> loans = const [];
                 if (loanState is LoanLoaded && loanState.loans.isNotEmpty) {
-                  final loans = loanState.loans;
-                  // Priority: ACTIVE > APPROVED > PENDING > any
-                  activeLoan = loans.cast<LoanModel?>().firstWhere(
-                        (l) => l!.status == 'ACTIVE',
-                        orElse: () => loans.cast<LoanModel?>().firstWhere(
-                              (l) => l!.status == 'APPROVED',
-                              orElse: () => loans.cast<LoanModel?>().firstWhere(
-                                    (l) => l!.status == 'PENDING',
-                                    orElse: () => loans.first,
-                                  ),
-                            ),
-                      );
+                  loans = [...loanState.loans]
+                    ..sort((a, b) =>
+                        _statusRank(a.status).compareTo(_statusRank(b.status)));
                 }
 
                 return SafeArea(
@@ -126,7 +134,10 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
                                 const SizedBox(height: 20),
                                 SimpananUserRowWidget(name: name),
                                 const SizedBox(height: 20),
-                                WalletCardWidget(balance: balance, status: user?.status),
+                                WalletCardWidget(
+                                  balance: balance,
+                                  status: user?.status,
+                                ),
                                 const SizedBox(height: 28),
                                 const Text(
                                   "Aktivitas Pembiayaan Anda",
@@ -138,7 +149,22 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                LoanStatusWidget(loan: activeLoan, user: user),
+
+                                // Render EVERY loan, not just one.
+                                if (loans.isEmpty)
+                                  LoanStatusWidget(loan: null, user: user)
+                                else
+                                  ...loans.map(
+                                    (loan) => Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 12),
+                                      child: LoanStatusWidget(
+                                        loan: loan,
+                                        user: user,
+                                      ),
+                                    ),
+                                  ),
+
                                 const SizedBox(height: 110),
                               ],
                             ),
@@ -151,8 +177,8 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
               },
             ),
           );
-        }, // <-- Added closing brace/parenthesis
-      ), // <-- Added closing parenthesis
+        },
+      ),
     );
   }
 }

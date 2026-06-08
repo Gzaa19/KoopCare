@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:koopcare/core/app_colors.dart';
+import 'package:koopcare/core/di/service_locator.dart';
 import 'package:koopcare/features/loan/data/models/loan_model.dart';
+import 'package:koopcare/features/loan/data/models/installment_model.dart';
+import 'package:koopcare/features/loan/presentation/bloc/installment/installment_bloc.dart';
+import 'package:koopcare/features/loan/presentation/bloc/installment/installment_event.dart';
+import 'package:koopcare/features/loan/presentation/bloc/installment/installment_state.dart';
 
-/// Timeline showing installment schedule for an active/approved loan,
+/// Timeline showing the REAL installment schedule for an active/approved loan,
 /// or a pending notice if the loan is still awaiting approval.
+///
+/// Reads installments from [InstallmentBloc] — the same source the payment
+/// detail page uses — so paid status always matches there.
 class CicilanTimelineWidget extends StatelessWidget {
   final LoanModel loan;
 
@@ -13,98 +22,163 @@ class CicilanTimelineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (loan.status == 'PENDING') {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF3E0),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFFFE0B2), width: 1),
-        ),
-        child: const Row(
-          children: [
-            Icon(Icons.hourglass_empty_rounded, color: Color(0xFFEF6C00)),
-            SizedBox(width: 12),
-            Expanded(
+      return _pendingNotice();
+    }
+
+    // Fetch the real installments for this loan. A fresh bloc per loan id so
+    // switching loans in the selector reloads correctly.
+    return BlocProvider<InstallmentBloc>(
+      key: ValueKey('installments-${loan.id}'),
+      create: (_) => getIt<InstallmentBloc>()..add(FetchInstallments(loan.id)),
+      child: BlocBuilder<InstallmentBloc, InstallmentState>(
+        builder: (context, state) {
+          final installments = switch (state) {
+            InstallmentLoaded(:final installments) => installments,
+            InstallmentPaying(:final installments) => installments,
+            InstallmentPaidSuccess(:final installments) => installments,
+            InstallmentProcessing(:final installments) => installments,
+            InstallmentMidtransReady(:final installments) => installments,
+            InstallmentError(:final installments) => installments,
+            _ => const <InstallmentModel>[],
+          };
+
+          if (state is InstallmentLoading) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: CircularProgressIndicator(color: kHijauTua),
+              ),
+            );
+          }
+
+          if (installments.isEmpty) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
               child: Text(
-                "Pembiayaan sedang diproses. Jadwal cicilan akan aktif setelah disetujui admin.",
+                'Belum ada jadwal cicilan.',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFFE65100),
+                  color: Color(0xFF888888),
                 ),
               ),
-            ),
-          ],
-        ),
-      );
-    }
+            );
+          }
 
-    final formatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-    final monthlyAmount =
-        loan.approvedAmount != null &&
-            loan.approvedTenor != null &&
-            loan.approvedTenor! > 0
-        ? loan.approvedAmount! / loan.approvedTenor!
-        : 0.0;
-    
-    final formattedAmount = formatter.format(monthlyAmount);
-    final tenor = loan.approvedTenor ?? 0;
+          // The first unpaid installment is the "active" one.
+          final firstUnpaidIndex =
+              installments.indexWhere((i) => !i.isPaid);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Jadwal Pembayaran Cicilan",
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1A1A1A),
-          ),
-        ),
-        const SizedBox(height: 16),
-        ...List.generate(tenor, (index) {
-          final monthNum = index + 1;
-          final dueDate = loan.createdAt.add(Duration(days: 30 * monthNum));
-          final formattedDate = DateFormat('dd MMM yyyy').format(dueDate);
-          final status = monthNum == 1 ? "Pending" : "Due";
-          final isCurrent = monthNum == 1;
-
-          return _buildTimelineItem(
-            monthNum,
-            formattedDate,
-            formattedAmount,
-            status,
-            isCurrent,
-            index == tenor - 1,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Jadwal Pembayaran Cicilan",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...List.generate(installments.length, (index) {
+                final inst = installments[index];
+                final isActive = index == firstUnpaidIndex;
+                return _buildTimelineItem(
+                  number: inst.installmentNumber,
+                  dueDate: DateFormat('dd MMM yyyy').format(inst.dueDate),
+                  amount: _formatCurrency(inst.amount),
+                  isPaid: inst.isPaid,
+                  isActive: isActive,
+                  isLast: index == installments.length - 1,
+                );
+              }),
+            ],
           );
-        }),
-      ],
+        },
+      ),
     );
   }
 
-  Widget _buildTimelineItem(int index, String dueDate, String amount, String status, bool isCurrent, bool isLast) {
-    final statusColor = switch (status) {
-      'Pending' => const Color(0xFFEF6C00),
-      'Due' => const Color(0xFF666666),
-      _ => const Color(0xFF2E7D32),
-    };
+  String _formatCurrency(double amount) {
+    return NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    ).format(amount);
+  }
 
-    final statusBgColor = switch (status) {
-      'Pending' => const Color(0xFFFFF3E0),
-      'Due' => const Color(0xFFF5F5F5),
-      _ => const Color(0xFFE8F5E9),
-    };
+  Widget _pendingNotice() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3E0),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFFE0B2), width: 1),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.hourglass_empty_rounded, color: Color(0xFFEF6C00)),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "Pembiayaan sedang diproses. Jadwal cicilan akan aktif setelah disetujui admin.",
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFFE65100),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-    final statusLabel = switch (status) {
-      'Pending' => 'Tagihan Aktif',
-      'Due' => 'Akan Datang',
-      _ => 'Lunas',
-    };
+  Widget _buildTimelineItem({
+    required int number,
+    required String dueDate,
+    required String amount,
+    required bool isPaid,
+    required bool isActive,
+    required bool isLast,
+  }) {
+    // Status drives the label + colors. Paid wins; then the active (next-due)
+    // one; everything else is upcoming.
+    final String statusLabel;
+    final Color statusColor;
+    final Color statusBgColor;
+
+    if (isPaid) {
+      statusLabel = 'Lunas';
+      statusColor = const Color(0xFF2E7D32);
+      statusBgColor = const Color(0xFFE8F5E9);
+    } else if (isActive) {
+      statusLabel = 'Tagihan Aktif';
+      statusColor = const Color(0xFFEF6C00);
+      statusBgColor = const Color(0xFFFFF3E0);
+    } else {
+      statusLabel = 'Akan Datang';
+      statusColor = const Color(0xFF666666);
+      statusBgColor = const Color(0xFFF5F5F5);
+    }
+
+    // The node circle: paid = check on green; active = filled; upcoming = pale.
+    final Widget nodeChild = isPaid
+        ? const Icon(Icons.check_rounded, size: 16, color: kPutih)
+        : Text(
+            '$number',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: isActive ? kPutih : kHijauTua,
+            ),
+          );
+
+    final Color nodeColor = isPaid
+        ? const Color(0xFF2E7D32)
+        : (isActive ? kHijauTua : const Color(0xFFE8F0D8));
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,19 +189,10 @@ class CicilanTimelineWidget extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: isCurrent ? kHijauTua : const Color(0xFFE8F0D8),
+                color: nodeColor,
                 shape: BoxShape.circle,
               ),
-              child: Center(
-                child: Text(
-                  '$index',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: isCurrent ? kPutih : kHijauTua,
-                  ),
-                ),
-              ),
+              child: Center(child: nodeChild),
             ),
             if (!isLast)
               Container(
@@ -146,7 +211,7 @@ class CicilanTimelineWidget extends StatelessWidget {
               color: kPutih,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isCurrent
+                color: isActive
                     ? kHijauTua.withValues(alpha: 0.25)
                     : const Color(0xFFE8F0D8).withValues(alpha: 0.5),
                 width: 1.2,
@@ -177,7 +242,8 @@ class CicilanTimelineWidget extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: statusBgColor,
                           borderRadius: BorderRadius.circular(10),
@@ -202,7 +268,9 @@ class CicilanTimelineWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: isCurrent ? kHijauTua : const Color(0xFF444444),
+                      color: isPaid
+                          ? const Color(0xFF2E7D32)
+                          : (isActive ? kHijauTua : const Color(0xFF444444)),
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

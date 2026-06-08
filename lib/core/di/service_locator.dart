@@ -41,6 +41,9 @@ import '../../features/wallet/presentation/bloc/topup_bloc.dart';
 import '../network/dio_client.dart';
 import '../network/network_info.dart';
 import '../notifications/notification_service.dart';
+import '../../features/loan/presentation/bloc/installment/installment_bloc.dart';
+import '../../features/riwayat/data/repositories/transaction_repository.dart';
+import '../../features/riwayat/presentation/bloc/transaction_bloc.dart';
 
 /// Global service locator. Use [getIt] anywhere a dependency is needed.
 final GetIt getIt = GetIt.instance;
@@ -57,6 +60,7 @@ Future<void> configureDependencies() async {
   _registerAiScoring();
   _registerNotification();
   _registerFinancial();
+  _registerRiwayat();
   _registerProfile();
   _registerWallet();
 }
@@ -170,6 +174,18 @@ void _registerFinancial() {
     () => LoanRepository(dio: getIt()),
   );
   getIt.registerFactory<LoanBloc>(() => LoanBloc(repository: getIt()));
+  getIt.registerFactory<InstallmentBloc>(
+    () => InstallmentBloc(repository: getIt()),
+  );
+}
+
+void _registerRiwayat() {
+  getIt.registerLazySingleton<TransactionRepository>(
+    () => TransactionRepository(dio: getIt()),
+  );
+  getIt.registerFactory<TransactionBloc>(
+    () => TransactionBloc(repository: getIt()),
+  );
 }
 
 // ── Profile feature ───────────────────────────────────────────────────────
@@ -209,4 +225,14 @@ void _registerWallet() {
   getIt.registerFactory(
     () => TopupBloc(createTopup: getIt(), getStatus: getIt()),
   );
+
+// ── Riwayat feature ──────────────────────────────────────────────────────
+void _registerRiwayat() {
+  getIt.registerLazySingleton<TransactionRepository>(
+    () => TransactionRepository(dio: getIt()),
+  );
+  getIt.registerFactory<TransactionBloc>(
+    () => TransactionBloc(repository: getIt()),
+  );
+}
 }

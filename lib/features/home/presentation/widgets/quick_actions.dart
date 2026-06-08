@@ -47,6 +47,7 @@ class QuickActions extends StatelessWidget {
                   status: user?.status,
                   action: () => Navigator.pushNamed(context, RouteNames.transfer),
                 ),
+            'Riwayat' => () => Navigator.pushNamed(context, RouteNames.riwayat),
             _ => null,
           },
         );

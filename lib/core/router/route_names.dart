@@ -27,6 +27,7 @@ abstract class RouteNames {
   static const transfer       = '/financial/transfer';
   static const pinVerify      = '/financial/pin-verify';
   static const pembayaranDetail = '/financial/pembayaran-detail';
+  static const riwayat        = '/financial/riwayat';
 
   // ── AI Scoring ────────────────────────────────────────────────────────────
   static const aiStep1        = '/ai-scoring/step1';

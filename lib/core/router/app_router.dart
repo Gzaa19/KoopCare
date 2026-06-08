@@ -21,8 +21,10 @@ import '../../features/faq/presentation/pages/faq_page.dart';
 import '../../features/home/main_shell.dart';
 import '../../features/notification/presentation/pages/notification_page.dart';
 import '../../features/profile/presentation/pages/general_info_page.dart';
+import '../../features/riwayat/presentation/pages/riwayat_page.dart';
 import 'route_args.dart';
 import 'route_names.dart';
+
 
 /// Centralized router for the entire app.
 ///
@@ -107,6 +109,9 @@ abstract class AppRouter {
       case RouteNames.pembayaranDetail:
         final args = settings.arguments as PembayaranDetailArgs?;
         return _slide(PembayaranDetailPage(loan: args?.loan));
+      
+      case RouteNames.riwayat:
+        return _slide(const RiwayatPage());
 
       // ── AI Scoring ─────────────────────────────────────────────────────────
       case RouteNames.aiStep1:
