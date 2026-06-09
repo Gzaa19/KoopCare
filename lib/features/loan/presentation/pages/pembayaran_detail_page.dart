@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:koopcare/core/di/service_locator.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/widgets/app_widgets.dart';
-import 'package:koopcare/features/loan/data/models/loan_model.dart';
-import 'package:koopcare/features/loan/data/models/installment_model.dart';
+import 'package:koopcare/features/loan/domain/entities/loan.dart';
+import 'package:koopcare/features/loan/domain/entities/installment.dart';
 import '../bloc/installment/installment_bloc.dart';
 import '../bloc/installment/installment_event.dart';
 import '../bloc/installment/installment_state.dart';
@@ -16,7 +16,7 @@ import '../widgets/konfirmasi_pembayaran_sheet.dart';
 import 'package:koopcare/features/wallet/presentation/pages/midtrans_webview_page.dart';
 
 class PembayaranDetailPage extends StatefulWidget {
-  final LoanModel? loan;
+  final Loan? loan;
   const PembayaranDetailPage({super.key, this.loan});
 
   @override
@@ -102,18 +102,12 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Cicilan berhasil dibayar')),
             );
-            // Clear selection after a successful payment.
             setState(() => _selectedCicilan = null);
-            // NOTE: refresh the beranda/simpanan balance here via your
-            // AuthBloc, e.g.:
-            // context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
           } else if (state is InstallmentError) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is InstallmentMidtransReady) {
-            // The listener's context is the BlocConsumer's context (below the
-            // provider), so reading the bloc here is safe.
             final paid = await Navigator.of(context).push<bool>(
               MaterialPageRoute(
                 builder: (_) =>
@@ -136,20 +130,16 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
           }
         },
         builder: (context, state) {
-          // Capture the bloc from the builder's context (below the provider) so
-          // child methods can dispatch events without doing their own
-          // context.read — which would resolve to the State's context, ABOVE
-          // the provider, and crash.
           final bloc = context.read<InstallmentBloc>();
 
-          final List<InstallmentModel> installments = switch (state) {
+          final List<Installment> installments = switch (state) {
             InstallmentLoaded(:final installments) => installments,
             InstallmentPaying(:final installments) => installments,
             InstallmentPaidSuccess(:final installments) => installments,
             InstallmentProcessing(:final installments) => installments,
             InstallmentMidtransReady(:final installments) => installments,
             InstallmentError(:final installments) => installments,
-            _ => const <InstallmentModel>[],
+            _ => const <Installment>[],
           };
 
           final bool isLoading = state is InstallmentLoading;
@@ -245,7 +235,6 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
     );
   }
 
-  // ── Custom App Bar ────────────────────────────────────────────────────────
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
@@ -289,9 +278,8 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
     );
   }
 
-  // ── Tab 1: Jadwal Cicilan — radio selection, sequential lock ──────────────
   Widget _buildJadwalCicilanTab(
-    List<InstallmentModel> installments,
+    List<Installment> installments,
     bool isLoading,
   ) {
     if (isLoading) {
@@ -319,8 +307,6 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
       (i) => _mapInstallment(installments[i], i),
     );
 
-    // Row i is selectable if it is not paid AND every earlier row is paid
-    // (strict sequential rule, matching the backend).
     bool isSelectableIndex(int i) {
       if (list[i]['paid'] == true) return false;
       for (int j = 0; j < i; j++) {
@@ -333,7 +319,7 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       itemCount: list.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (_, i) {
         final c = list[i];
         return CicilanItemTile(
@@ -351,7 +337,7 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
     );
   }
 
-  Map<String, dynamic> _mapInstallment(InstallmentModel it, int index) {
+  Map<String, dynamic> _mapInstallment(Installment it, int index) {
     final formatter = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
@@ -363,19 +349,14 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
       'month': DateFormat('MMMM yyyy', 'id_ID').format(it.dueDate),
       'amount': formatter.format(it.amount),
       'paid': it.isPaid,
-      // CicilanItemTile reads cicilan['locked'] as a non-nullable bool, so this
-      // key must always be present. Sequencing is enforced by isSelectableIndex
-      // (and the backend), so the visual "locked" flag stays false here.
       'locked': false,
       'id': it.id,
     };
   }
 
-  // ── Tab 2: Fitur Pembayaran ───────────────────────────────────────────────
-  // Receives the bloc captured from the builder's (provider-scoped) context.
   Widget _buildFiturPembayaranTab(
     InstallmentBloc bloc,
-    List<InstallmentModel> installments,
+    List<Installment> installments,
   ) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -506,8 +487,6 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
                 size: 14,
                 color: Color(0xFF888888),
               ),
-              // Phase 2 (Midtrans cicilan payment) wiring. Uses the bloc passed
-              // in from the builder — NOT context.read, which would fail here.
               onTap: () {
                 if (_selectedCicilan == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -537,10 +516,9 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
     );
   }
 
-  // ── Fixed bottom CTA — label reflects current selection ──────────────────
   Widget _buildBottomButton(
     BuildContext context,
-    List<InstallmentModel> installments,
+    List<Installment> installments,
     bool isPaying,
   ) {
     final bool hasSelection =
@@ -611,13 +589,11 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
 
   void _showKonfirmasiSheet(
     BuildContext context,
-    List<InstallmentModel> installments,
+    List<Installment> installments,
   ) {
     if (_selectedCicilan == null || _selectedCicilan! >= installments.length) {
       return;
     }
-    // Capture the bloc from the current (provider-scoped) context BEFORE
-    // opening the sheet, since the sheet's builder context is outside it.
     final bloc = context.read<InstallmentBloc>();
     final loanId = widget.loan?.id;
     final c = _mapInstallment(

@@ -3,19 +3,14 @@ import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/di/service_locator.dart';
-import 'package:koopcare/features/loan/data/models/loan_model.dart';
-import 'package:koopcare/features/loan/data/models/installment_model.dart';
+import 'package:koopcare/features/loan/domain/entities/loan.dart';
+import 'package:koopcare/features/loan/domain/entities/installment.dart';
 import 'package:koopcare/features/loan/presentation/bloc/installment/installment_bloc.dart';
 import 'package:koopcare/features/loan/presentation/bloc/installment/installment_event.dart';
 import 'package:koopcare/features/loan/presentation/bloc/installment/installment_state.dart';
 
-/// Timeline showing the REAL installment schedule for an active/approved loan,
-/// or a pending notice if the loan is still awaiting approval.
-///
-/// Reads installments from [InstallmentBloc] — the same source the payment
-/// detail page uses — so paid status always matches there.
 class CicilanTimelineWidget extends StatelessWidget {
-  final LoanModel loan;
+  final Loan loan;
 
   const CicilanTimelineWidget({super.key, required this.loan});
 
@@ -25,8 +20,6 @@ class CicilanTimelineWidget extends StatelessWidget {
       return _pendingNotice();
     }
 
-    // Fetch the real installments for this loan. A fresh bloc per loan id so
-    // switching loans in the selector reloads correctly.
     return BlocProvider<InstallmentBloc>(
       key: ValueKey('installments-${loan.id}'),
       create: (_) => getIt<InstallmentBloc>()..add(FetchInstallments(loan.id)),
@@ -39,7 +32,7 @@ class CicilanTimelineWidget extends StatelessWidget {
             InstallmentProcessing(:final installments) => installments,
             InstallmentMidtransReady(:final installments) => installments,
             InstallmentError(:final installments) => installments,
-            _ => const <InstallmentModel>[],
+            _ => const <Installment>[],
           };
 
           if (state is InstallmentLoading) {
@@ -65,7 +58,6 @@ class CicilanTimelineWidget extends StatelessWidget {
             );
           }
 
-          // The first unpaid installment is the "active" one.
           final firstUnpaidIndex =
               installments.indexWhere((i) => !i.isPaid);
 
@@ -144,8 +136,6 @@ class CicilanTimelineWidget extends StatelessWidget {
     required bool isActive,
     required bool isLast,
   }) {
-    // Status drives the label + colors. Paid wins; then the active (next-due)
-    // one; everything else is upcoming.
     final String statusLabel;
     final Color statusColor;
     final Color statusBgColor;
@@ -164,7 +154,6 @@ class CicilanTimelineWidget extends StatelessWidget {
       statusBgColor = const Color(0xFFF5F5F5);
     }
 
-    // The node circle: paid = check on green; active = filled; upcoming = pale.
     final Widget nodeChild = isPaid
         ? const Icon(Icons.check_rounded, size: 16, color: kPutih)
         : Text(

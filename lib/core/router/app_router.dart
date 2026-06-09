@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../features/ai_scoring/presentation/pages/ai_scoring_processing_page.dart';
+import '../../features/ai_scoring/presentation/pages/ai_scoring_result_page.dart';
 import '../../features/ai_scoring/presentation/pages/ai_scoring_step1_page.dart';
 import '../../features/ai_scoring/presentation/pages/ai_scoring_step2_page.dart';
 import '../../features/ai_scoring/presentation/pages/ai_scoring_step3_page.dart';
@@ -15,36 +16,21 @@ import '../../features/loan/presentation/pages/pembayaran_detail_page.dart';
 import '../../features/loan/presentation/pages/pengajuan_pembiayaan_page.dart';
 import '../../features/loan/presentation/pages/pin_verification.dart';
 import '../../features/transfer/presentation/pages/transfer_page.dart';
-import '../../features/topup/presentation/pages/topup_page.dart';
-import '../../features/topup/presentation/pages/topup_success_page.dart';
+import '../../features/wallet/presentation/pages/topup_page.dart';
+import '../../features/wallet/presentation/pages/topup_success_page.dart';
 import '../../features/faq/presentation/pages/faq_page.dart';
-import '../../features/home/main_shell.dart';
+import '../shell/main_shell.dart';
 import '../../features/notification/presentation/pages/notification_page.dart';
 import '../../features/profile/presentation/pages/general_info_page.dart';
 import '../../features/riwayat/presentation/pages/riwayat_page.dart';
 import 'route_args.dart';
 import 'route_names.dart';
 
-
-/// Centralized router for the entire app.
-///
-/// Register all routes here. Pages that need arguments receive them via
-/// [RouteSettings.arguments] cast to the appropriate [*Args] class from
-/// [route_args.dart].
-///
-/// Usage in [MaterialApp]:
-/// ```dart
-/// MaterialApp(
-///   onGenerateRoute: AppRouter.onGenerateRoute,
-///   initialRoute: RouteNames.login,
-/// )
-/// ```
 abstract class AppRouter {
   AppRouter._();
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      // ── Auth ───────────────────────────────────────────────────────────────
       case RouteNames.login:
         return _slide(const LoginPage());
 
@@ -82,15 +68,12 @@ abstract class AppRouter {
       case RouteNames.forgotPin:
         return _slide(const ForgotPinPage());
 
-      // ── Shell ──────────────────────────────────────────────────────────────
       case RouteNames.home:
         return _fade(const MainShell());
 
-      // ── Notification ───────────────────────────────────────────────────────
       case RouteNames.notification:
         return _slide(const NotificationPage());
 
-      // ── Financial ──────────────────────────────────────────────────────────
       case RouteNames.pengajuan:
         return _slide(const PengajuanPembiayaanPage());
 
@@ -109,11 +92,10 @@ abstract class AppRouter {
       case RouteNames.pembayaranDetail:
         final args = settings.arguments as PembayaranDetailArgs?;
         return _slide(PembayaranDetailPage(loan: args?.loan));
-      
+
       case RouteNames.riwayat:
         return _slide(const RiwayatPage());
 
-      // ── AI Scoring ─────────────────────────────────────────────────────────
       case RouteNames.aiStep1:
         final args = settings.arguments as AiStep1Args;
         return _slideFade(AiScoringStep1Page(
@@ -159,22 +141,24 @@ abstract class AppRouter {
         final args = settings.arguments as AiProcessingArgs;
         return _slideFade(AiScoringProcessingPage(input: args.input));
 
-      // ── Profile ────────────────────────────────────────────────────────────
+      case RouteNames.aiResult:
+        final args = settings.arguments as AiScoringResultArgs;
+        return _slideFade(AiScoringResultPage(
+          input: args.input,
+          result: args.result,
+        ));
+
       case RouteNames.generalInfo:
         return _slide(const GeneralInfoPage());
 
       case RouteNames.faq:
         return _slide(const FaqPage());
 
-      // ── Fallback ───────────────────────────────────────────────────────────
       default:
         return _slide(const LoginPage());
     }
   }
 
-  // ── Transition helpers ─────────────────────────────────────────────────────
-
-  /// Slide from right — default for most page pushes.
   static PageRouteBuilder<T> _slide<T>(Widget page) => PageRouteBuilder<T>(
         settings: RouteSettings(name: _nameOf(page)),
         transitionDuration: const Duration(milliseconds: 350),
@@ -188,7 +172,6 @@ abstract class AppRouter {
         ),
       );
 
-  /// Fade — used for root-level transitions (login → home).
   static PageRouteBuilder<T> _fade<T>(Widget page) => PageRouteBuilder<T>(
         settings: RouteSettings(name: _nameOf(page)),
         transitionDuration: const Duration(milliseconds: 250),
@@ -197,7 +180,6 @@ abstract class AppRouter {
             FadeTransition(opacity: anim, child: child),
       );
 
-  /// Slide + fade — used for AI scoring steps (matches existing behaviour).
   static PageRouteBuilder<T> _slideFade<T>(Widget page) => PageRouteBuilder<T>(
         settings: RouteSettings(name: _nameOf(page)),
         transitionDuration: const Duration(milliseconds: 350),

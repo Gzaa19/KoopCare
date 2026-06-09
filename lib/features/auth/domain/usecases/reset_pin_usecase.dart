@@ -5,7 +5,6 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../repositories/auth_repository.dart';
 
-/// Sets a new PIN after the OTP has been verified (forgot-PIN flow).
 class ResetPinUseCase implements UseCase<void, ResetPinParams> {
   final AuthRepository repository;
 

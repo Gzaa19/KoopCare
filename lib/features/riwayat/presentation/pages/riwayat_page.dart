@@ -4,15 +4,11 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/app_colors.dart';
 import '../../../../core/di/service_locator.dart';
-import '../../data/models/transaction_model.dart';
+import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_bloc.dart';
 import '../bloc/transaction_event.dart';
 import '../bloc/transaction_state.dart';
 
-/// Read-only transaction history page, reached from the "Riwayat" quick action.
-///
-/// Lists all financial activity (setoran, top up, pembayaran cicilan, tarik
-/// tunai, penarikan saldo) newest-first, grouped under date headers.
 class RiwayatPage extends StatelessWidget {
   const RiwayatPage({super.key});
 
@@ -83,9 +79,8 @@ class _RiwayatView extends StatelessWidget {
   }
 }
 
-/// The grouped, scrollable list. Pull-to-refresh re-fetches.
 class _TransactionList extends StatelessWidget {
-  final List<TransactionModel> transactions;
+  final List<Transaction> transactions;
 
   const _TransactionList({required this.transactions});
 
@@ -126,8 +121,7 @@ class _TransactionList extends StatelessWidget {
     );
   }
 
-  /// Buckets transactions into day groups, preserving newest-first order.
-  static List<_DayGroup> _groupByDay(List<TransactionModel> items) {
+  static List<_DayGroup> _groupByDay(List<Transaction> items) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
@@ -163,13 +157,13 @@ class _TransactionList extends StatelessWidget {
 
 class _DayGroup {
   final String label;
-  final List<TransactionModel> items;
+  final List<Transaction> items;
 
   _DayGroup({required this.label, required this.items});
 }
 
 class _TransactionTile extends StatelessWidget {
-  final TransactionModel transaction;
+  final Transaction transaction;
 
   const _TransactionTile({required this.transaction});
 

@@ -6,11 +6,6 @@ import '../../../domain/usecases/verify_otp_usecase.dart';
 import 'forgot_pin_event.dart';
 import 'forgot_pin_state.dart';
 
-/// Drives the forgot-PIN flow: identifier → OTP → new PIN.
-///
-/// The legacy backend re-verifies the OTP during `resetPin`, so the explicit
-/// verify step is technically optional. We keep it here because the UI uses
-/// it as a UX gate (prove OTP correct before showing the new-PIN screen).
 class ForgotPinBloc extends Bloc<ForgotPinEvent, ForgotPinState> {
   final RequestOtpUseCase _requestOtpUseCase;
   final VerifyOtpUseCase _verifyOtpUseCase;

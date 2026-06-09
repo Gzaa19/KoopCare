@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:koopcare/core/app_colors.dart';
 
-/// A premium, animated input field for loan forms
-/// originally extracted from `pengajuan_pembiayaan_page.dart`.
 class LoanInputField extends StatelessWidget {
   final String label;
   final TextEditingController controller;

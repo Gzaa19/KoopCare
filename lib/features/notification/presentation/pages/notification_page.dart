@@ -19,9 +19,7 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
-    // 1. Fetch the full list of notifications
     context.read<NotificationBloc>().add(const NotificationsFetchRequested());
-    // 2. Mark all as read so the badge count clears out immediately
     context.read<NotificationBloc>().add(const NotificationMarkAllReadRequested());
   }
 
@@ -98,7 +96,6 @@ class _NotificationPageState extends State<NotificationPage> {
               context
                   .read<NotificationBloc>()
                   .add(const NotificationsFetchRequested());
-              // Wait a moment for BLoC to process.
               await Future.delayed(const Duration(milliseconds: 500));
             },
             child: ListView.separated(

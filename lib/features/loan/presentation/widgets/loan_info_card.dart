@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:koopcare/core/app_colors.dart';
-import 'package:koopcare/features/loan/data/models/loan_model.dart';
+import 'package:koopcare/features/loan/domain/entities/loan.dart';
 
-/// A premium info card displaying loan details (amount, monthly payment, remaining duration)
-/// originally extracted from `pembayaran_detail_page.dart`.
 class LoanInfoCard extends StatelessWidget {
-  final LoanModel? loan;
+  final Loan? loan;
   final int paidIndicesCount;
 
   const LoanInfoCard({

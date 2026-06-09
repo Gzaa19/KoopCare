@@ -1,13 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../data/repositories/transaction_repository.dart';
+import '../../domain/usecases/get_transactions_usecase.dart';
 import 'transaction_event.dart';
 import 'transaction_state.dart';
 
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
-  final TransactionRepository repository;
+  final GetTransactionsUseCase _getTransactions;
 
-  TransactionBloc({required this.repository})
-      : super(const TransactionInitial()) {
+  TransactionBloc({required GetTransactionsUseCase getTransactions})
+      : _getTransactions = getTransactions,
+        super(const TransactionInitial()) {
     on<FetchTransactions>(_onFetch);
   }
 
@@ -16,11 +17,12 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     Emitter<TransactionState> emit,
   ) async {
     emit(const TransactionLoading());
-    try {
-      final transactions = await repository.getTransactions();
-      emit(TransactionLoaded(transactions));
-    } catch (e) {
-      emit(TransactionError(e.toString().replaceFirst('Exception: ', '')));
-    }
+    final result = await _getTransactions();
+    emit(
+      result.fold(
+        (failure) => TransactionError(failure.message),
+        (transactions) => TransactionLoaded(transactions),
+      ),
+    );
   }
 }

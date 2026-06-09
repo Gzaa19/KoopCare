@@ -4,8 +4,6 @@ import '../../../../core/app_colors.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import 'ai_step_header.dart';
 
-/// Common scaffold used by AI scoring steps 1–3:
-/// back button, header, scrollable grey field container, fixed CTA button.
 class AiStepScaffold extends StatelessWidget {
   final String title;
   final int currentStep;

@@ -17,24 +17,20 @@ class PengajuanPembiayaanPage extends StatefulWidget {
 
 class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
     with SingleTickerProviderStateMixin {
-  // ── Form state ────────────────────────────────────────────────────────────
   String? _selectedProdukId;
   final _jumlahCtrl = TextEditingController();
   final _tujuanCtrl = TextEditingController();
   int?   _selectedTenor;
 
-  // ── Focus Nodes for Premium Border Highlights ─────────────────────────────
   final _jumlahFocus = FocusNode();
   final _tujuanFocus = FocusNode();
   bool _jumlahHasFocus = false;
   bool _tujuanHasFocus = false;
 
-  // ── Staggered entrance ────────────────────────────────────────────────────
   late final AnimationController _ctrl;
   late final List<Animation<double>> _fades;
   late final List<Animation<Offset>>  _slides;
 
-  // ── Computed cicilan ──────────────────────────────────────────────────────
   String get _cicilanEstimasi {
     final raw   = int.tryParse(_jumlahCtrl.text.trim());
     final tenor = _selectedTenor;
@@ -184,7 +180,6 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
     );
   }
 
-  // ── App bar ───────────────────────────────────────────────────────────────
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
@@ -225,7 +220,6 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
     );
   }
 
-  // ── Pilih Produk ──────────────────────────────────────────────────────────
   Widget _buildPilihProduk() {
     final hasVal = _selectedProdukId != null;
     return Column(
@@ -291,7 +285,6 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
     );
   }
 
-  // ── Tenor dropdown ────────────────────────────────────────────────────────
   Widget _buildTenorDropdown() {
     final hasVal = _selectedTenor != null;
     return Column(
@@ -357,7 +350,6 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
     );
   }
 
-  // ── Submit button ─────────────────────────────────────────────────────────
   Widget _buildSubmitButton() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
@@ -412,7 +404,6 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
     );
   }
 
-  // ── Footer note ───────────────────────────────────────────────────────────
   Widget _buildFooterNote() {
     return const Column(
       children: [

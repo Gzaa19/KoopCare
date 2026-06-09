@@ -7,8 +7,6 @@ import '../../../auth/domain/entities/auth_user.dart';
 import '../../../notification/presentation/bloc/notification_bloc.dart';
 import '../../../notification/presentation/bloc/notification_state.dart';
 
-/// Top app bar row for the Beranda page.
-/// Shows user avatar, greeting + name, and a notification bell with badge.
 class BerandaAppBar extends StatelessWidget {
   final AuthUser? user;
   final String greeting;
@@ -27,7 +25,6 @@ class BerandaAppBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          // Avatar
           Container(
             width: 46,
             height: 46,
@@ -49,7 +46,6 @@ class BerandaAppBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          // Greeting + name
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -73,7 +69,6 @@ class BerandaAppBar extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          // Notification bell
           BlocBuilder<NotificationBloc, NotificationState>(
             builder: (context, notifState) {
               return GestureDetector(
@@ -139,7 +134,6 @@ class BerandaAppBar extends StatelessWidget {
   }
 }
 
-/// Decorative gold chip shown inside the balance card.
 class GoldChip extends StatelessWidget {
   const GoldChip({super.key});
 

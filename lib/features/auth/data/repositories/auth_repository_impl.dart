@@ -8,8 +8,6 @@ import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
 
-/// Bridges domain ↔ data: orchestrates remote calls, local caching, and
-/// translates exceptions into [Failure]s.
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthLocalDataSource localDataSource;
@@ -132,12 +130,6 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
-  // ── Internals ──────────────────────────────────────────────────────────
-
-  /// Centralized network-check + exception-to-failure mapping.
-  ///
-  /// Every remote-bound method funnels through here so error handling stays
-  /// consistent and we don't repeat `try/catch` blocks in every method.
   Future<Either<Failure, T>> _guard<T>(Future<T> Function() action) async {
     if (!await networkInfo.isConnected) {
       return const Left(NetworkFailure());

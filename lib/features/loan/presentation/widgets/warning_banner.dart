@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// A warnings/alert banner for pending/overdue payments
-/// originally extracted from `pembayaran_detail_page.dart`.
 class WarningBanner extends StatelessWidget {
   const WarningBanner({super.key});
 

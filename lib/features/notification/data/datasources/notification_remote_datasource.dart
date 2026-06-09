@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/notification_model.dart';
 
-/// Talks to the backend notification endpoints.
 abstract class NotificationRemoteDataSource {
   Future<List<NotificationModel>> getNotifications();
   Future<int> getUnreadCount();
@@ -71,4 +70,3 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     }
   }
 }
-

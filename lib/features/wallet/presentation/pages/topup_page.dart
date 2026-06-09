@@ -6,10 +6,10 @@ import 'package:koopcare/core/app_constants.dart';
 import 'package:koopcare/core/router/route_names.dart';
 import 'package:koopcare/core/di/service_locator.dart';
 
-import '../../../wallet/presentation/bloc/topup_bloc.dart';
-import '../../../wallet/presentation/bloc/topup_event.dart';
-import '../../../wallet/presentation/bloc/topup_state.dart';
-import '../../../wallet/presentation/pages/midtrans_webview_page.dart';
+import '../bloc/topup_bloc.dart';
+import '../bloc/topup_event.dart';
+import '../bloc/topup_state.dart';
+import 'midtrans_webview_page.dart';
 
 class TopUpPage extends StatefulWidget {
   const TopUpPage({super.key});
@@ -25,7 +25,6 @@ class _TopUpPageState extends State<TopUpPage>
   final _jumlahCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  // Entrance animation
   late final AnimationController _ctrl;
   late final List<Animation<double>> _fades;
   late final List<Animation<Offset>> _slides;
@@ -92,7 +91,7 @@ class _TopUpPageState extends State<TopUpPage>
       child: BlocListener<TopupBloc, TopupState>(
         listener: (context, state) async {
           if (state.status == TopupFlowStatus.creating) {
-            if (!mounted) return;
+            if (!context.mounted) return;
             showDialog(
               context: context,
               barrierDismissible: false,
@@ -101,7 +100,6 @@ class _TopUpPageState extends State<TopUpPage>
             return;
           }
 
-          // Close any loading dialog if present
           if (Navigator.canPop(context)) Navigator.of(context).pop();
 
           if (state.status == TopupFlowStatus.awaitingPayment &&
@@ -115,18 +113,17 @@ class _TopUpPageState extends State<TopUpPage>
               ),
             );
 
-            // Start polling after WebView closes
             bloc.add(TopupPollStatusRequested(state.session!.orderId));
           }
 
           if (state.status == TopupFlowStatus.success) {
-            if (!mounted) return;
+            if (!context.mounted) return;
             Navigator.pushReplacementNamed(context, RouteNames.topupSuccess);
           }
 
           if (state.status == TopupFlowStatus.failure &&
               state.errorMessage != null) {
-            if (!mounted) return;
+            if (!context.mounted) return;
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
@@ -148,11 +145,9 @@ class _TopUpPageState extends State<TopUpPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // ── 0: Pilih Bank ───────────────────────────────────
                           _animated(0, _buildDropdownField()),
                           const SizedBox(height: 20),
 
-                          // ── 1: Nomor Rekening ────────────────────────────────
                           _animated(
                             1,
                             _buildInputField(
@@ -165,7 +160,6 @@ class _TopUpPageState extends State<TopUpPage>
                           ),
                           const SizedBox(height: 20),
 
-                          // ── 2: Jumlah Transfer ───────────────────────────────
                           _animated(
                             2,
                             _buildInputField(
@@ -177,7 +171,6 @@ class _TopUpPageState extends State<TopUpPage>
                           ),
                           const SizedBox(height: 20),
 
-                          // ── 3: Info note ─────────────────────────────────────
                           _animated(
                             3,
                             Row(
@@ -208,7 +201,6 @@ class _TopUpPageState extends State<TopUpPage>
                   ),
                 ),
 
-                // ── CTA button (fixed bottom) ─────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                   child: Builder(
@@ -269,7 +261,6 @@ class _TopUpPageState extends State<TopUpPage>
     );
   }
 
-  // ── App bar ───────────────────────────────────────────────────────────────
   Widget _buildAppBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
@@ -305,7 +296,6 @@ class _TopUpPageState extends State<TopUpPage>
     );
   }
 
-  // ── Dropdown field ────────────────────────────────────────────────────────
   Widget _buildDropdownField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,7 +349,6 @@ class _TopUpPageState extends State<TopUpPage>
     );
   }
 
-  // ── Text input field ──────────────────────────────────────────────────────
   Widget _buildInputField({
     required String label,
     required TextEditingController controller,

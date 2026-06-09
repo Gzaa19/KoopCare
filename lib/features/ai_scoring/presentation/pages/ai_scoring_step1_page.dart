@@ -6,11 +6,6 @@ import '../widgets/ai_step_scaffold.dart';
 import '../../../../core/router/route_args.dart';
 import '../../../../core/router/route_names.dart';
 
-/// Step 1 — fields 1–4: gender, age range, education, marital status.
-///
-/// Loan parameters ([loanAmount], [loanTenor], [loanPurpose], [loanType])
-/// are carried forward from [PengajuanPembiayaanPage] via constructor and
-/// propagated through each step until [AiScoringProcessingPage].
 class AiScoringStep1Page extends StatefulWidget {
   final double loanAmount;
   final int loanTenor;

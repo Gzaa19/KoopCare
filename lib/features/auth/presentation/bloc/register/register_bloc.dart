@@ -4,11 +4,6 @@ import '../../../domain/usecases/register_usecase.dart';
 import 'register_event.dart';
 import 'register_state.dart';
 
-/// State container for the registration flow.
-///
-/// Lives separate from `AuthBloc` because the registration state machine
-/// (form fields → submitting → success/error) doesn't overlap with the
-/// session state machine.
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final RegisterUseCase _registerUseCase;
 

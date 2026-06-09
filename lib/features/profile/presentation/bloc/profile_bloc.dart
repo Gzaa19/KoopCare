@@ -5,8 +5,6 @@ import '../../domain/usecases/get_profile_usecase.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
-/// Drives the general info page: loads the member's personal profile via the
-/// [GetProfileUseCase] and emits loading / loaded / error states.
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final GetProfileUseCase _getProfileUseCase;
 

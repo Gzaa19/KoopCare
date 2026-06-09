@@ -7,10 +7,6 @@ import '../../domain/usecases/logout_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
-/// State container for the active session (login + logout).
-///
-/// Pages add events; the BLoC delegates to use cases and emits new states.
-/// All side effects live in the use case + repository, never here.
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase _loginUseCase;
   final LogoutUseCase _logoutUseCase;
@@ -60,8 +56,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  /// Restores the cached user from SharedPreferences on app start.
-  /// If no cache exists, stays in initial state (AuthGate will redirect to login).
   Future<void> _onUserRestoreRequested(
     AuthUserRestoreRequested event,
     Emitter<AuthState> emit,
@@ -72,15 +66,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  /// Fetches fresh profile data (including balance) from the backend.
-  /// Keeps the current user visible while loading — no loading spinner.
   Future<void> _onProfileRefreshRequested(
     AuthProfileRefreshRequested event,
     Emitter<AuthState> emit,
   ) async {
     final result = await _authRepository.refreshProfile();
     result.fold(
-      (_) {}, // silently ignore — stale cache is fine
+      (_) {},
       (user) => emit(AuthState.authenticated(user)),
     );
   }

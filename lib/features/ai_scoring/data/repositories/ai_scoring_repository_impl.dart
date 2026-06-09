@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
@@ -30,8 +31,7 @@ class AiScoringRepositoryImpl implements AiScoringRepository {
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e, st) {
-      // ignore: avoid_print
-      print('[AiScoringRepo] unexpected error: $e\n$st');
+      debugPrint('[AiScoringRepo] unexpected error: $e\n$st');
       return Left(UnknownFailure('Error: $e'));
     }
   }

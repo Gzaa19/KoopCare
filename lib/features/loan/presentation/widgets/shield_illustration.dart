@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
 
-/// A premium shield illustration widget with a lock and status badge
-/// originally extracted from `pin_verification.dart`.
 class ShieldIllustration extends StatelessWidget {
   const ShieldIllustration({super.key});
 
@@ -14,13 +12,11 @@ class ShieldIllustration extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Main shield
           CustomPaint(
             size: const Size(150, 170),
             painter: ShieldPainter(color: kHijauTua),
           ),
 
-          // Inner shield highlight (slightly lighter)
           Positioned(
             top: 10,
             child: CustomPaint(
@@ -29,12 +25,10 @@ class ShieldIllustration extends StatelessWidget {
             ),
           ),
 
-          // Padlock body
           Positioned(
             top: 38,
             child: Column(
               children: [
-                // Lock shackle (arc)
                 Container(
                   width: 36,
                   height: 22,
@@ -45,7 +39,6 @@ class ShieldIllustration extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Lock body
                 Container(
                   width: 52,
                   height: 42,
@@ -68,7 +61,6 @@ class ShieldIllustration extends StatelessWidget {
             ),
           ),
 
-          // Yellow badge padlock (bottom-right)
           Positioned(
             bottom: 14,
             right: 14,
@@ -114,10 +106,10 @@ class ShieldPainter extends CustomPainter {
     final h = size.height;
 
     final path = Path()
-      ..moveTo(w / 2, 0)                        // top center
-      ..lineTo(w, h * 0.22)                     // top-right
-      ..quadraticBezierTo(w, h * 0.72, w / 2, h) // right curve to bottom
-      ..quadraticBezierTo(0, h * 0.72, 0, h * 0.22) // left curve
+      ..moveTo(w / 2, 0)
+      ..lineTo(w, h * 0.22)
+      ..quadraticBezierTo(w, h * 0.72, w / 2, h)
+      ..quadraticBezierTo(0, h * 0.72, 0, h * 0.22)
       ..lineTo(w / 2, 0)
       ..close();
 

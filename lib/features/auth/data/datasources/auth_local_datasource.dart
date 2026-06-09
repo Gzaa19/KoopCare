@@ -5,10 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/auth_user_model.dart';
 
-/// Persists auth state on the device.
-///
-/// Stores both the JWT token and the cached user object so the home page
-/// can display the real name and balance without an extra network call.
 abstract class AuthLocalDataSource {
   Future<void> cacheToken(String token);
   Future<String?> readToken();

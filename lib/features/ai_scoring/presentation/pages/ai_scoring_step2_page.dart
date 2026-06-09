@@ -6,9 +6,6 @@ import '../widgets/ai_step_scaffold.dart';
 import '../../../../core/router/route_args.dart';
 import '../../../../core/router/route_names.dart';
 
-/// Step 2 — fields 5–7: housing, transport, occupation.
-///
-/// `sumberPenghasilan` removed — BE hardcodes `name_income_type='Working'`.
 class AiScoringStep2Page extends StatefulWidget {
   final double loanAmount;
   final int loanTenor;
@@ -81,14 +78,14 @@ class _AiScoringStep2PageState extends State<AiScoringStep2Page> {
       fields: [
         AiDropdownField(
           number: 5,
-          label: 'Punya Properti',
+          label: 'Kepemilikan Properti',
           value: _punyaProperti,
           options: kPunyaProperti,
           onChanged: (v) => setState(() => _punyaProperti = v),
         ),
         AiDropdownField(
           number: 6,
-          label: 'Punya Kendaraan',
+          label: 'Kepemilikan Kendaraan',
           value: _punyaKendaraan,
           options: kPunyaKendaraan,
           onChanged: (v) => setState(() => _punyaKendaraan = v),

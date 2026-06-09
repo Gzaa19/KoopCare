@@ -29,7 +29,6 @@ class PayInstallmentViaMidtrans extends InstallmentEvent {
   List<Object?> get props => [loanId, installmentId];
 }
 
-/// Fired after the WebView closes — poll the backend for settlement.
 class PollInstallmentPayment extends InstallmentEvent {
   final int loanId;
   final int installmentId;

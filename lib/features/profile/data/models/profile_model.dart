@@ -1,7 +1,5 @@
 import '../../domain/entities/profile.dart';
 
-/// Data-layer DTO that knows how to deserialize the `data` object returned by
-/// `GET /api/v1/mobile/profile` and convert into the domain [Profile] entity.
 class ProfileModel extends Profile {
   const ProfileModel({
     required super.id,
@@ -24,7 +22,6 @@ class ProfileModel extends Profile {
     super.createdAt,
   });
 
-  /// Parses from the `data` object inside the GET /profile response.
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
       id: json['id'] as int,

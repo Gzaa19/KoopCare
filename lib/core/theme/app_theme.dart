@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// Centralized [ThemeData] builder.
-///
-/// Currently mirrors the inline theme that used to live in `main.dart`.
-/// Add typography, button styles, and dark-mode variants here as they are
-/// designed.
 class AppTheme {
   AppTheme._();
 

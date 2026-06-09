@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/app_colors.dart';
 
-/// Title + step indicator + animated progress bar shown atop each AI scoring step.
 class AiStepHeader extends StatelessWidget {
   final String title;
   final int currentStep;

@@ -9,7 +9,6 @@ abstract class AiScoringEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// User finished the multi-step form — run the prediction.
 class AiScoringPredictionRequested extends AiScoringEvent {
   final AiScoringInput input;
 
@@ -19,7 +18,6 @@ class AiScoringPredictionRequested extends AiScoringEvent {
   List<Object?> get props => [input];
 }
 
-/// Reset back to idle (e.g. when leaving the result screen).
 class AiScoringReset extends AiScoringEvent {
   const AiScoringReset();
 }

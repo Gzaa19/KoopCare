@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
 
-/// A bottom sheet dialog for confirming payment of a specific installment
-/// originally extracted from `pembayaran_detail_page.dart`.
 class KonfirmasiPembayaranSheet extends StatelessWidget {
   final String month;
   final String amount;

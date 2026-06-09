@@ -7,7 +7,6 @@ abstract class ForgotPinEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// User tapped "Send OTP" — kick off WhatsApp OTP delivery.
 class ForgotPinOtpRequested extends ForgotPinEvent {
   final String identifier;
 
@@ -17,7 +16,6 @@ class ForgotPinOtpRequested extends ForgotPinEvent {
   List<Object?> get props => [identifier];
 }
 
-/// User entered the 6-digit code — verify it before letting them set a new PIN.
 class ForgotPinOtpVerified extends ForgotPinEvent {
   final String identifier;
   final String otp;
@@ -28,7 +26,6 @@ class ForgotPinOtpVerified extends ForgotPinEvent {
   List<Object?> get props => [identifier, otp];
 }
 
-/// User submitted a new PIN.
 class ForgotPinReset extends ForgotPinEvent {
   final String identifier;
   final String otp;
@@ -44,7 +41,6 @@ class ForgotPinReset extends ForgotPinEvent {
   List<Object?> get props => [identifier, otp, newPin];
 }
 
-/// Reset state back to initial.
 class ForgotPinResetState extends ForgotPinEvent {
   const ForgotPinResetState();
 }

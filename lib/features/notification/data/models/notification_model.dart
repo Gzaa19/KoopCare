@@ -1,7 +1,5 @@
 import '../../domain/entities/app_notification.dart';
 
-/// Data models in the data layer convert into these domain types.
-/// The presentation layer depends only on this contract.
 class NotificationModel extends AppNotification {
   const NotificationModel({
     required super.id,

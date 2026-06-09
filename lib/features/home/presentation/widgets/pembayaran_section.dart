@@ -4,14 +4,11 @@ import 'package:intl/intl.dart';
 import '../../../../core/app_colors.dart';
 import '../../../../core/router/route_args.dart';
 import '../../../../core/router/route_names.dart';
-import '../../../loan/data/models/loan_model.dart';
+import '../../../loan/domain/entities/loan.dart';
 
-/// Section that shows the active loan / payment card.
-/// Returns [SizedBox.shrink] when there is no active loan.
 class PembayaranSection extends StatelessWidget {
-  final LoanModel? activeLoan;
+  final Loan? activeLoan;
 
-  /// Callback to switch the shell tab to "Cicilan" (index 2).
   final VoidCallback? onViewAll;
 
   const PembayaranSection({
@@ -56,7 +53,6 @@ class PembayaranSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -83,7 +79,6 @@ class PembayaranSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        // Loan card
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -105,7 +100,6 @@ class PembayaranSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Loan type + status badge
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -176,11 +170,10 @@ class PembayaranSection extends StatelessWidget {
                   valueColor: const Color(0xFFCC4444),
                 ),
                 const SizedBox(height: 16),
-                // Progress bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6),
                   child: TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0, end: 0.0), // 0% paid
+                    tween: Tween(begin: 0, end: 0.0),
                     duration: const Duration(milliseconds: 900),
                     curve: Curves.easeOutCubic,
                     builder: (_, value, _) => LinearProgressIndicator(
@@ -194,7 +187,6 @@ class PembayaranSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 18),
-                // Pay button
                 SizedBox(
                   width: double.infinity,
                   height: 46,
@@ -230,7 +222,6 @@ class PembayaranSection extends StatelessWidget {
   }
 }
 
-/// Simple label–value row used inside the loan detail card.
 class _FinRow extends StatelessWidget {
   final String label;
   final String value;

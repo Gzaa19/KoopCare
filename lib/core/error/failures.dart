@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Domain-level error type. Returned from repositories via `Either<Failure, T>`.
-///
-/// Failures are user-facing and free of framework details. Map them to UI
-/// messages in the presentation layer.
 abstract class Failure extends Equatable {
   final String message;
   const Failure(this.message);

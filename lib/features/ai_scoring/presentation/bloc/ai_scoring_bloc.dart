@@ -4,10 +4,6 @@ import '../../domain/usecases/predict_ai_score_usecase.dart';
 import 'ai_scoring_event.dart';
 import 'ai_scoring_state.dart';
 
-/// State container for the AI credit-scoring flow.
-///
-/// Form state (which dropdowns are filled) lives in the page; this BLoC
-/// only owns the prediction request lifecycle.
 class AiScoringBloc extends Bloc<AiScoringEvent, AiScoringState> {
   final PredictAiScoreUseCase _predictUseCase;
 

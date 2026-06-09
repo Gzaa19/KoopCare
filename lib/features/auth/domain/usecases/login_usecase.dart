@@ -6,9 +6,6 @@ import '../../../../core/usecase/usecase.dart';
 import '../entities/auth_user.dart';
 import '../repositories/auth_repository.dart';
 
-/// Logs the user in with `(identifier, pin)`.
-///
-/// `identifier` is either a phone number or email — backend decides.
 class LoginUseCase implements UseCase<AuthUser, LoginParams> {
   final AuthRepository repository;
 

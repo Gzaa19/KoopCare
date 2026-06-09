@@ -3,8 +3,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../../core/app_colors.dart';
 
-/// Hosts the Midtrans Snap payment page in a WebView.
-/// Pops `true` when Snap reaches a finish/close redirect.
 class MidtransWebViewPage extends StatefulWidget {
   final String redirectUrl;
   const MidtransWebViewPage({super.key, required this.redirectUrl});
@@ -28,8 +26,6 @@ class _MidtransWebViewPageState extends State<MidtransWebViewPage> {
           onPageFinished: (_) => setState(() => _loading = false),
           onNavigationRequest: (request) {
             final url = request.url;
-            // Snap redirects to your configured Finish/Error/Unfinished URLs.
-            // Set those in the Midtrans dashboard to a known host you can match.
             if (url.contains('koopcare.finish') ||
                 url.contains('transaction_status') ||
                 url.contains('status_code')) {

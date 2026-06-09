@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
+import 'package:koopcare/core/widgets/app_widgets.dart';
 import 'package:koopcare/features/transfer/presentation/pages/transfer_page.dart';
 
 class TransferSuccessPage extends StatefulWidget {
@@ -77,140 +78,162 @@ class _TransferSuccessPageState extends State<TransferSuccessPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kScaffold,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
+      body: Stack(
+        children: [
+          const AmbientOrbBackground(),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
 
-              // ── Arrow illustration ──────────────────────────────────────
-              FadeTransition(
-                opacity: _illustFade,
-                child: ScaleTransition(
-                  scale: _illustScale,
-                  child: _buildIllustration(),
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              // ── Title + subtitle + summary ──────────────────────────────
-              FadeTransition(
-                opacity: _contentFade,
-                child: SlideTransition(
-                  position: _contentSlide,
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Transfer Berhasil!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        '${_formatRupiah(widget.amount)} telah berhasil\nditransfer ke ${widget.bank}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF888888),
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-
-                      // Summary card
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: kPutih,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                              color: const Color(0xFFE5E5E5), width: 1),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha:0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Summary',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1A1A1A))),
-                            const SizedBox(height: 10),
-                            const Divider(
-                                height: 1, color: Color(0xFFEEEEEE)),
-                            const SizedBox(height: 10),
-                            _summaryRow('Jumlah Transfer',
-                                _formatRupiah(widget.amount)),
-                            const SizedBox(height: 8),
-                            _summaryRow(
-                                'Bank Tujuan', widget.bank),
-                            const SizedBox(height: 8),
-                            _summaryRow('Nomor Rekening',
-                                widget.rekening),
-                            const SizedBox(height: 8),
-                            _summaryRow('Sisa Saldo',
-                                _formatRupiah(_remainingBalance)),
-                          ],
-                        ),
-                      ),
-                    ],
+                  FadeTransition(
+                    opacity: _illustFade,
+                    child: ScaleTransition(
+                      scale: _illustScale,
+                      child: _buildIllustration(),
+                    ),
                   ),
-                ),
-              ),
 
-              const Spacer(),
+                  const SizedBox(height: 32),
 
-              // ── CTA ────────────────────────────────────────────────────
-              FadeTransition(
-                opacity: _contentFade,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: () =>
-                          Navigator.of(context)
-                              .popUntil((r) => r.isFirst),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kHijauTua,
-                        foregroundColor: kPutih,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Ke Beranda (Halaman Utama)',
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.bold),
+                  FadeTransition(
+                    opacity: _contentFade,
+                    child: SlideTransition(
+                      position: _contentSlide,
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Transfer Berhasil',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1D2E14),
+                              letterSpacing: 0.1,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            '${_formatRupiah(widget.amount)} telah berhasil\nditransfer ke ${widget.bank}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              color: Color(0xFF666666),
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: kPutih,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Summary',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1D2E14),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                const Divider(
+                                    height: 1, color: Color(0xFFEEEEEE)),
+                                const SizedBox(height: 12),
+                                _summaryRow('Jumlah Transfer',
+                                    _formatRupiah(widget.amount)),
+                                const SizedBox(height: 10),
+                                _summaryRow(
+                                    'Bank Tujuan', widget.bank),
+                                const SizedBox(height: 10),
+                                _summaryRow('Nomor Rekening',
+                                    widget.rekening),
+                                const SizedBox(height: 10),
+                                _summaryRow('Sisa Saldo',
+                                    _formatRupiah(_remainingBalance)),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
+
+                  const Spacer(),
+
+                  FadeTransition(
+                    opacity: _contentFade,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: Container(
+                        width: double.infinity,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: const LinearGradient(
+                            colors: [kHijauMuda, kHijauTua],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: kHijauTua.withValues(alpha: 0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () =>
+                                Navigator.of(context)
+                                    .popUntil((r) => r.isFirst),
+                            borderRadius: BorderRadius.circular(16),
+                            child: const Center(
+                              child: Text(
+                                'Ke Beranda (Halaman Utama)',
+                                style: TextStyle(
+                                  fontSize: 15.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: kPutih,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  // ── Arrow-out illustration ────────────────────────────────────────────────
   Widget _buildIllustration() {
     return SizedBox(
       width: 160,
@@ -218,39 +241,46 @@ class _TransferSuccessPageState extends State<TransferSuccessPage>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Outer circle
           Container(
             width: 160,
             height: 160,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE8F0D8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F0D8).withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
           ),
-          // Inner circle
           Container(
-            width: 110,
-            height: 110,
-            decoration: const BoxDecoration(
-              color: Color(0xFFD0E0B0),
+            width: 115,
+            height: 115,
+            decoration: BoxDecoration(
+              color: const Color(0xFFDDE5C8).withValues(alpha: 0.8),
               shape: BoxShape.circle,
             ),
           ),
-          // Arrow icon
           Container(
-            width: 70,
-            height: 70,
-            decoration: const BoxDecoration(
-              color: kHijauTua,
+            width: 76,
+            height: 76,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [kHijauMuda, kHijauTua],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: kHijauTua.withValues(alpha: 0.25),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: const Icon(
               Icons.arrow_upward_rounded,
               color: kPutih,
-              size: 36,
+              size: 38,
             ),
           ),
-          // Coin decorations
           Positioned(
             top: 12,
             right: 16,
@@ -275,7 +305,7 @@ class _TransferSuccessPageState extends State<TransferSuccessPage>
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha:0.15),
+              color: Colors.black.withValues(alpha: 0.15),
               blurRadius: 4,
               offset: const Offset(1, 2))
         ],
@@ -297,14 +327,21 @@ class _TransferSuccessPageState extends State<TransferSuccessPage>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: const TextStyle(
-                fontSize: 13, color: Color(0xFF666666))),
-        Text(value,
-            style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A))),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13.5,
+            color: Color(0xFF666666),
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 13.5,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1D2E14),
+          ),
+        ),
       ],
     );
   }

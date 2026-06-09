@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Result of creating a Midtrans Snap transaction on the backend.
-/// Mirrors the JSON from `POST /mobile/topup`.
 class TopupSession extends Equatable {
   final String orderId;
   final String token;
@@ -17,8 +15,6 @@ class TopupSession extends Equatable {
   List<Object?> get props => [orderId, token, redirectUrl];
 }
 
-/// Settlement status for a top-up, polled from
-/// `GET /mobile/topup/:orderId/status`.
 enum TopupStatus { pending, settled, failed, expired, unknown }
 
 TopupStatus topupStatusFromString(String? s) {

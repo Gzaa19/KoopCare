@@ -7,13 +7,6 @@ import '../widgets/ai_step_scaffold.dart';
 import '../../../../core/router/route_args.dart';
 import '../../../../core/router/route_names.dart';
 
-/// Step 3 — fields 8–9: dependents, monthly income.
-///
-/// `aset` removed — no matching ML column (collateral derived from own_car/own_realty).
-/// `jumlahPinjaman` removed — comes from PengajuanPembiayaanPage as [loanAmount].
-///
-/// At submit time we have the full profile, so we assemble [AiScoringInput]
-/// and hand it to [AiScoringProcessingPage].
 class AiScoringStep3Page extends StatefulWidget {
   final double loanAmount;
   final int loanTenor;

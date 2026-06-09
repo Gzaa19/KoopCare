@@ -7,10 +7,6 @@ abstract class RegisterEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Submit the full registration form.
-///
-/// Carries all fields collected across the multi-step UI in one shot —
-/// the backend doesn't have intermediate save points.
 class RegisterSubmitted extends RegisterEvent {
   final String fullName;
   final String phone;
@@ -32,8 +28,6 @@ class RegisterSubmitted extends RegisterEvent {
   List<Object?> get props => [fullName, phone, nik, pin, email, monthlyIncome];
 }
 
-/// Reset state back to initial — used when user navigates away or wants to
-/// retry from scratch.
 class RegisterReset extends RegisterEvent {
   const RegisterReset();
 }

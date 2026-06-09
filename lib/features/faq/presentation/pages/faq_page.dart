@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
-import 'package:koopcare/features/faq/data/faq_data.dart';
+import 'package:koopcare/features/faq/data/datasources/faq_local_datasource.dart';
 import 'package:koopcare/features/faq/presentation/widgets/faq_tile.dart';
 
 class FaqPage extends StatefulWidget {
@@ -11,7 +11,6 @@ class FaqPage extends StatefulWidget {
 }
 
 class _FaqPageState extends State<FaqPage> {
-  // Only one item open at a time (null = all collapsed)
   int? _openIndex;
 
   @override
@@ -22,10 +21,8 @@ class _FaqPageState extends State<FaqPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── App bar ───────────────────────────────────────────────────
             _buildAppBar(context),
 
-            // ── Scrollable FAQ list ───────────────────────────────────────
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -33,7 +30,6 @@ class _FaqPageState extends State<FaqPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Page title
                     const Center(
                       child: Text(
                         'FAQ',
@@ -48,7 +44,6 @@ class _FaqPageState extends State<FaqPage> {
 
                     const SizedBox(height: 20),
 
-                    // FAQ accordion list
                     Container(
                       decoration: BoxDecoration(
                         color: kPutih,
@@ -78,7 +73,6 @@ class _FaqPageState extends State<FaqPage> {
 
                     const SizedBox(height: 32),
 
-                    // Kembali button
                     SizedBox(
                       width: double.infinity,
                       height: 52,
@@ -111,13 +105,11 @@ class _FaqPageState extends State<FaqPage> {
     );
   }
 
-  // ── App bar ───────────────────────────────────────────────────────────────
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
       child: Row(
         children: [
-          // KoopCare logo
           Container(
             width: 30,
             height: 30,

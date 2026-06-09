@@ -46,13 +46,12 @@ class TopupBloc extends Bloc<TopupEvent, TopupState> {
   ) async {
     emit(state.copyWith(status: TopupFlowStatus.polling));
 
-    // Poll up to 5 times, 2s apart. Webhook usually lands within a few seconds.
     for (var i = 0; i < 5; i++) {
       await Future.delayed(const Duration(seconds: 2));
       final result = await _getStatus(event.orderId);
 
       final done = result.fold(
-        (_) => false, // transient error — keep trying
+        (_) => false,
         (status) {
           if (status == TopupStatus.settled) {
             emit(state.copyWith(status: TopupFlowStatus.success));
@@ -67,14 +66,13 @@ class TopupBloc extends Bloc<TopupEvent, TopupState> {
             );
             return true;
           }
-          return false; // still pending
+          return false;
         },
       );
 
       if (done) return;
     }
 
-    // Still pending after polling — webhook lag, not an error.
     emit(state.copyWith(status: TopupFlowStatus.processing));
   }
 }

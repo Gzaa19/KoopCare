@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Slide-from-right + fade page transition shared across AI scoring steps.
 PageRouteBuilder slideRoute(Widget page) => PageRouteBuilder(
       transitionDuration: const Duration(milliseconds: 350),
       pageBuilder: (_, _, _) => page,

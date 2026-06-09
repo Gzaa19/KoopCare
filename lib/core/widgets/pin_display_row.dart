@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
 
-/// A custom horizontal display row showing filled/empty boxes for PIN or OTP entry.
 class PinDisplayRow extends StatelessWidget {
   final int length;
   final int currentIndex;
@@ -36,10 +35,10 @@ class PinDisplayRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isActive
-                  ? kHijauTua               // active → olive border
+                  ? kHijauTua
                   : isFilled
-                      ? kHijauMuda          // filled → lighter olive
-                      : const Color(0xFFCCCCCC), // empty → grey
+                      ? kHijauMuda
+                      : const Color(0xFFCCCCCC),
               width: isActive ? 2 : 1.5,
             ),
           ),

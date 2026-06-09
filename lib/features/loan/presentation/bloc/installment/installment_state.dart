@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../data/models/installment_model.dart';
+import '../../../domain/entities/installment.dart';
 
 abstract class InstallmentState extends Equatable {
   const InstallmentState();
@@ -12,24 +12,22 @@ class InstallmentInitial extends InstallmentState {}
 class InstallmentLoading extends InstallmentState {}
 
 class InstallmentLoaded extends InstallmentState {
-  final List<InstallmentModel> installments;
+  final List<Installment> installments;
   const InstallmentLoaded(this.installments);
   @override
   List<Object?> get props => [installments];
 }
 
-/// A balance payment is in flight for [payingId].
 class InstallmentPaying extends InstallmentState {
-  final List<InstallmentModel> installments;
+  final List<Installment> installments;
   final int payingId;
   const InstallmentPaying(this.installments, this.payingId);
   @override
   List<Object?> get props => [installments, payingId];
 }
 
-/// A Snap session is ready; the page should open the Midtrans WebView.
 class InstallmentMidtransReady extends InstallmentState {
-  final List<InstallmentModel> installments;
+  final List<Installment> installments;
   final String redirectUrl;
   final int loanId;
   final int installmentId;
@@ -43,18 +41,15 @@ class InstallmentMidtransReady extends InstallmentState {
   List<Object?> get props => [installments, redirectUrl, loanId, installmentId];
 }
 
-/// Payment confirmed (balance path, or Midtrans webhook settled).
 class InstallmentPaidSuccess extends InstallmentState {
-  final List<InstallmentModel> installments;
+  final List<Installment> installments;
   const InstallmentPaidSuccess(this.installments);
   @override
   List<Object?> get props => [installments];
 }
 
-/// Midtrans payment not yet confirmed after polling — webhook lag, NOT a
-/// failure and NOT a confirmed success. Show a neutral "processing" message.
 class InstallmentProcessing extends InstallmentState {
-  final List<InstallmentModel> installments;
+  final List<Installment> installments;
   const InstallmentProcessing(this.installments);
   @override
   List<Object?> get props => [installments];
@@ -62,8 +57,7 @@ class InstallmentProcessing extends InstallmentState {
 
 class InstallmentError extends InstallmentState {
   final String message;
-  // Keep the last-known list so the UI doesn't blank out on a failed payment.
-  final List<InstallmentModel> installments;
+  final List<Installment> installments;
   const InstallmentError(this.message, [this.installments = const []]);
   @override
   List<Object?> get props => [message, installments];

@@ -126,7 +126,6 @@ class _LoginView extends StatelessWidget {
       children: [
         const AmbientOrbBackground(),
 
-        // Content
         SafeArea(
           child: BlocListener<AuthBloc, AuthState>(
             listenWhen: (a, b) => a.status != b.status,
@@ -144,7 +143,6 @@ class _LoginView extends StatelessWidget {
                       children: [
                         const SizedBox(height: 30),
 
-                        // Logo Section (Animated)
                         FadeTransition(
                           opacity: logoFade,
                           child: SlideTransition(
@@ -185,7 +183,6 @@ class _LoginView extends StatelessWidget {
 
                         const SizedBox(height: 36),
 
-                        // Form Section (Animated)
                         FadeTransition(
                           opacity: formFade,
                           child: SlideTransition(

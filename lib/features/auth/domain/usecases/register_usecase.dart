@@ -6,10 +6,6 @@ import '../../../../core/usecase/usecase.dart';
 import '../entities/auth_user.dart';
 import '../repositories/auth_repository.dart';
 
-/// Creates an account and returns the authenticated user.
-///
-/// Backend immediately issues a JWT — no email/SMS confirmation step.
-/// KYC photos are uploaded separately, after registration completes.
 class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
   final AuthRepository repository;
 

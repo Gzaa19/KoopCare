@@ -3,25 +3,34 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/notifications/notification_service.dart';
-import '../../domain/repositories/notification_repository.dart';
+import '../../../../core/usecase/usecase.dart';
+import '../../domain/usecases/get_notifications_usecase.dart';
+import '../../domain/usecases/get_unread_count_usecase.dart';
+import '../../domain/usecases/mark_all_notifications_read_usecase.dart';
+import '../../domain/usecases/mark_notification_read_usecase.dart';
 import 'notification_event.dart';
 import 'notification_state.dart';
 
-/// Manages notification list state and a foreground polling timer.
-///
-/// Polls every 30 seconds for unread count changes.
-/// When unread count increases, a local push notification is shown.
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
-  final NotificationRepository _repository;
+  final GetNotificationsUseCase _getNotifications;
+  final GetUnreadCountUseCase _getUnreadCount;
+  final MarkNotificationReadUseCase _markRead;
+  final MarkAllNotificationsReadUseCase _markAllRead;
   final NotificationService _notificationService;
 
   Timer? _pollTimer;
   int _lastKnownUnreadCount = 0;
 
   NotificationBloc({
-    required NotificationRepository repository,
+    required GetNotificationsUseCase getNotifications,
+    required GetUnreadCountUseCase getUnreadCount,
+    required MarkNotificationReadUseCase markRead,
+    required MarkAllNotificationsReadUseCase markAllRead,
     required NotificationService notificationService,
-  })  : _repository = repository,
+  })  : _getNotifications = getNotifications,
+        _getUnreadCount = getUnreadCount,
+        _markRead = markRead,
+        _markAllRead = markAllRead,
         _notificationService = notificationService,
         super(const NotificationState()) {
     on<NotificationsFetchRequested>(_onFetchRequested);
@@ -40,7 +49,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       emit(state.copyWith(status: NotificationStatus.loading));
     }
 
-    final result = await _repository.getNotifications();
+    final result = await _getNotifications(const NoParams());
     result.fold(
       (failure) => emit(state.copyWith(
         status: NotificationStatus.error,
@@ -49,7 +58,6 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       (notifications) {
         final unreadCount = notifications.where((n) => !n.isRead).length;
 
-        // Show local push notification when new unreads appear.
         if (_lastKnownUnreadCount > 0 ||
             state.status != NotificationStatus.initial) {
           if (unreadCount > _lastKnownUnreadCount) {
@@ -81,9 +89,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     NotificationUnreadCountFetchRequested event,
     Emitter<NotificationState> emit,
   ) async {
-    final result = await _repository.getUnreadCount();
+    final result = await _getUnreadCount(const NoParams());
     result.fold(
-      (_) {}, // ignore failures silently for polling
+      (_) {},
       (count) {
         if (_lastKnownUnreadCount > 0 || state.status != NotificationStatus.initial) {
           if (count > _lastKnownUnreadCount) {
@@ -104,7 +112,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     NotificationMarkReadRequested event,
     Emitter<NotificationState> emit,
   ) async {
-    final result = await _repository.markAsRead(event.notificationId);
+    final result = await _markRead(event.notificationId);
     result.fold(
       (_) {},
       (_) {
@@ -127,7 +135,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     NotificationMarkAllReadRequested event,
     Emitter<NotificationState> emit,
   ) async {
-    final result = await _repository.markAllRead();
+    final result = await _markAllRead(const NoParams());
     result.fold(
       (_) {},
       (_) {
@@ -148,9 +156,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) {
     _pollTimer?.cancel();
-    // Initial fetch.
     add(const NotificationUnreadCountFetchRequested());
-    // Poll every 30 seconds.
     _pollTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       add(const NotificationUnreadCountFetchRequested());
     });

@@ -5,7 +5,7 @@ import 'package:koopcare/core/di/service_locator.dart';
 import 'package:koopcare/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:koopcare/features/auth/presentation/bloc/auth_event.dart';
 import 'package:koopcare/features/auth/presentation/bloc/auth_state.dart';
-import 'package:koopcare/features/loan/data/models/loan_model.dart';
+import 'package:koopcare/features/loan/domain/entities/loan.dart';
 import 'package:koopcare/features/loan/presentation/bloc/loan_bloc.dart';
 import 'package:koopcare/features/loan/presentation/bloc/loan_event.dart';
 import 'package:koopcare/features/loan/presentation/bloc/loan_state.dart';
@@ -24,7 +24,6 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
     with SingleTickerProviderStateMixin {
   late final LoanBloc _loanBloc;
 
-  // Entrance animations
   late final AnimationController _entranceCtrl;
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
@@ -63,7 +62,6 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
     super.dispose();
   }
 
-  // Order loans so the most relevant appear first.
   int _statusRank(String status) {
     switch (status) {
       case 'ACTIVE':
@@ -93,8 +91,7 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
             value: _loanBloc,
             child: BlocBuilder<LoanBloc, LoanState>(
               builder: (context, loanState) {
-                // Build a sorted list of ALL loans (instead of picking one).
-                List<LoanModel> loans = const [];
+                List<Loan> loans = const [];
                 if (loanState is LoanLoaded && loanState.loans.isNotEmpty) {
                   loans = [...loanState.loans]
                     ..sort((a, b) =>
@@ -150,7 +147,6 @@ class _SimpananDanaPageState extends State<SimpananDanaPage>
                                 ),
                                 const SizedBox(height: 12),
 
-                                // Render EVERY loan, not just one.
                                 if (loans.isEmpty)
                                   LoanStatusWidget(loan: null, user: user)
                                 else

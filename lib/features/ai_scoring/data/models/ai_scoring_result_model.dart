@@ -1,7 +1,5 @@
 import '../../domain/entities/ai_scoring_result.dart';
 
-/// Data-layer DTO that deserializes the `GET /loans/:id` response body
-/// (`data` sub-object) into the domain [AiScoringResult] entity.
 class AiScoringResultModel extends AiScoringResult {
   const AiScoringResultModel({
     required super.loanId,
@@ -12,8 +10,6 @@ class AiScoringResultModel extends AiScoringResult {
     super.maxApprovedAmount,
   });
 
-  /// [loanId] is passed in separately (from the apply response) because the
-  /// poll endpoint's `data` object also contains it, but we already have it.
   factory AiScoringResultModel.fromJson(
     int loanId,
     Map<String, dynamic> json,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// A premium custom on-screen numeric numpad with 1-9, 0, and backspace keys.
 class CustomNumpad extends StatelessWidget {
   final ValueChanged<String> onKeyPress;
   final VoidCallback onDelete;
@@ -26,7 +25,6 @@ class CustomNumpad extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // Done button
             SizedBox(
               width: 72,
               height: 52,
@@ -48,7 +46,6 @@ class CustomNumpad extends StatelessWidget {
                   : const SizedBox.shrink(),
             ),
             _numpadKey('0'),
-            // Backspace
             SizedBox(
               width: 72,
               height: 52,

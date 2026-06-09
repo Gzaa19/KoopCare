@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/widgets/dashed_border_painter.dart';
 
-/// A card that displays estimated monthly loan payments with high fidelity
-/// originally extracted from `pengajuan_pembiayaan_page.dart`.
 class CicilanCard extends StatelessWidget {
   final String cicilanEstimasi;
 

@@ -7,7 +7,6 @@ abstract class TransactionEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Load (or reload) the member's transaction history.
 class FetchTransactions extends TransactionEvent {
   const FetchTransactions();
 }

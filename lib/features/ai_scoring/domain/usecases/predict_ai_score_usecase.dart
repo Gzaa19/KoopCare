@@ -6,7 +6,6 @@ import '../entities/ai_scoring_input.dart';
 import '../entities/ai_scoring_result.dart';
 import '../repositories/ai_scoring_repository.dart';
 
-/// Runs the credit-scoring model against the user's profile.
 class PredictAiScoreUseCase implements UseCase<AiScoringResult, AiScoringInput> {
   final AiScoringRepository repository;
 

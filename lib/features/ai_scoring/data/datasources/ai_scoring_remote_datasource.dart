@@ -6,11 +6,6 @@ import '../models/ai_scoring_result_model.dart';
 import 'ai_scoring_field_mapper.dart';
 
 abstract class AiScoringRemoteDataSource {
-  /// 1. Updates the member profile with the 10 UI-collected fields.
-  /// 2. Submits the loan application.
-  /// 3. Polls `GET /loans/:id` until the AI score is available.
-  ///
-  /// Returns the scored [AiScoringResultModel] when done.
   Future<AiScoringResultModel> predict(AiScoringInput input);
 }
 
@@ -18,27 +13,20 @@ class AiScoringRemoteDataSourceImpl implements AiScoringRemoteDataSource {
   final Dio _dio;
   final AiScoringFieldMapper _mapper;
 
-  /// Maximum number of poll attempts before giving up.
   static const int _maxPolls = 10;
 
-  /// Delay between poll attempts.
   static const Duration _pollInterval = Duration(seconds: 2);
 
   const AiScoringRemoteDataSourceImpl(this._dio, this._mapper);
 
   @override
   Future<AiScoringResultModel> predict(AiScoringInput input) async {
-    // ── Step 1: update member profile ─────────────────────────────────
     await _updateProfile(input);
 
-    // ── Step 2: submit loan application ───────────────────────────────
     final loanId = await _applyLoan(input);
 
-    // ── Step 3: poll until AI score is ready ──────────────────────────
     return _pollLoanResult(loanId);
   }
-
-  // ── Private helpers ────────────────────────────────────────────────────
 
   Future<void> _updateProfile(AiScoringInput input) async {
     try {
@@ -90,7 +78,6 @@ class AiScoringRemoteDataSourceImpl implements AiScoringRemoteDataSource {
         final data = body['data'] as Map<String, dynamic>?;
         if (data == null) continue;
 
-        // AI score is ready when ai_recommendation is not null.
         if (data['ai_recommendation'] != null) {
           return AiScoringResultModel.fromJson(loanId, data);
         }

@@ -5,7 +5,6 @@ import 'package:koopcare/core/widgets/custom_numpad.dart';
 import 'package:koopcare/core/widgets/pin_display_row.dart';
 import '../widgets/shield_illustration.dart';
 
-
 class PinVerificationPage extends StatefulWidget {
   const PinVerificationPage({super.key});
 
@@ -21,18 +20,15 @@ class _PinVerificationPageState extends State<PinVerificationPage>
   int _currentIndex = 0;
   bool _isObscured = true;
 
-  // ── Entrance animation ────────────────────────────────────────────────────
   late final AnimationController _entranceCtrl;
   late final Animation<double>  _illustFade;
   late final Animation<double>  _illustScale;
   late final Animation<double>  _formFade;
   late final Animation<Offset>  _formSlide;
 
-  // ── Shake animation (wrong PIN) ───────────────────────────────────────────
   late final AnimationController _shakeCtrl;
   late final Animation<double>   _shakeAnim;
 
-  // ── Shield pulse ──────────────────────────────────────────────────────────
   late final AnimationController _pulseCtrl;
   late final Animation<double>   _pulseAnim;
 
@@ -40,7 +36,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
   void initState() {
     super.initState();
 
-    // Entrance
     _entranceCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -59,7 +54,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
       CurvedAnimation(parent: _entranceCtrl,
           curve: const Interval(0.4, 0.9, curve: Curves.easeOutCubic)));
 
-    // Shake (wrong PIN)
     _shakeCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -67,7 +61,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
     _shakeAnim = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _shakeCtrl, curve: Curves.elasticIn));
 
-    // Shield pulse (idle)
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
@@ -87,7 +80,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
     super.dispose();
   }
 
-  // ── PIN input logic ───────────────────────────────────────────────────────
   void _onKeyPress(String digit) {
     if (_currentIndex >= _pinLength) return;
     setState(() {
@@ -118,12 +110,10 @@ class _PinVerificationPageState extends State<PinVerificationPage>
   void _onLanjut() {
     if (!_isComplete) return;
 
-    // Demo: "000000" is correct, anything else shakes
     final entered = _pin.join();
     if (entered == '000000') {
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
-      // Shake + clear
       _shakeCtrl.forward(from: 0).then((_) {
         _onClear();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -151,7 +141,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
             children: [
               const Spacer(flex: 2),
 
-              // ── Shield illustration ─────────────────────────────────────
               FadeTransition(
                 opacity: _illustFade,
                 child: ScaleTransition(
@@ -165,7 +154,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
 
               const SizedBox(height: 32),
 
-              // ── Title + PIN boxes + toggle ──────────────────────────────
               FadeTransition(
                 opacity: _formFade,
                 child: SlideTransition(
@@ -183,7 +171,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
 
                       const SizedBox(height: 32),
 
-                      // PIN boxes with shake
                       AnimatedBuilder(
                         animation: _shakeAnim,
                         builder: (_, child) {
@@ -205,7 +192,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
 
                       const SizedBox(height: 16),
 
-                      // Show/hide toggle
                       GestureDetector(
                         onTap: () =>
                             setState(() => _isObscured = !_isObscured),
@@ -239,7 +225,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
 
               const Spacer(flex: 3),
 
-              // ── Numpad ─────────────────────────────────────────────────
               FadeTransition(
                 opacity: _formFade,
                 child: CustomNumpad(
@@ -251,7 +236,6 @@ class _PinVerificationPageState extends State<PinVerificationPage>
 
               const SizedBox(height: 20),
 
-              // ── Lanjut button ───────────────────────────────────────────
               FadeTransition(
                 opacity: _formFade,
                 child: SizedBox(

@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Pure-Dart representation of an authenticated user.
-///
-/// Lives in the domain layer, so it has no JSON / Flutter / Dio knowledge.
-/// Data-layer models extend or convert into this entity.
 class AuthUser extends Equatable {
   final int id;
   final String name;
@@ -11,8 +7,6 @@ class AuthUser extends Equatable {
   final String? email;
   final String status;
 
-  /// Current simpanan balance in Rupiah. Defaults to 0 until a profile
-  /// fetch or login response provides the real value.
   final double balance;
 
   const AuthUser({

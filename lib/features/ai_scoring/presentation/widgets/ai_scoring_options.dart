@@ -1,13 +1,3 @@
-/// Dropdown option lists for the AI scoring multi-step form.
-///
-/// These are the **Indonesian display labels** the user picks. The mapping
-/// from labels to BE API field values lives in
-/// `data/datasources/ai_scoring_field_mapper.dart` — keep these two in sync
-/// when adding new options.
-///
-/// Removed from UI (handled by BE / not needed):
-/// - `kAsetLainnya`       — no matching DB column; collateral derived from own_car/own_realty
-/// - `kJumlahPinjaman`    — comes from PengajuanPembiayaanPage as a free-text amount
 library;
 
 const List<String> kJenisKelamin = ['Laki-laki', 'Perempuan'];
@@ -24,14 +14,19 @@ const List<String> kPendidikan = ['SD', 'SMP', 'SMA/SMK', 'D3', 'S1', 'S2/S3'];
 const List<String> kStatusNikah = ['Belum Menikah', 'Menikah', 'Cerai'];
 
 const List<String> kPunyaProperti = [
-  'Ya',
-  'Tidak',
+  'Rumah Pribadi',
+  'Rumah Dinas',
+  'Sewa / Kontrak',
+  'Tidak Punya',
 ];
 
 const List<String> kPunyaKendaraan = [
-  'Ya',
-  'Tidak',
+  'Mobil',
+  'Motor',
+  'Mobil & Motor',
+  'Tidak Punya',
 ];
+
 
 const List<String> kSumberPenghasilan = [
   'Karyawan (Working)',

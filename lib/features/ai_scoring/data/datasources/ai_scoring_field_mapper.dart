@@ -1,17 +1,8 @@
 import '../../domain/entities/ai_scoring_input.dart';
 
-/// Translates the Indonesian dropdown labels collected by the UI into the
-/// exact field values expected by `PUT /api/v1/mobile/profile`.
-///
-/// Lives in the data layer — domain entities stay free of API details.
-///
-/// Fields intentionally omitted:
-/// - `sumberPenghasilan` / `aset` — BE hardcodes `name_income_type='Working'`
-///   and derives collateral from `own_car`/`own_realty`. No column in DB.
 class AiScoringFieldMapper {
   const AiScoringFieldMapper();
 
-  /// Returns the body for `PUT /api/v1/mobile/profile`.
   Map<String, dynamic> toProfilePayload(AiScoringInput input) {
     return {
       'code_gender': _gender(input.jenisKelamin),
@@ -21,16 +12,17 @@ class AiScoringFieldMapper {
       'income_type': _incomeType(input.sumberPenghasilan),
       'own_realty': _ownRealty(input.punyaProperti),
       'own_car': _ownCar(input.punyaKendaraan),
+      'vehicle_type': input.punyaKendaraan,
+      'property_type': input.punyaProperti,
       'occupation': _occupation(input.pekerjaan),
       'children_count': _children(input.tanggungan),
-      'family_members': _children(input.tanggungan) + 1, // children + self
+      'family_members': _children(input.tanggungan) + 1,
       'monthly_income': _income(input.pendapatan),
       'employed_days': _employedDays(input.lamaBekerja),
       'last_phone_change_days': _lastPhoneChange(input.lamaNomorHp),
     };
   }
 
-  /// Returns the body for `POST /api/v1/mobile/loans/apply`.
   Map<String, dynamic> toLoanPayload(AiScoringInput input) {
     return {
       'amount': input.loanAmount,
@@ -40,12 +32,9 @@ class AiScoringFieldMapper {
     };
   }
 
-  // ── Profile field mappers ──────────────────────────────────────────────
-
   String _gender(String jenisKelamin) =>
       jenisKelamin == 'Laki-laki' ? 'M' : 'F';
 
-  /// Converts an age-range label to an approximate ISO-8601 birth date.
   String _birthDate(String tanggalLahir) {
     final now = DateTime.now();
     final int approxAge;
@@ -113,9 +102,10 @@ class AiScoringFieldMapper {
     }
   }
 
-  bool _ownRealty(String punyaProperti) => punyaProperti == 'Ya';
+  bool _ownRealty(String punyaProperti) => punyaProperti == 'Rumah Pribadi';
 
-  bool _ownCar(String punyaKendaraan) => punyaKendaraan == 'Ya';
+  bool _ownCar(String punyaKendaraan) =>
+      punyaKendaraan == 'Mobil' || punyaKendaraan == 'Mobil & Motor';
 
   String _occupation(String pekerjaan) {
     switch (pekerjaan) {
@@ -181,30 +171,30 @@ class AiScoringFieldMapper {
   int _employedDays(String lamaBekerja) {
     switch (lamaBekerja) {
       case '< 1 tahun':
-        return -180; // 6 months
+        return -180;
       case '1–3 tahun':
-        return -730; // 2 years
+        return -730;
       case '3–5 tahun':
-        return -1460; // 4 years
+        return -1460;
       case '> 5 tahun':
-        return -2190; // 6 years
+        return -2190;
       default:
-        return -1825; // 5 years
+        return -1825;
     }
   }
 
   int _lastPhoneChange(String lamaNomorHp) {
     switch (lamaNomorHp) {
       case '< 6 bulan':
-        return -90; // 3 months
+        return -90;
       case '6–12 bulan':
-        return -270; // 9 months
+        return -270;
       case '1–2 tahun':
-        return -540; // 1.5 years
+        return -540;
       case '> 2 tahun':
-        return -1095; // 3 years
+        return -1095;
       default:
-        return -180; // 6 months
+        return -180;
     }
   }
 }

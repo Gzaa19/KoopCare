@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 
 import '../../error/exceptions.dart';
 
-/// Translates [DioException] into the app's domain-friendly [AppException]
-/// hierarchy so repositories don't need to know about Dio internals.
 class ErrorInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {

@@ -5,7 +5,6 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../repositories/auth_repository.dart';
 
-/// Verifies the OTP entered by the user during the forgot-PIN flow.
 class VerifyOtpUseCase implements UseCase<void, VerifyOtpParams> {
   final AuthRepository repository;
 

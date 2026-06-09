@@ -5,7 +5,6 @@ import '../../../../core/app_colors.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import 'beranda_app_bar.dart';
 
-/// Green gradient card showing the user's total savings balance.
 class BalanceCard extends StatelessWidget {
   final AuthUser? user;
   final bool balanceVisible;
@@ -59,7 +58,6 @@ class BalanceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            // Decorative circles
             Positioned(
               right: -30,
               bottom: -30,
@@ -84,13 +82,11 @@ class BalanceCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Content
             Padding(
               padding: const EdgeInsets.all(22),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -118,7 +114,6 @@ class BalanceCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // Balance + toggle
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -162,7 +157,6 @@ class BalanceCard extends StatelessWidget {
                   const SizedBox(height: 20),
                   const Divider(color: Colors.white12, height: 1),
                   const SizedBox(height: 12),
-                  // VA row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

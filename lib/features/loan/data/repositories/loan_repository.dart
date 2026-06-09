@@ -46,14 +46,11 @@ class LoanRepository {
       }
       throw Exception(response.data['error'] ?? 'Pembayaran gagal');
     } on DioException catch (e) {
-      // Surfaces 'Saldo tidak mencukupi' / sequential-rule messages verbatim.
       throw Exception(e.response?.data?['error'] ?? 'Terjadi kesalahan jaringan');
     } catch (e) {
       throw Exception(e.toString());
     }
   }
-  /// Creates a Midtrans Snap session for an installment. Returns the
-  /// redirect_url + order_id, mirroring the top-up createTopup shape.
   Future<Map<String, dynamic>> payInstallmentViaMidtrans(
       int loanId, int installmentId) async {
     try {
@@ -85,5 +82,5 @@ class LoanRepository {
       throw Exception(e.response?.data?['error'] ?? 'Terjadi kesalahan jaringan');
     }
   }
-  
+
 }

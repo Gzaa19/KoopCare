@@ -4,11 +4,11 @@ import '../../domain/entities/topup.dart';
 
 enum TopupFlowStatus {
   initial,
-  creating, // calling POST /topup
-  awaitingPayment, // session ready, open WebView
-  polling, // WebView closed, checking settlement
-  success, // SETTLED
-  processing, // webhook lag — still pending after polling
+  creating,
+  awaitingPayment,
+  polling,
+  success,
+  processing,
   failure,
 }
 

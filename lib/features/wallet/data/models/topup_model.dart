@@ -1,6 +1,5 @@
 import '../../domain/entities/topup.dart';
 
-/// DTO for the `POST /mobile/topup` response body.
 class TopupSessionModel extends TopupSession {
   const TopupSessionModel({
     required super.orderId,

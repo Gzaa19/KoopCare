@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/features/transfer/presentation/widgets/transfer_form_widgets.dart';
 
-// ─── Withdrawable balance (would come from API in production) ─────────────────
 const int kSaldoBisaDitarik = 3500000;
 
 class TransferPage extends StatefulWidget {
@@ -18,7 +17,6 @@ class _TransferPageState extends State<TransferPage>
   final _rekeningCtrl = TextEditingController();
   final _jumlahCtrl   = TextEditingController();
 
-  // Entrance animations
   late final AnimationController _ctrl;
   late final List<Animation<double>>  _fades;
   late final List<Animation<Offset>>  _slides;
@@ -28,7 +26,6 @@ class _TransferPageState extends State<TransferPage>
       _rekeningCtrl.text.trim().isNotEmpty &&
       _jumlahCtrl.text.trim().isNotEmpty;
 
-  // Validate jumlah doesn't exceed balance
   bool get _exceedsBalance {
     final raw = _jumlahCtrl.text.trim();
     if (raw.isEmpty) return false;
@@ -45,7 +42,6 @@ class _TransferPageState extends State<TransferPage>
       duration: const Duration(milliseconds: 650),
     );
 
-    // 4 sections: balance card, bank dropdown, rekening, jumlah+note
     _fades = List.generate(4, (i) {
       final s = i * 0.13;
       return Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
@@ -96,18 +92,15 @@ class _TransferPageState extends State<TransferPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── 0: Saldo Bisa Ditarik card ───────────────────────
                     _animated(0, const TransferBalanceCard()),
                     const SizedBox(height: 24),
 
-                    // ── 1: Pilih Bank Tujuan ─────────────────────────────
                     _animated(1, TransferBankDropdown(
                       selectedBank: _selectedBank,
                       onChanged: (v) => setState(() => _selectedBank = v),
                     )),
                     const SizedBox(height: 20),
 
-                    // ── 2: Nomor Rekening ────────────────────────────────
                     _animated(2,
                       TransferInputField(
                         label: 'Nomor Rekening',
@@ -120,7 +113,6 @@ class _TransferPageState extends State<TransferPage>
                     ),
                     const SizedBox(height: 20),
 
-                    // ── 3: Jumlah Transfer + info note ───────────────────
                     _animated(3,
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +129,6 @@ class _TransferPageState extends State<TransferPage>
                           ),
                           const SizedBox(height: 16),
 
-                          // Info note
                           const Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -164,7 +155,6 @@ class _TransferPageState extends State<TransferPage>
               ),
             ),
 
-            // ── Fixed CTA button ─────────────────────────────────────────
             TransferCtaButton(
               enabled: _canSubmit && !_exceedsBalance,
             ),

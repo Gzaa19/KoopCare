@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/app_colors.dart';
 
-/// Numbered dropdown row used by the AI scoring step pages.
 class AiDropdownField extends StatelessWidget {
   final int number;
   final String label;

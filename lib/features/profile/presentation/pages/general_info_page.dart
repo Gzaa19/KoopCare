@@ -10,8 +10,6 @@ import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
 
-/// Shows the member's personal profile (general info) fetched from
-/// `GET /api/v1/mobile/profile`.
 class GeneralInfoPage extends StatelessWidget {
   const GeneralInfoPage({super.key});
 
@@ -309,8 +307,6 @@ class _ProfileContent extends StatelessWidget {
       ],
     );
   }
-
-  // ── Formatting helpers ──────────────────────────────────────────────────
 
   String _orDash(String? value) =>
       (value == null || value.isEmpty) ? '—' : value;

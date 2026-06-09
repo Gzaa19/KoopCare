@@ -4,19 +4,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/app_colors.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/router/route_args.dart';
+import '../../../../core/router/route_names.dart';
 import '../../domain/entities/ai_scoring_input.dart';
 import '../../domain/entities/ai_scoring_result.dart';
 import '../bloc/ai_scoring_bloc.dart';
 import '../bloc/ai_scoring_event.dart';
 import '../bloc/ai_scoring_state.dart';
-import '../widgets/ai_result_dialog.dart';
 import '../widgets/robot_illustration.dart';
 
-/// Step 4 — fires the prediction request and waits for the ML API response.
-///
-/// The BLoC is created here and immediately handed the [AiScoringPredictionRequested]
-/// event. Animations stay in the page (presentation concern); the request
-/// lifecycle stays in the BLoC.
 class AiScoringProcessingPage extends StatelessWidget {
   final AiScoringInput input;
 
@@ -88,10 +84,15 @@ class _AiScoringProcessingViewState extends State<_AiScoringProcessingView>
     super.dispose();
   }
 
-  // ── Result presentation ────────────────────────────────────────────────
-
   void _showResult(AiScoringResult result) {
-    AiResultDialog.show(context, result: result);
+    Navigator.pushReplacementNamed(
+      context,
+      RouteNames.aiResult,
+      arguments: AiScoringResultArgs(
+        input: widget.input,
+        result: result,
+      ),
+    );
   }
 
   void _showErrorDialog(String message) {
@@ -126,7 +127,6 @@ class _AiScoringProcessingViewState extends State<_AiScoringProcessingView>
       backgroundColor: kScaffold,
       body: Stack(
         children: [
-          // Ambient glowing orbs background
           Positioned(
             top: -150,
             left: -150,

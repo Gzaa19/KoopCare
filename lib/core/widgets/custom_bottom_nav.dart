@@ -2,9 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
 
-/// A custom floating capsule bottom navigation bar widget.
-/// Refactored for a premium, modern, and minimalist financial app look
-/// while retaining the green/nature theme tokens.
 class CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onTap;
@@ -71,7 +68,6 @@ class CustomBottomNavBar extends StatelessWidget {
               height: 72,
               child: Stack(
                 children: [
-                  // Sliding capsule background
                   AnimatedAlign(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.fastOutSlowIn,
@@ -100,7 +96,6 @@ class CustomBottomNavBar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Navigation Items
                   Row(
                     children: List.generate(items.length, (i) {
                       final active = i == selectedIndex;

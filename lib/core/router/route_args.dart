@@ -1,18 +1,6 @@
-import 'package:koopcare/features/loan/data/models/loan_model.dart';
+import 'package:koopcare/features/loan/domain/entities/loan.dart';
 import 'package:koopcare/features/ai_scoring/domain/entities/ai_scoring_input.dart';
-
-/// Type-safe argument classes for routes that require parameters.
-///
-/// Usage:
-/// ```dart
-/// Navigator.pushNamed(
-///   context,
-///   RouteNames.register2,
-///   arguments: Register2Args(nama: 'Budi', noWa: '081234', nik: '1234567890123456'),
-/// );
-/// ```
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
+import 'package:koopcare/features/ai_scoring/domain/entities/ai_scoring_result.dart';
 
 class Register2Args {
   final String nama;
@@ -49,15 +37,11 @@ class PinSuccessArgs {
   const PinSuccessArgs({this.ktpFilePath, this.selfieFilePath});
 }
 
-// ── Financial ─────────────────────────────────────────────────────────────────
-
 class PembayaranDetailArgs {
-  final LoanModel? loan;
+  final Loan? loan;
 
   const PembayaranDetailArgs({this.loan});
 }
-
-// ── AI Scoring ────────────────────────────────────────────────────────────────
 
 class AiStep1Args {
   final double loanAmount;
@@ -133,4 +117,11 @@ class AiProcessingArgs {
   final AiScoringInput input;
 
   const AiProcessingArgs({required this.input});
+}
+
+class AiScoringResultArgs {
+  final AiScoringInput input;
+  final AiScoringResult result;
+
+  const AiScoringResultArgs({required this.input, required this.result});
 }

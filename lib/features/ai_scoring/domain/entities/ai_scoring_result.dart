@@ -11,24 +11,17 @@ enum AiRiskLevel {
   const AiRiskLevel(this.label);
 }
 
-/// Outcome of a credit-scoring prediction, parsed from `GET /loans/:id`.
 class AiScoringResult extends Equatable {
-  /// The loan ID returned by `POST /loans/apply`, used for polling.
   final int loanId;
 
-  /// Raw recommendation from the model.
   final AiRecommendation recommendation;
 
-  /// Probability of default, in `[0, 1]`.
   final double probDefault;
 
-  /// Risk bucket from the model.
   final AiRiskLevel riskLevel;
 
-  /// 0–100 score from the backend.
   final int aiScore;
 
-  /// Maximum loan amount suggested by the AI (may be null if not yet scored).
   final double? maxApprovedAmount;
 
   const AiScoringResult({

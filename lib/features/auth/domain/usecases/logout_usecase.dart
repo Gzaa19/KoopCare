@@ -4,9 +4,6 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../repositories/auth_repository.dart';
 
-/// Clears the local session.
-///
-/// Backend is stateless (JWT), so no remote call is needed.
 class LogoutUseCase implements UseCase<void, NoParams> {
   final AuthRepository repository;
 

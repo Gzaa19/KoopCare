@@ -88,7 +88,6 @@ class _LoginFormState extends State<LoginForm> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Nomor WA / NIK Input
             const Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -160,7 +159,6 @@ class _LoginFormState extends State<LoginForm> {
 
             const SizedBox(height: 18),
 
-            // PIN Input
             const Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -243,7 +241,6 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
 
-            // Error Message
             if (errorText != null) ...[
               const SizedBox(height: 14),
               Container(
@@ -283,7 +280,6 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ],
 
-            // Lupa PIN Button
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -309,7 +305,6 @@ class _LoginFormState extends State<LoginForm> {
 
             const SizedBox(height: 24),
 
-            // Submit Button
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -357,7 +352,6 @@ class _LoginFormState extends State<LoginForm> {
 
             const SizedBox(height: 36),
 
-            // Register Banner
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

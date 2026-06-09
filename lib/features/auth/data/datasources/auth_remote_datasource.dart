@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/auth_user_model.dart';
 
-/// Endpoints owned by the auth feature.
 class _AuthEndpoints {
   static const String login = '/login';
   static const String register = '/register';
@@ -12,13 +11,8 @@ class _AuthEndpoints {
   static const String resetPin = '/reset-pin';
 }
 
-/// Result of an authenticated session-creating call (login / register).
 typedef AuthSession = ({String token, AuthUserModel user});
 
-/// Talks to the backend on behalf of the auth repository.
-///
-/// Throws [AppException] subclasses on failure — the repository converts them
-/// into [Failure]s.
 abstract class AuthRemoteDataSource {
   Future<AuthSession> login({required String identifier, required String pin});
 
@@ -41,11 +35,8 @@ abstract class AuthRemoteDataSource {
     required String newPin,
   });
 
-  /// Fetches the full profile including the current balance.
   Future<AuthUserModel> getProfile();
 
-  /// Uploads KYC photos as multipart/form-data.
-  /// BE uploads to Cloudinary and returns the secure URLs.
   Future<void> submitKyc({
     required String ktpFilePath,
     required String selfieFilePath,
@@ -150,7 +141,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await _dio.post<Map<String, dynamic>>(
         '/kyc/submit',
         data: formData,
-        // Content-Type multipart/form-data di-set otomatis oleh Dio
       );
 
       final body = response.data;
@@ -165,8 +155,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException(e.message ?? 'Kesalahan jaringan saat upload KYC');
     }
   }
-
-  // ── Internals ──────────────────────────────────────────────────────────
 
   Future<AuthSession> _postSession(
     String path,
@@ -195,7 +183,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
       return body;
     } on DioException catch (e) {
-      // ErrorInterceptor already wrapped the error into AppException.
       final wrapped = e.error;
       if (wrapped is AppException) throw wrapped;
       throw ServerException(e.message ?? 'Kesalahan jaringan');

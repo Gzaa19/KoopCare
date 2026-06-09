@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:koopcare/core/app_colors.dart';
-import 'package:koopcare/features/loan/data/models/loan_model.dart';
+import 'package:koopcare/features/loan/domain/entities/loan.dart';
 
-/// Summary card showing loan type, contract number, total amount, tenor, and date.
 class CicilanSummaryCard extends StatelessWidget {
-  final LoanModel loan;
+  final Loan loan;
 
   const CicilanSummaryCard({super.key, required this.loan});
 

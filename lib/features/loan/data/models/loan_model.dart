@@ -1,3 +1,5 @@
+import '../../domain/entities/loan.dart';
+
 class LoanModel {
   final int id;
   final int memberId;
@@ -45,6 +47,23 @@ class LoanModel {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),
+    );
+  }
+
+  Loan toEntity() {
+    return Loan(
+      id: id,
+      memberId: memberId,
+      requestNumber: requestNumber,
+      amount: amount,
+      tenor: tenor,
+      purpose: purpose,
+      type: type,
+      status: status,
+      approvedAmount: approvedAmount,
+      approvedTenor: approvedTenor,
+      rejectionReason: rejectionReason,
+      createdAt: createdAt,
     );
   }
 }

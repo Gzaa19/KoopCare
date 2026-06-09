@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/app_colors.dart';
-import '../../../loan/data/models/loan_model.dart';
+import '../../../loan/domain/entities/loan.dart';
 
-/// Two-column financial stats row: AI Credit Limit + Active Billing.
 class FinStatsCard extends StatelessWidget {
-  final LoanModel? activeLoan;
+  final Loan? activeLoan;
 
   const FinStatsCard({super.key, required this.activeLoan});
 
@@ -16,7 +15,7 @@ class FinStatsCard extends StatelessWidget {
         ? (activeLoan!.approvedAmount ?? activeLoan!.amount)
         : 0.0;
 
-    const maxLimit = 50000000.0; // Rp 50 Juta
+    const maxLimit = 50000000.0;
     final availableLimit = (maxLimit - loanAmount).clamp(0.0, maxLimit);
 
     final formatter = NumberFormat.currency(
@@ -27,7 +26,6 @@ class FinStatsCard extends StatelessWidget {
 
     return Row(
       children: [
-        // Limit Kredit AI
         Expanded(
           child: _StatBox(
             icon: Icons.insights_rounded,
@@ -40,7 +38,6 @@ class FinStatsCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        // Tagihan Aktif
         Expanded(
           child: _StatBox(
             icon: Icons.assignment_late_outlined,

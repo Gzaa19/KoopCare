@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/features/faq/data/models/faq_item.dart';
 
-/// Single animated FAQ accordion tile with rotating chevron.
 class FaqTile extends StatefulWidget {
   final FaqItem item;
   final bool isOpen;
@@ -67,13 +66,12 @@ class _FaqTileState extends State<FaqTile>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ── Question row ─────────────────────────────────────────────────
         InkWell(
           onTap: widget.onTap,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             color: widget.isOpen
-                ? const Color(0xFFF0F5E8) // soft green when open
+                ? const Color(0xFFF0F5E8)
                 : kPutih,
             padding: const EdgeInsets.fromLTRB(16, 15, 16, 15),
             child: Row(
@@ -93,7 +91,6 @@ class _FaqTileState extends State<FaqTile>
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Rotating chevron
                 RotationTransition(
                   turns: _rotateAnim,
                   child: Icon(
@@ -109,7 +106,6 @@ class _FaqTileState extends State<FaqTile>
           ),
         ),
 
-        // ── Animated answer panel ────────────────────────────────────────
         SizeTransition(
           sizeFactor: _expandAnim,
           axisAlignment: -1,
@@ -131,7 +127,6 @@ class _FaqTileState extends State<FaqTile>
           ),
         ),
 
-        // ── Divider (not on last item) ───────────────────────────────────
         if (!widget.isLast)
           const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
       ],

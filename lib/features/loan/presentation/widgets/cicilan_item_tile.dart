@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
 
-/// A tile displaying details of a single loan installment (status, date, amount, active selection)
-/// originally extracted from `pembayaran_detail_page.dart`.
 class CicilanItemTile extends StatelessWidget {
   final Map<String, dynamic> cicilan;
   final bool paid;
@@ -54,7 +52,6 @@ class CicilanItemTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: Row(
                 children: [
-                  // Radio check box or paid check indicator
                   if (paid)
                     Container(
                       width: 24,
@@ -106,7 +103,6 @@ class CicilanItemTile extends StatelessWidget {
 
                   const SizedBox(width: 12),
 
-                  // Monthly index bubble
                   Container(
                     width: 32,
                     height: 32,
@@ -136,7 +132,6 @@ class CicilanItemTile extends StatelessWidget {
 
                   const SizedBox(width: 12),
 
-                  // Date + label
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +167,6 @@ class CicilanItemTile extends StatelessWidget {
                     ),
                   ),
 
-                  // Amount + status badge
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [

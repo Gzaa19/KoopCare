@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Linear stages of the forgot-PIN flow.
-///
-/// `idle` is the resting state at any stage; `loading` indicates a request
-/// is in flight. `error` is sticky until the user retries or moves stage.
 enum ForgotPinStage { enterIdentifier, enterOtp, enterNewPin, completed }
 
 enum ForgotPinStatus { idle, loading, error }

@@ -1,10 +1,12 @@
+import '../../domain/entities/installment.dart';
+
 class InstallmentModel {
   final int id;
   final int loanId;
   final int installmentNumber;
   final double amount;
   final DateTime dueDate;
-  final String status; // PENDING | PAID
+  final String status;
   final DateTime? paidAt;
 
   InstallmentModel({
@@ -30,6 +32,18 @@ class InstallmentModel {
       paidAt: json['paid_at'] != null
           ? DateTime.tryParse(json['paid_at'].toString())
           : null,
+    );
+  }
+
+  Installment toEntity() {
+    return Installment(
+      id: id,
+      loanId: loanId,
+      installmentNumber: installmentNumber,
+      amount: amount,
+      dueDate: dueDate,
+      status: status,
+      paidAt: paidAt,
     );
   }
 }

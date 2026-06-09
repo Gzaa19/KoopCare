@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../data/models/loan_model.dart';
+import '../../domain/entities/loan.dart';
 
 abstract class LoanState extends Equatable {
   const LoanState();
@@ -13,7 +13,7 @@ class LoanInitial extends LoanState {}
 class LoanLoading extends LoanState {}
 
 class LoanLoaded extends LoanState {
-  final List<LoanModel> loans;
+  final List<Loan> loans;
 
   const LoanLoaded({required this.loans});
 

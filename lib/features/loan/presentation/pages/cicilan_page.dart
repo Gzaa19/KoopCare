@@ -4,13 +4,14 @@ import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/di/service_locator.dart';
 import 'package:koopcare/core/router/route_args.dart';
 import 'package:koopcare/core/router/route_names.dart';
-import 'package:koopcare/features/loan/data/models/loan_model.dart';
+import 'package:koopcare/features/loan/domain/entities/loan.dart';
 import 'package:koopcare/features/loan/presentation/bloc/loan_bloc.dart';
 import 'package:koopcare/features/loan/presentation/bloc/loan_event.dart';
 import 'package:koopcare/features/loan/presentation/bloc/loan_state.dart';
-import 'package:koopcare/features/cicilan/presentation/widgets/cicilan_summary_card.dart';
-import 'package:koopcare/features/cicilan/presentation/widgets/cicilan_timeline_widget.dart';
-import 'package:koopcare/features/cicilan/presentation/widgets/cicilan_autodebet_row.dart';
+
+import '../widgets/cicilan_summary_card.dart';
+import '../widgets/cicilan_timeline_widget.dart';
+import '../widgets/cicilan_autodebet_row.dart';
 
 class DetailPembiayaanPage extends StatefulWidget {
   const DetailPembiayaanPage({super.key});
@@ -20,7 +21,6 @@ class DetailPembiayaanPage extends StatefulWidget {
 }
 
 class _DetailPembiayaanPageState extends State<DetailPembiayaanPage> {
-  // The loan the user is currently viewing. Null = use the default pick.
   int? _selectedLoanId;
 
   String _statusLabel(String status) {
@@ -40,13 +40,12 @@ class _DetailPembiayaanPageState extends State<DetailPembiayaanPage> {
     }
   }
 
-  // Default pick when the user hasn't chosen: ACTIVE > APPROVED > PENDING > first.
-  LoanModel _defaultLoan(List<LoanModel> loans) {
-    return loans.cast<LoanModel?>().firstWhere(
+  Loan _defaultLoan(List<Loan> loans) {
+    return loans.cast<Loan?>().firstWhere(
           (l) => l!.status == 'ACTIVE',
-          orElse: () => loans.cast<LoanModel?>().firstWhere(
+          orElse: () => loans.cast<Loan?>().firstWhere(
                 (l) => l!.status == 'APPROVED',
-                orElse: () => loans.cast<LoanModel?>().firstWhere(
+                orElse: () => loans.cast<Loan?>().firstWhere(
                       (l) => l!.status == 'PENDING',
                       orElse: () => loans.first,
                     ),
@@ -79,11 +78,9 @@ class _DetailPembiayaanPageState extends State<DetailPembiayaanPage> {
 
             final loans = state.loans;
 
-            // Resolve the loan to display: the user's selection if still valid,
-            // otherwise the default priority pick.
-            LoanModel activeLoan = _defaultLoan(loans);
+            Loan activeLoan = _defaultLoan(loans);
             if (_selectedLoanId != null) {
-              activeLoan = loans.cast<LoanModel?>().firstWhere(
+              activeLoan = loans.cast<Loan?>().firstWhere(
                     (l) => l!.id == _selectedLoanId,
                     orElse: () => activeLoan,
                   )!;
@@ -117,7 +114,6 @@ class _DetailPembiayaanPageState extends State<DetailPembiayaanPage> {
                             ),
                             const SizedBox(height: 16),
 
-                            // Loan selector — only shown when there's more than one.
                             if (loans.length > 1) ...[
                               _LoanSelector(
                                 loans: loans,
@@ -182,12 +178,11 @@ class _DetailPembiayaanPageState extends State<DetailPembiayaanPage> {
   }
 }
 
-// ── Loan selector dropdown ────────────────────────────────────────────────────
 class _LoanSelector extends StatelessWidget {
-  final List<LoanModel> loans;
-  final LoanModel selected;
+  final List<Loan> loans;
+  final Loan selected;
   final String Function(String) statusLabel;
-  final ValueChanged<LoanModel> onChanged;
+  final ValueChanged<Loan> onChanged;
 
   const _LoanSelector({
     required this.loans,

@@ -1,7 +1,5 @@
 import '../../domain/entities/auth_user.dart';
 
-/// Data-layer DTO that knows how to (de)serialize from JSON and convert into
-/// the domain [AuthUser] entity.
 class AuthUserModel extends AuthUser {
   const AuthUserModel({
     required super.id,
@@ -12,8 +10,6 @@ class AuthUserModel extends AuthUser {
     super.balance,
   });
 
-  /// Parses from the `user` object inside login/register responses.
-  /// Balance is not included in those responses — it comes from GET /profile.
   factory AuthUserModel.fromJson(Map<String, dynamic> json) {
     return AuthUserModel(
       id: json['id'] as int,
@@ -25,7 +21,6 @@ class AuthUserModel extends AuthUser {
     );
   }
 
-  /// Parses from the `data` object inside GET /profile response.
   factory AuthUserModel.fromProfileJson(Map<String, dynamic> json) {
     return AuthUserModel(
       id: json['id'] as int,

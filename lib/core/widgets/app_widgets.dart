@@ -2,14 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
 
-// ─── Slide-from-right page transition ────────────────────────────────────────
-
-/// Standard slide-from-right + fade [PageRouteBuilder] used across the app.
-///
-/// Usage:
-/// ```dart
-/// Navigator.push(context, appSlideRoute(const SomePage()));
-/// ```
 PageRouteBuilder<T> appSlideRoute<T>(Widget page) => PageRouteBuilder<T>(
       transitionDuration: const Duration(milliseconds: 350),
       pageBuilder: (_, _, _) => page,
@@ -22,18 +14,6 @@ PageRouteBuilder<T> appSlideRoute<T>(Widget page) => PageRouteBuilder<T>(
       ),
     );
 
-// ─── Ambient orb background ───────────────────────────────────────────────────
-
-/// Two soft glowing circles + a backdrop blur, used as the background on
-/// auth and financial form pages.
-///
-/// Wrap your page's [Stack] children with this widget:
-/// ```dart
-/// Stack(children: [
-///   const AmbientOrbBackground(),
-///   SafeArea(child: ...),
-/// ])
-/// ```
 class AmbientOrbBackground extends StatelessWidget {
   const AmbientOrbBackground({super.key});
 
@@ -76,14 +56,6 @@ class AmbientOrbBackground extends StatelessWidget {
   }
 }
 
-// ─── Loading indicator ────────────────────────────────────────────────────────
-
-/// Centered [CircularProgressIndicator] in the app's primary green colour.
-///
-/// Drop-in replacement for the repeated:
-/// ```dart
-/// Center(child: CircularProgressIndicator(color: kHijauTua))
-/// ```
 class AppLoadingIndicator extends StatelessWidget {
   const AppLoadingIndicator({super.key});
 
@@ -95,21 +67,10 @@ class AppLoadingIndicator extends StatelessWidget {
   }
 }
 
-// ─── Error view ───────────────────────────────────────────────────────────────
-
-/// Full-screen error state: icon, message, and a "Coba Lagi" retry button.
-///
-/// ```dart
-/// AppErrorView(
-///   message: state.errorMessage ?? 'Gagal memuat data',
-///   onRetry: () => context.read<MyBloc>().add(const FetchRequested()),
-/// )
-/// ```
 class AppErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  /// Optional icon — defaults to [Icons.cloud_off_rounded].
   final IconData icon;
 
   const AppErrorView({
@@ -156,16 +117,6 @@ class AppErrorView extends StatelessWidget {
   }
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
-
-/// Centered empty-state: icon + message, no action button.
-///
-/// ```dart
-/// AppEmptyView(
-///   icon: Icons.notifications_none_rounded,
-///   message: 'Belum ada notifikasi',
-/// )
-/// ```
 class AppEmptyView extends StatelessWidget {
   final IconData icon;
   final String message;
@@ -198,10 +149,6 @@ class AppEmptyView extends StatelessWidget {
   }
 }
 
-// ─── Account Inactive Dialog ──────────────────────────────────────────────────
-
-/// Displays a premium minimalist dialog informing the user that the loan feature
-/// is locked because their KYC/account is not yet approved by the admin.
 void showAccountInactiveDialog(BuildContext context) {
   showDialog(
     context: context,
@@ -276,8 +223,6 @@ void showAccountInactiveDialog(BuildContext context) {
   );
 }
 
-/// Runs [action] only if the account is verified (ACTIVE). Otherwise shows
-/// the KYC-locked dialog. Use to gate all financial features behind approval.
 void guardVerified(
   BuildContext context, {
   required String? status,
@@ -289,4 +234,3 @@ void guardVerified(
     showAccountInactiveDialog(context);
   }
 }
-

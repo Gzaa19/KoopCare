@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../data/models/transaction_model.dart';
+import '../../domain/entities/transaction.dart';
 
 abstract class TransactionState extends Equatable {
   const TransactionState();
@@ -17,7 +17,7 @@ class TransactionLoading extends TransactionState {
 }
 
 class TransactionLoaded extends TransactionState {
-  final List<TransactionModel> transactions;
+  final List<Transaction> transactions;
 
   const TransactionLoaded(this.transactions);
 

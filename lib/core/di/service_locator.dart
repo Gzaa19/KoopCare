@@ -21,11 +21,22 @@ import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/forgot_pin/forgot_pin_bloc.dart';
 import '../../features/auth/presentation/bloc/register/register_bloc.dart';
-import '../../features/loan/data/repositories/loan_repository.dart';
+import '../../features/loan/data/datasources/loan_remote_datasource.dart';
+import '../../features/loan/data/repositories/loan_repository_impl.dart';
+import '../../features/loan/domain/repositories/loan_repository.dart';
+import '../../features/loan/domain/usecases/get_installments_usecase.dart';
+import '../../features/loan/domain/usecases/get_loans_usecase.dart';
+import '../../features/loan/domain/usecases/get_payment_status_usecase.dart';
+import '../../features/loan/domain/usecases/pay_installment_midtrans_usecase.dart';
+import '../../features/loan/domain/usecases/pay_installment_usecase.dart';
 import '../../features/loan/presentation/bloc/loan_bloc.dart';
 import '../../features/notification/data/datasources/notification_remote_datasource.dart';
 import '../../features/notification/data/repositories/notification_repository_impl.dart';
 import '../../features/notification/domain/repositories/notification_repository.dart';
+import '../../features/notification/domain/usecases/get_notifications_usecase.dart';
+import '../../features/notification/domain/usecases/get_unread_count_usecase.dart';
+import '../../features/notification/domain/usecases/mark_all_notifications_read_usecase.dart';
+import '../../features/notification/domain/usecases/mark_notification_read_usecase.dart';
 import '../../features/notification/presentation/bloc/notification_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
@@ -42,18 +53,14 @@ import '../network/dio_client.dart';
 import '../network/network_info.dart';
 import '../notifications/notification_service.dart';
 import '../../features/loan/presentation/bloc/installment/installment_bloc.dart';
-import '../../features/riwayat/data/repositories/transaction_repository.dart';
+import '../../features/riwayat/data/datasources/transaction_remote_datasource.dart';
+import '../../features/riwayat/data/repositories/transaction_repository_impl.dart';
+import '../../features/riwayat/domain/repositories/transaction_repository.dart';
+import '../../features/riwayat/domain/usecases/get_transactions_usecase.dart';
 import '../../features/riwayat/presentation/bloc/transaction_bloc.dart';
 
-/// Global service locator. Use [getIt] anywhere a dependency is needed.
 final GetIt getIt = GetIt.instance;
 
-/// Wires up the application's dependency graph.
-///
-/// Call once at app startup, before `runApp`.
-///
-/// New features should register their data sources, repositories, use cases,
-/// and BLoCs here following the same layering pattern as `auth/`.
 Future<void> configureDependencies() async {
   await _registerCore();
   _registerAuth();
@@ -65,24 +72,17 @@ Future<void> configureDependencies() async {
   _registerWallet();
 }
 
-// ── Core ────────────────────────────────────────────────────────────────
-
 Future<void> _registerCore() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerSingleton<SharedPreferences>(sharedPreferences);
-  // Default Dio = koperasi backend (auth-protected).
   getIt.registerLazySingleton<Dio>(DioClient.create);
   getIt.registerLazySingleton<NetworkInfo>(
     () => const AlwaysOnlineNetworkInfo(),
   );
-  // Local notification service (singleton — initialized in main).
   getIt.registerSingleton<NotificationService>(NotificationService());
 }
 
-// ── Auth feature ────────────────────────────────────────────────────────
-
 void _registerAuth() {
-  // Data sources
   getIt.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(getIt()),
   );
@@ -90,7 +90,6 @@ void _registerAuth() {
     () => AuthLocalDataSourceImpl(getIt()),
   );
 
-  // Repository
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
       remoteDataSource: getIt(),
@@ -99,7 +98,6 @@ void _registerAuth() {
     ),
   );
 
-  // Use cases
   getIt.registerLazySingleton(() => LoginUseCase(getIt()));
   getIt.registerLazySingleton(() => LogoutUseCase(getIt()));
   getIt.registerLazySingleton(() => RegisterUseCase(getIt()));
@@ -107,7 +105,6 @@ void _registerAuth() {
   getIt.registerLazySingleton(() => VerifyOtpUseCase(getIt()));
   getIt.registerLazySingleton(() => ResetPinUseCase(getIt()));
 
-  // BLoCs — factory so each page gets a fresh instance
   getIt.registerFactory(
     () => AuthBloc(
       loginUseCase: getIt(),
@@ -125,12 +122,9 @@ void _registerAuth() {
   );
 }
 
-// ── AI Scoring feature ──────────────────────────────────────────────────
-
 void _registerAiScoring() {
   getIt.registerLazySingleton(() => const AiScoringFieldMapper());
 
-  // Uses the main auth-protected Dio (same BE as profile/loans endpoints).
   getIt.registerLazySingleton<AiScoringRemoteDataSource>(
     () => AiScoringRemoteDataSourceImpl(getIt<Dio>(), getIt()),
   );
@@ -147,8 +141,6 @@ void _registerAiScoring() {
   getIt.registerFactory(() => AiScoringBloc(predictUseCase: getIt()));
 }
 
-// ── Notification feature ────────────────────────────────────────────────
-
 void _registerNotification() {
   getIt.registerLazySingleton<NotificationRemoteDataSource>(
     () => NotificationRemoteDataSourceImpl(getIt()),
@@ -161,55 +153,86 @@ void _registerNotification() {
     ),
   );
 
-  // Singleton so polling state persists across the whole app session.
+  getIt.registerLazySingleton(() => GetNotificationsUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetUnreadCountUseCase(getIt()));
+  getIt.registerLazySingleton(() => MarkNotificationReadUseCase(getIt()));
+  getIt.registerLazySingleton(() => MarkAllNotificationsReadUseCase(getIt()));
+
   getIt.registerLazySingleton(
-    () => NotificationBloc(repository: getIt(), notificationService: getIt()),
+    () => NotificationBloc(
+      getNotifications: getIt(),
+      getUnreadCount: getIt(),
+      markRead: getIt(),
+      markAllRead: getIt(),
+      notificationService: getIt(),
+    ),
   );
 }
 
-// ── Financial feature ────────────────────────────────────────────────────────
-
 void _registerFinancial() {
-  getIt.registerLazySingleton<LoanRepository>(
-    () => LoanRepository(dio: getIt()),
+  getIt.registerLazySingleton<LoanRemoteDataSource>(
+    () => LoanRemoteDataSourceImpl(getIt()),
   );
-  getIt.registerFactory<LoanBloc>(() => LoanBloc(repository: getIt()));
+
+  getIt.registerLazySingleton<LoanRepository>(
+    () => LoanRepositoryImpl(
+      remoteDataSource: getIt(),
+      networkInfo: getIt(),
+    ),
+  );
+
+  getIt.registerLazySingleton(() => GetLoansUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetInstallmentsUseCase(getIt()));
+  getIt.registerLazySingleton(() => PayInstallmentUseCase(getIt()));
+  getIt.registerLazySingleton(() => PayInstallmentMidtransUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetPaymentStatusUseCase(getIt()));
+
+  getIt.registerFactory<LoanBloc>(
+    () => LoanBloc(getLoans: getIt()),
+  );
   getIt.registerFactory<InstallmentBloc>(
-    () => InstallmentBloc(repository: getIt()),
+    () => InstallmentBloc(
+      getInstallments: getIt(),
+      payInstallment: getIt(),
+      payMidtrans: getIt(),
+      getPaymentStatus: getIt(),
+    ),
   );
 }
 
 void _registerRiwayat() {
+  getIt.registerLazySingleton<TransactionRemoteDataSource>(
+    () => TransactionRemoteDataSourceImpl(getIt<Dio>()),
+  );
   getIt.registerLazySingleton<TransactionRepository>(
-    () => TransactionRepository(dio: getIt()),
+    () => TransactionRepositoryImpl(
+      remoteDataSource: getIt(),
+      networkInfo: getIt(),
+    ),
+  );
+  getIt.registerLazySingleton(
+    () => GetTransactionsUseCase(getIt()),
   );
   getIt.registerFactory<TransactionBloc>(
-    () => TransactionBloc(repository: getIt()),
+    () => TransactionBloc(getTransactions: getIt()),
   );
 }
 
-// ── Profile feature ───────────────────────────────────────────────────────
-
 void _registerProfile() {
-  // Data source — uses the main auth-protected Dio (same BE as /profile).
   getIt.registerLazySingleton<ProfileRemoteDataSource>(
     () => ProfileRemoteDataSourceImpl(getIt()),
   );
 
-  // Repository
   getIt.registerLazySingleton<ProfileRepository>(
     () =>
         ProfileRepositoryImpl(remoteDataSource: getIt(), networkInfo: getIt()),
   );
 
-  // Use case
   getIt.registerLazySingleton(() => GetProfileUseCase(getIt()));
 
-  // BLoC — factory so each page gets a fresh instance.
   getIt.registerFactory(() => ProfileBloc(getProfileUseCase: getIt()));
 }
 
-// ── Wallet feature ─────────────────────────────────────────────────────────
 void _registerWallet() {
   getIt.registerLazySingleton<TopupRemoteDataSource>(
     () => TopupRemoteDataSourceImpl(getIt()),
@@ -225,14 +248,4 @@ void _registerWallet() {
   getIt.registerFactory(
     () => TopupBloc(createTopup: getIt(), getStatus: getIt()),
   );
-
-// ── Riwayat feature ──────────────────────────────────────────────────────
-void _registerRiwayat() {
-  getIt.registerLazySingleton<TransactionRepository>(
-    () => TransactionRepository(dio: getIt()),
-  );
-  getIt.registerFactory<TransactionBloc>(
-    () => TransactionBloc(repository: getIt()),
-  );
-}
 }

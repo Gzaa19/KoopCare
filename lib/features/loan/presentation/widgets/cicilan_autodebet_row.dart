@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:koopcare/core/app_colors.dart';
 
-/// Row showing autodebet toggle for installment payments.
 class CicilanAutodebetRow extends StatelessWidget {
   const CicilanAutodebetRow({super.key});
 

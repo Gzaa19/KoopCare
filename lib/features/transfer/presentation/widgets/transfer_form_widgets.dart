@@ -5,7 +5,6 @@ import 'package:koopcare/core/app_constants.dart';
 import 'package:koopcare/core/router/route_names.dart';
 import 'package:koopcare/core/widgets/dashed_border_painter.dart';
 
-/// App bar with back button and "Transfer" title.
 class TransferAppBar extends StatelessWidget {
   final VoidCallback onBack;
 
@@ -45,7 +44,6 @@ class TransferAppBar extends StatelessWidget {
   }
 }
 
-/// Dashed-border card showing withdrawable balance.
 class TransferBalanceCard extends StatelessWidget {
   const TransferBalanceCard({super.key});
 
@@ -53,7 +51,6 @@ class TransferBalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Card content
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -84,7 +81,6 @@ class TransferBalanceCard extends StatelessWidget {
           ),
         ),
 
-        // Dashed border overlay
         Positioned.fill(
           child: CustomPaint(
             painter: DashedBorderPainter(
@@ -101,7 +97,6 @@ class TransferBalanceCard extends StatelessWidget {
   }
 }
 
-/// Dropdown field for bank selection.
 class TransferBankDropdown extends StatelessWidget {
   final String? selectedBank;
   final ValueChanged<String?> onChanged;
@@ -161,7 +156,6 @@ class TransferBankDropdown extends StatelessWidget {
   }
 }
 
-/// Reusable text input field for transfer forms.
 class TransferInputField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
@@ -243,7 +237,6 @@ class TransferInputField extends StatelessWidget {
   }
 }
 
-/// Fixed CTA button at the bottom of transfer page.
 class TransferCtaButton extends StatelessWidget {
   final bool enabled;
 

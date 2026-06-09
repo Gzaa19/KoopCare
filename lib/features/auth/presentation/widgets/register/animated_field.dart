@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Wraps [child] in a slide-up + fade-in transition driven by the supplied
-/// [Animation]s. Used for the staggered field entrance on Register Step 1.
 class AnimatedField extends StatelessWidget {
   final Animation<Offset> slide;
   final Animation<double> fade;

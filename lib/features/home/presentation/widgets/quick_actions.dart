@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/app_colors.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/shell/presentation/cubit/navigation_cubit.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 
-/// Grid of 4 quick action shortcuts on the home screen.
 class QuickActions extends StatelessWidget {
   final AuthUser? user;
-
-  /// Callback to switch the main shell tab (e.g. tab index 1 = Simpanan).
-  final void Function(int)? onSwitchTab;
 
   const QuickActions({
     super.key,
     required this.user,
-    required this.onSwitchTab,
   });
 
   @override
@@ -36,7 +33,7 @@ class QuickActions extends StatelessWidget {
           icon: a['icon'] as IconData,
           label: label,
           onTap: switch (label) {
-            'Simpan\nDana' => () => onSwitchTab?.call(1),
+            'Simpan\nDana' => () => context.read<NavigationCubit>().changeTab(1),
             'Ajukan\nPinjaman' => () => guardVerified(
                   context,
                   status: user?.status,
@@ -56,7 +53,6 @@ class QuickActions extends StatelessWidget {
   }
 }
 
-/// Single tappable action button with icon + label.
 class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;

@@ -6,10 +6,10 @@ import 'package:koopcare/core/router/route_names.dart';
 import 'package:koopcare/core/widgets/app_widgets.dart';
 import 'package:koopcare/core/widgets/dashed_border_painter.dart';
 import 'package:koopcare/features/auth/domain/entities/auth_user.dart';
-import 'package:koopcare/features/loan/data/models/loan_model.dart';
+import 'package:koopcare/features/loan/domain/entities/loan.dart';
 
 class LoanStatusWidget extends StatelessWidget {
-  final LoanModel? loan;
+  final Loan? loan;
   final AuthUser? user;
 
   const LoanStatusWidget({
@@ -34,7 +34,7 @@ class LoanStatusWidget extends StatelessWidget {
     return _buildActiveLoanCard(context, loan!);
   }
 
-  Widget _buildActiveLoanCard(BuildContext context, LoanModel loan) {
+  Widget _buildActiveLoanCard(BuildContext context, Loan loan) {
     final isPending = loan.status == 'PENDING';
     final isApproved = loan.status == 'APPROVED';
     final isActive = loan.status == 'ACTIVE';

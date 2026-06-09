@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Domain entity for a notification item.
 class AppNotification extends Equatable {
   final int id;
   final String title;
@@ -35,4 +34,3 @@ class AppNotification extends Equatable {
   @override
   List<Object?> get props => [id, title, message, isRead, createdAt];
 }
-

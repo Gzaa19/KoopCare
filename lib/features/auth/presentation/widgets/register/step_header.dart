@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/app_colors.dart';
 
-/// "Steps  N/Total" label + animated progress bar shown atop each register step.
 class StepHeader extends StatelessWidget {
   final int current;
   final int total;
