@@ -32,10 +32,19 @@ class TopupBloc extends Bloc<TopupEvent, TopupState> {
           status: TopupFlowStatus.failure,
           errorMessage: failure.message,
         ),
-        (session) => state.copyWith(
-          status: TopupFlowStatus.awaitingPayment,
-          session: session,
-        ),
+        (session) {
+          // Backend already settled the transaction (demo mode)
+          if (session.immediatelySettled) {
+            return state.copyWith(
+              status: TopupFlowStatus.success,
+              session: session,
+            );
+          }
+          return state.copyWith(
+            status: TopupFlowStatus.awaitingPayment,
+            session: session,
+          );
+        },
       ),
     );
   }

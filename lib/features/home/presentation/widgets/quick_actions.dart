@@ -6,6 +6,10 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/shell/presentation/cubit/navigation_cubit.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../auth/domain/entities/auth_user.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_event.dart';
+import 'package:koopcare/features/loan/presentation/bloc/loan_bloc.dart';
+import 'package:koopcare/features/loan/presentation/bloc/loan_event.dart';
 
 class QuickActions extends StatelessWidget {
   final AuthUser? user;
@@ -37,14 +41,32 @@ class QuickActions extends StatelessWidget {
             'Ajukan\nPinjaman' => () => guardVerified(
                   context,
                   status: user?.status,
-                  action: () => Navigator.pushNamed(context, RouteNames.pengajuan),
+                  action: () async {
+                    await Navigator.pushNamed(context, RouteNames.pengajuan);
+                    if (context.mounted) {
+                      context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+                      context.read<LoanBloc>().add(const FetchLoans());
+                    }
+                  },
                 ),
             'Transfer' => () => guardVerified(
                   context,
                   status: user?.status,
-                  action: () => Navigator.pushNamed(context, RouteNames.transfer),
+                  action: () async {
+                    await Navigator.pushNamed(context, RouteNames.transfer);
+                    if (context.mounted) {
+                      context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+                      context.read<LoanBloc>().add(const FetchLoans());
+                    }
+                  },
                 ),
-            'Riwayat' => () => Navigator.pushNamed(context, RouteNames.riwayat),
+            'Riwayat' => () async {
+              await Navigator.pushNamed(context, RouteNames.riwayat);
+              if (context.mounted) {
+                context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+                context.read<LoanBloc>().add(const FetchLoans());
+              }
+            },
             _ => null,
           },
         );

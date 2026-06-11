@@ -4,15 +4,17 @@ class TopupSession extends Equatable {
   final String orderId;
   final String token;
   final String redirectUrl;
+  final bool immediatelySettled;
 
   const TopupSession({
     required this.orderId,
     required this.token,
     required this.redirectUrl,
+    this.immediatelySettled = false,
   });
 
   @override
-  List<Object?> get props => [orderId, token, redirectUrl];
+  List<Object?> get props => [orderId, token, redirectUrl, immediatelySettled];
 }
 
 enum TopupStatus { pending, settled, failed, expired, unknown }

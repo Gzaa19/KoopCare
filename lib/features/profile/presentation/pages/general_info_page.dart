@@ -110,6 +110,7 @@ class _ProfileContent extends StatelessWidget {
             rows: [
               _InfoRow('Pekerjaan', _orDash(profile.occupation)),
               _InfoRow('Pendidikan', _orDash(profile.education)),
+              _InfoRow('Tipe Penghasilan', _orDash(profile.incomeType)),
               _InfoRow(
                 'Pendapatan Bulanan',
                 profile.monthlyIncome != null

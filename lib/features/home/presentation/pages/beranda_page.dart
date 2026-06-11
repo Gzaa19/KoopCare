@@ -97,111 +97,118 @@ class _BerandaPageState extends State<BerandaPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) {
-        final user = authState.user;
-        return Scaffold(
-          backgroundColor: kScaffold,
-          body: SafeArea(
-            child: BlocProvider<LoanBloc>.value(
-              value: _loanBloc,
-              child: BlocBuilder<LoanBloc, LoanState>(
-                builder: (context, loanState) {
-                  Loan? activeLoan;
-                  int loanCount = 0;
-                  if (loanState is LoanLoaded && loanState.loans.isNotEmpty) {
-                    final loans = loanState.loans;
-                    loanCount = loans.length;
-                    activeLoan = loans.cast<Loan?>().firstWhere(
-                      (l) => l!.status == 'ACTIVE',
-                      orElse: () => loans.cast<Loan?>().firstWhere(
-                        (l) => l!.status == 'APPROVED',
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, authState) {
+        if (authState.user != null) {
+          _loanBloc.add(const FetchLoans());
+        }
+      },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          final user = authState.user;
+          return Scaffold(
+            backgroundColor: kScaffold,
+            body: SafeArea(
+              child: BlocProvider<LoanBloc>.value(
+                value: _loanBloc,
+                child: BlocBuilder<LoanBloc, LoanState>(
+                  builder: (context, loanState) {
+                    Loan? activeLoan;
+                    int loanCount = 0;
+                    if (loanState is LoanLoaded && loanState.loans.isNotEmpty) {
+                      final loans = loanState.loans;
+                      loanCount = loans.length;
+                      activeLoan = loans.cast<Loan?>().firstWhere(
+                        (l) => l!.status == 'ACTIVE',
                         orElse: () => loans.cast<Loan?>().firstWhere(
-                          (l) => l!.status == 'PENDING',
-                          orElse: () => loans.first,
+                          (l) => l!.status == 'APPROVED',
+                          orElse: () => loans.cast<Loan?>().firstWhere(
+                            (l) => l!.status == 'PENDING',
+                            orElse: () => loans.first,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        context
+                            .read<AuthBloc>()
+                            .add(const AuthProfileRefreshRequested());
+                        _loanBloc.add(const FetchLoans());
+                        await Future.delayed(const Duration(milliseconds: 600));
+                      },
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 16),
+                            _animated(
+                              0,
+                              BerandaAppBar(
+                                user: user,
+                                greeting: _getGreeting(),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Column(
+                                children: [
+                                  _animated(
+                                    1,
+                                    BalanceCard(
+                                      user: user,
+                                      balanceVisible: _balanceVisible,
+                                      onToggleVisibility: () => setState(
+                                        () => _balanceVisible = !_balanceVisible,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  _animated(
+                                    2,
+                                    FinStatsCard(activeLoan: activeLoan),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  _animated(
+                                    3,
+                                    QuickActions(
+                                      user: user,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  _animated(
+                                    4,
+                                    PembayaranSection(
+                                      activeLoan: activeLoan,
+                                      onViewAll: () =>
+                                          context.read<NavigationCubit>().changeTab(2),
+                                    ),
+                                  ),
+                                  if (loanCount > 1) ...[
+                                    const SizedBox(height: 12),
+                                    _MultiLoanBanner(
+                                      count: loanCount,
+                                      onTap: () => context.read<NavigationCubit>().changeTab(2),
+                                    ),
+                                  ],
+                                  const SizedBox(height: 110),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
-                  }
-
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      context
-                          .read<AuthBloc>()
-                          .add(const AuthProfileRefreshRequested());
-                      _loanBloc.add(const FetchLoans());
-                      await Future.delayed(const Duration(milliseconds: 600));
-                    },
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
-                          _animated(
-                            0,
-                            BerandaAppBar(
-                              user: user,
-                              greeting: _getGreeting(),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Column(
-                              children: [
-                                _animated(
-                                  1,
-                                  BalanceCard(
-                                    user: user,
-                                    balanceVisible: _balanceVisible,
-                                    onToggleVisibility: () => setState(
-                                      () => _balanceVisible = !_balanceVisible,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-                                _animated(
-                                  2,
-                                  FinStatsCard(activeLoan: activeLoan),
-                                ),
-                                const SizedBox(height: 20),
-                                _animated(
-                                  3,
-                                  QuickActions(
-                                    user: user,
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                _animated(
-                                  4,
-                                  PembayaranSection(
-                                    activeLoan: activeLoan,
-                                    onViewAll: () =>
-                                        context.read<NavigationCubit>().changeTab(2),
-                                  ),
-                                ),
-                                if (loanCount > 1) ...[
-                                  const SizedBox(height: 12),
-                                  _MultiLoanBanner(
-                                    count: loanCount,
-                                    onTap: () => context.read<NavigationCubit>().changeTab(2),
-                                  ),
-                                ],
-                                const SizedBox(height: 110),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                  },
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

@@ -231,7 +231,7 @@ class _NotificationCard extends StatelessWidget {
                       color: Color(0xFF666666),
                       height: 1.4,
                     ),
-                    maxLines: 2,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),

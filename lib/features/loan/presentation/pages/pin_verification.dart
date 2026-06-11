@@ -4,6 +4,8 @@ import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/widgets/custom_numpad.dart';
 import 'package:koopcare/core/widgets/pin_display_row.dart';
 import '../widgets/shield_illustration.dart';
+import 'package:koopcare/core/di/service_locator.dart';
+import 'package:koopcare/features/auth/domain/repositories/auth_repository.dart';
 
 class PinVerificationPage extends StatefulWidget {
   const PinVerificationPage({super.key});
@@ -107,12 +109,17 @@ class _PinVerificationPageState extends State<PinVerificationPage>
 
   bool get _isComplete => _currentIndex == _pinLength;
 
-  void _onLanjut() {
+  void _onLanjut() async {
     if (!_isComplete) return;
 
     final entered = _pin.join();
-    if (entered == '000000') {
-      Navigator.of(context).popUntil((route) => route.isFirst);
+    final authRepository = getIt<AuthRepository>();
+    final cachedPin = await authRepository.getCachedPin();
+    if (!mounted) return;
+    final targetPin = cachedPin ?? '000000';
+
+    if (entered == targetPin) {
+      Navigator.of(context).pop(true);
     } else {
       _shakeCtrl.forward(from: 0).then((_) {
         _onClear();
@@ -135,135 +142,160 @@ class _PinVerificationPageState extends State<PinVerificationPage>
     return Scaffold(
       backgroundColor: kScaffold,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          child: Column(
-            children: [
-              const Spacer(flex: 2),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isSmallScreen = constraints.maxHeight < 620;
+            final double shieldSize = isSmallScreen ? 120.0 : 180.0;
+            final double verticalGap = isSmallScreen ? 16.0 : 32.0;
 
-              FadeTransition(
-                opacity: _illustFade,
-                child: ScaleTransition(
-                  scale: _illustScale,
-                  child: ScaleTransition(
-                    scale: _pulseAnim,
-                    child: const ShieldIllustration(),
-                  ),
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-              ),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: Column(
+                      children: [
+                        const Spacer(flex: 2),
 
-              const SizedBox(height: 32),
-
-              FadeTransition(
-                opacity: _formFade,
-                child: SlideTransition(
-                  position: _formSlide,
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Silahkan Isi Pin Anda',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
-                        ),
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      AnimatedBuilder(
-                        animation: _shakeAnim,
-                        builder: (_, child) {
-                          final offset = math.sin(
-                                  _shakeAnim.value * math.pi * 6) *
-                              12;
-                          return Transform.translate(
-                            offset: Offset(offset, 0),
-                            child: child,
-                          );
-                        },
-                        child: PinDisplayRow(
-                          length: _pinLength,
-                          currentIndex: _currentIndex,
-                          pin: _pin,
-                          isObscured: _isObscured,
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      GestureDetector(
-                        onTap: () =>
-                            setState(() => _isObscured = !_isObscured),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              _isObscured
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                              size: 16,
-                              color: const Color(0xFF888888),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              _isObscured
-                                  ? 'Tampilkan PIN'
-                                  : 'Sembunyikan PIN',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF888888),
+                        FadeTransition(
+                          opacity: _illustFade,
+                          child: ScaleTransition(
+                            scale: _illustScale,
+                            child: ScaleTransition(
+                              scale: _pulseAnim,
+                              child: SizedBox(
+                                width: shieldSize,
+                                height: shieldSize,
+                                child: const FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: ShieldIllustration(),
+                                ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+
+                        SizedBox(height: verticalGap),
+
+                        FadeTransition(
+                          opacity: _formFade,
+                          child: SlideTransition(
+                            position: _formSlide,
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Silahkan Isi Pin Anda',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1A1A1A),
+                                  ),
+                                ),
+
+                                SizedBox(height: verticalGap),
+
+                                AnimatedBuilder(
+                                  animation: _shakeAnim,
+                                  builder: (_, child) {
+                                    final offset = math.sin(
+                                            _shakeAnim.value * math.pi * 6) *
+                                        12;
+                                    return Transform.translate(
+                                      offset: Offset(offset, 0),
+                                      child: child,
+                                    );
+                                  },
+                                  child: PinDisplayRow(
+                                    length: _pinLength,
+                                    currentIndex: _currentIndex,
+                                    pin: _pin,
+                                    isObscured: _isObscured,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                GestureDetector(
+                                  onTap: () =>
+                                      setState(() => _isObscured = !_isObscured),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        _isObscured
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined,
+                                        size: 16,
+                                        color: const Color(0xFF888888),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        _isObscured
+                                            ? 'Tampilkan PIN'
+                                            : 'Sembunyikan PIN',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF888888),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const Spacer(flex: 3),
+
+                        FadeTransition(
+                          opacity: _formFade,
+                          child: CustomNumpad(
+                            onKeyPress: _onKeyPress,
+                            onDelete: _onDelete,
+                            onDone: _isComplete ? _onLanjut : null,
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        FadeTransition(
+                          opacity: _formFade,
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: ElevatedButton(
+                              onPressed: _isComplete ? _onLanjut : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: kHijauTua,
+                                disabledBackgroundColor: const Color(0xFFB8C8A0),
+                                foregroundColor: kPutih,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              child: const Text(
+                                'Lanjut',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+                      ],
+                    ),
                   ),
                 ),
               ),
-
-              const Spacer(flex: 3),
-
-              FadeTransition(
-                opacity: _formFade,
-                child: CustomNumpad(
-                  onKeyPress: _onKeyPress,
-                  onDelete: _onDelete,
-                  onDone: _isComplete ? _onLanjut : null,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              FadeTransition(
-                opacity: _formFade,
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _isComplete ? _onLanjut : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kHijauTua,
-                      disabledBackgroundColor: const Color(0xFFB8C8A0),
-                      foregroundColor: kPutih,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: const Text(
-                      'Lanjut',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-            ],
-          ),
+            );
+          }
         ),
       ),
     );

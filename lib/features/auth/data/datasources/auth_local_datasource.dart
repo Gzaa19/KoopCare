@@ -12,11 +12,15 @@ abstract class AuthLocalDataSource {
 
   Future<void> cacheUser(AuthUserModel user);
   Future<AuthUserModel?> readUser();
+
+  Future<void> cachePin(String pin);
+  Future<String?> readPin();
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   static const String _kTokenKey = 'jwt_token';
   static const String _kUserKey = 'cached_user';
+  static const String _kPinKey = 'cached_pin';
 
   final SharedPreferences _prefs;
 
@@ -35,6 +39,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> clearToken() async {
     await _prefs.remove(_kTokenKey);
     await _prefs.remove(_kUserKey);
+    await _prefs.remove(_kPinKey);
   }
 
   @override
@@ -54,4 +59,13 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       return null;
     }
   }
+
+  @override
+  Future<void> cachePin(String pin) async {
+    final ok = await _prefs.setString(_kPinKey, pin);
+    if (!ok) throw const CacheException('Gagal menyimpan PIN');
+  }
+
+  @override
+  Future<String?> readPin() async => _prefs.getString(_kPinKey);
 }

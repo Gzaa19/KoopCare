@@ -5,6 +5,7 @@ class TopupSessionModel extends TopupSession {
     required super.orderId,
     required super.token,
     required super.redirectUrl,
+    super.immediatelySettled,
   });
 
   factory TopupSessionModel.fromJson(Map<String, dynamic> json) {
@@ -12,6 +13,7 @@ class TopupSessionModel extends TopupSession {
       orderId: json['order_id'] as String,
       token: json['token'] as String? ?? '',
       redirectUrl: json['redirect_url'] as String,
+      immediatelySettled: json['immediately_settled'] as bool? ?? false,
     );
   }
 }

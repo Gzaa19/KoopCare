@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/app_colors.dart';
 import '../../../../core/router/route_args.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../loan/domain/entities/loan.dart';
+import 'package:koopcare/features/loan/presentation/bloc/loan_bloc.dart';
+import 'package:koopcare/features/loan/presentation/bloc/loan_event.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_event.dart';
 
 class PembayaranSection extends StatelessWidget {
   final Loan? activeLoan;
@@ -33,6 +38,8 @@ class PembayaranSection extends StatelessWidget {
       'ACTIVE' => const Color(0xFF2E7D32),
       'APPROVED' => const Color(0xFF1565C0),
       'PENDING' => const Color(0xFFEF6C00),
+      'PAID_OFF' => const Color(0xFF00796B),
+      'REJECTED' => const Color(0xFFC62828),
       _ => const Color(0xFF424242),
     };
 
@@ -40,6 +47,8 @@ class PembayaranSection extends StatelessWidget {
       'ACTIVE' => const Color(0xFFE8F5E9),
       'APPROVED' => const Color(0xFFE3F2FD),
       'PENDING' => const Color(0xFFFFF3E0),
+      'PAID_OFF' => const Color(0xFFE0F2F1),
+      'REJECTED' => const Color(0xFFFFEBEE),
       _ => const Color(0xFFEEEEEE),
     };
 
@@ -47,6 +56,8 @@ class PembayaranSection extends StatelessWidget {
       'ACTIVE' => 'Aktif',
       'APPROVED' => 'Disetujui',
       'PENDING' => 'Menunggu',
+      'PAID_OFF' => 'Lunas',
+      'REJECTED' => 'Ditolak',
       _ => activeLoan!.status,
     };
 
@@ -158,22 +169,27 @@ class PembayaranSection extends StatelessWidget {
               ),
               if (!isPending) ...[
                 const SizedBox(height: 8),
-                const _FinRow(
+                _FinRow(
                   label: 'Sudah Dibayar',
-                  value: 'Rp 0',
-                  valueColor: Color(0xFF1A1A1A),
+                  value: formatter.format(activeLoan!.totalPaid ?? 0.0),
+                  valueColor: const Color(0xFF1A1A1A),
                 ),
                 const SizedBox(height: 8),
                 _FinRow(
                   label: 'Sisa Pembayaran',
-                  value: formatter.format(loanAmount),
+                  value: formatter.format(activeLoan!.totalRemaining ?? loanAmount),
                   valueColor: const Color(0xFFCC4444),
                 ),
                 const SizedBox(height: 16),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6),
                   child: TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0, end: 0.0),
+                    tween: Tween(
+                      begin: 0,
+                      end: loanAmount > 0
+                          ? ((activeLoan!.totalPaid ?? 0.0) / loanAmount).clamp(0.0, 1.0)
+                          : 0.0,
+                    ),
                     duration: const Duration(milliseconds: 900),
                     curve: Curves.easeOutCubic,
                     builder: (_, value, _) => LinearProgressIndicator(
@@ -191,11 +207,17 @@ class PembayaranSection extends StatelessWidget {
                   width: double.infinity,
                   height: 46,
                   child: ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(
-                      context,
-                      RouteNames.pembayaranDetail,
-                      arguments: PembayaranDetailArgs(loan: activeLoan!),
-                    ),
+                    onPressed: () async {
+                      await Navigator.pushNamed(
+                        context,
+                        RouteNames.pembayaranDetail,
+                        arguments: PembayaranDetailArgs(loan: activeLoan!),
+                      );
+                      if (context.mounted) {
+                        context.read<LoanBloc>().add(const FetchLoans());
+                        context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kHijauTua,
                       foregroundColor: kPutih,

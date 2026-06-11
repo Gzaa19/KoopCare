@@ -8,6 +8,8 @@ import 'package:koopcare/features/loan/domain/entities/loan.dart';
 import 'package:koopcare/features/loan/presentation/bloc/loan_bloc.dart';
 import 'package:koopcare/features/loan/presentation/bloc/loan_event.dart';
 import 'package:koopcare/features/loan/presentation/bloc/loan_state.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_event.dart';
 
 import '../widgets/cicilan_summary_card.dart';
 import '../widgets/cicilan_timeline_widget.dart';
@@ -146,12 +148,18 @@ class _DetailPembiayaanPageState extends State<DetailPembiayaanPage> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
-                                  onPressed: () => Navigator.pushNamed(
-                                    context,
-                                    RouteNames.pembayaranDetail,
-                                    arguments:
-                                        PembayaranDetailArgs(loan: activeLoan),
-                                  ),
+                                  onPressed: () async {
+                                    await Navigator.pushNamed(
+                                      context,
+                                      RouteNames.pembayaranDetail,
+                                      arguments:
+                                          PembayaranDetailArgs(loan: activeLoan),
+                                    );
+                                    if (context.mounted) {
+                                      context.read<LoanBloc>().add(const FetchLoans());
+                                      context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+                                    }
+                                  },
                                   child: const Text(
                                     "Bayar Cicilan Sekarang",
                                     style: TextStyle(

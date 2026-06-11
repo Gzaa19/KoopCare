@@ -37,6 +37,8 @@ abstract class AuthRepository {
 
   Future<AuthUser?> getCachedUser();
 
+  Future<String?> getCachedPin();
+
   Future<Either<Failure, AuthUser>> refreshProfile();
 
   Future<Either<Failure, void>> submitKyc({

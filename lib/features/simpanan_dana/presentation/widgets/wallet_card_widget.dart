@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/router/route_names.dart';
 import 'package:koopcare/core/widgets/app_widgets.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_event.dart';
+import 'package:koopcare/features/loan/presentation/bloc/loan_bloc.dart';
+import 'package:koopcare/features/loan/presentation/bloc/loan_event.dart';
 
 class WalletCardWidget extends StatefulWidget {
   final double balance;
@@ -142,7 +147,13 @@ class _WalletCardWidgetState extends State<WalletCardWidget> {
                           onPressed: () => guardVerified(
                             context,
                             status: widget.status,
-                            action: () => Navigator.pushNamed(context, RouteNames.topup),
+                            action: () async {
+                              await Navigator.pushNamed(context, RouteNames.topup);
+                              if (context.mounted) {
+                                context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+                                context.read<LoanBloc>().add(const FetchLoans());
+                              }
+                            },
                           ),
                           icon: const Icon(Icons.add_rounded, size: 16, color: kHijauTua),
                           label: const Text(
@@ -169,7 +180,13 @@ class _WalletCardWidgetState extends State<WalletCardWidget> {
                           onPressed: () => guardVerified(
                             context,
                             status: widget.status,
-                            action: () => Navigator.pushNamed(context, RouteNames.transfer),
+                            action: () async {
+                              await Navigator.pushNamed(context, RouteNames.transfer);
+                              if (context.mounted) {
+                                context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+                                context.read<LoanBloc>().add(const FetchLoans());
+                              }
+                            },
                           ),
                           icon: const Icon(Icons.keyboard_arrow_up_rounded, size: 18, color: kPutih),
                           label: const Text(

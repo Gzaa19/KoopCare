@@ -33,7 +33,7 @@ class _DashboardCardsWidgetState extends State<DashboardCardsWidget> {
       children: [
         Expanded(
           child: Container(
-            height: 105,
+            height: 88,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: kPutih,
@@ -63,9 +63,12 @@ class _DashboardCardsWidgetState extends State<DashboardCardsWidget> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => setState(() => _balanceVisible = !_balanceVisible),
+                      onTap: () =>
+                          setState(() => _balanceVisible = !_balanceVisible),
                       child: Icon(
-                        _balanceVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        _balanceVisible
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                         size: 16,
                         color: kHijauTua,
                       ),
@@ -73,7 +76,9 @@ class _DashboardCardsWidgetState extends State<DashboardCardsWidget> {
                   ],
                 ),
                 Text(
-                  _balanceVisible ? _formatRp(widget.balance.toInt()) : "Rp ••••••",
+                  _balanceVisible
+                      ? _formatRp(widget.balance.toInt())
+                      : "Rp ••••••",
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -82,21 +87,6 @@ class _DashboardCardsWidgetState extends State<DashboardCardsWidget> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    "Terhubung DB",
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -104,7 +94,7 @@ class _DashboardCardsWidgetState extends State<DashboardCardsWidget> {
         const SizedBox(width: 12),
         Expanded(
           child: Container(
-            height: 105,
+            height: 88,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: kPutih,
@@ -149,21 +139,6 @@ class _DashboardCardsWidgetState extends State<DashboardCardsWidget> {
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: widget.totalLoan > 0 ? Colors.orange.withValues(alpha: 0.08) : Colors.blue.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    widget.totalLoan > 0 ? "Kewajiban Aktif" : "Tanpa Tagihan",
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
-                      color: widget.totalLoan > 0 ? Colors.orange.shade800 : Colors.blue.shade800,
-                    ),
-                  ),
                 ),
               ],
             ),

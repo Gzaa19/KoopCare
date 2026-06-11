@@ -13,6 +13,8 @@ class LoanModel {
   final int? approvedTenor;
   final String? rejectionReason;
   final DateTime createdAt;
+  final double? totalPaid;
+  final double? totalRemaining;
 
   LoanModel({
     required this.id,
@@ -27,6 +29,8 @@ class LoanModel {
     this.approvedTenor,
     this.rejectionReason,
     required this.createdAt,
+    this.totalPaid,
+    this.totalRemaining,
   });
 
   factory LoanModel.fromJson(Map<String, dynamic> json) {
@@ -47,6 +51,12 @@ class LoanModel {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),
+      totalPaid: json['total_paid'] != null
+          ? double.tryParse(json['total_paid'].toString())
+          : null,
+      totalRemaining: json['total_remaining'] != null
+          ? double.tryParse(json['total_remaining'].toString())
+          : null,
     );
   }
 
@@ -64,6 +74,8 @@ class LoanModel {
       approvedTenor: approvedTenor,
       rejectionReason: rejectionReason,
       createdAt: createdAt,
+      totalPaid: totalPaid,
+      totalRemaining: totalRemaining,
     );
   }
 }

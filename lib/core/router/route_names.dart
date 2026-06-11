@@ -17,6 +17,7 @@ abstract class RouteNames {
   static const topup          = '/financial/topup';
   static const topupSuccess   = '/financial/topup-success';
   static const transfer       = '/financial/transfer';
+  static const transferSuccess = '/financial/transfer-success';
   static const pinVerify      = '/financial/pin-verify';
   static const pembayaranDetail = '/financial/pembayaran-detail';
   static const riwayat        = '/financial/riwayat';

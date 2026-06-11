@@ -161,12 +161,6 @@ class AiScoringResultPage extends StatelessWidget {
                                 valueColor: Colors.redAccent,
                               ),
                               _infoRow('Level Risiko Kredit', result.riskLevel.label),
-                              if (approved && result.maxApprovedAmount != null)
-                                _infoRow(
-                                  'Limit Rekomendasi AI',
-                                  _formatRupiah(result.maxApprovedAmount!),
-                                  valueColor: kHijauTua,
-                                ),
                             ],
                           ),
                           const SizedBox(height: 32),

@@ -5,6 +5,8 @@ import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/app_constants.dart';
 import 'package:koopcare/core/router/route_names.dart';
 import 'package:koopcare/core/di/service_locator.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
 
 import '../bloc/topup_bloc.dart';
 import '../bloc/topup_event.dart';
@@ -118,7 +120,17 @@ class _TopUpPageState extends State<TopUpPage>
 
           if (state.status == TopupFlowStatus.success) {
             if (!context.mounted) return;
-            Navigator.pushReplacementNamed(context, RouteNames.topupSuccess);
+            context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+            final amount =
+                int.tryParse(
+                  _jumlahCtrl.text.replaceAll(RegExp(r'[^0-9]'), ''),
+                ) ??
+                0;
+            Navigator.pushReplacementNamed(
+              context,
+              RouteNames.topupSuccess,
+              arguments: amount,
+            );
           }
 
           if (state.status == TopupFlowStatus.failure &&

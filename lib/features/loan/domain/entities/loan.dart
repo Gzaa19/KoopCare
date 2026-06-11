@@ -13,6 +13,8 @@ class Loan extends Equatable {
   final int? approvedTenor;
   final String? rejectionReason;
   final DateTime createdAt;
+  final double? totalPaid;
+  final double? totalRemaining;
 
   const Loan({
     required this.id,
@@ -27,6 +29,8 @@ class Loan extends Equatable {
     this.approvedTenor,
     this.rejectionReason,
     required this.createdAt,
+    this.totalPaid,
+    this.totalRemaining,
   });
 
   @override
@@ -43,5 +47,7 @@ class Loan extends Equatable {
         approvedTenor,
         rejectionReason,
         createdAt,
+        totalPaid,
+        totalRemaining,
       ];
 }

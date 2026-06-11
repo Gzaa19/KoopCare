@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/app_constants.dart';
-import 'package:koopcare/core/router/route_names.dart';
 import 'package:koopcare/core/widgets/dashed_border_painter.dart';
 
 class TransferAppBar extends StatelessWidget {
@@ -45,10 +44,23 @@ class TransferAppBar extends StatelessWidget {
 }
 
 class TransferBalanceCard extends StatelessWidget {
-  const TransferBalanceCard({super.key});
+  final double balance;
+
+  const TransferBalanceCard({super.key, required this.balance});
+
+  String _formatRp(int value) {
+    final s = value.toString();
+    final buf = StringBuffer('Rp ');
+    for (int i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) buf.write('.');
+      buf.write(s[i]);
+    }
+    return buf.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final formatted = _formatRp(balance.toInt());
     return Stack(
       children: [
         Container(
@@ -58,9 +70,9 @@ class TransferBalanceCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-          child: const Column(
+          child: Column(
             children: [
-              Text(
+              const Text(
                 'Saldo Bisa Ditarik',
                 style: TextStyle(
                   fontSize: 13,
@@ -68,10 +80,10 @@ class TransferBalanceCard extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                'Rp 3.500.000',
-                style: TextStyle(
+                formatted,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1A1A1A),
@@ -239,8 +251,9 @@ class TransferInputField extends StatelessWidget {
 
 class TransferCtaButton extends StatelessWidget {
   final bool enabled;
+  final VoidCallback? onPressed;
 
-  const TransferCtaButton({super.key, required this.enabled});
+  const TransferCtaButton({super.key, required this.enabled, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -250,9 +263,7 @@ class TransferCtaButton extends StatelessWidget {
         width: double.infinity,
         height: 52,
         child: ElevatedButton(
-          onPressed: enabled
-              ? () => Navigator.pushNamed(context, RouteNames.pinVerify)
-              : null,
+          onPressed: enabled ? onPressed : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: kHijauTua,
             disabledBackgroundColor: const Color(0xFFB0BDA0),

@@ -37,6 +37,7 @@ class Transaction extends Equatable {
         'BAYAR_ANGSURAN' => 'Pembayaran Cicilan',
         'TARIK_TUNAI' => 'Tarik Tunai',
         'PENARIKAN_SALDO' => 'Penarikan Saldo',
+        'TRANSFER' => 'Transfer',
         _ => _titleCase(type),
       };
 
@@ -46,6 +47,7 @@ class Transaction extends Equatable {
         'BAYAR_ANGSURAN' => Icons.receipt_long_outlined,
         'TARIK_TUNAI' => Icons.payments_outlined,
         'PENARIKAN_SALDO' => Icons.account_balance_wallet_outlined,
+        'TRANSFER' => Icons.swap_horiz_rounded,
         _ => Icons.swap_horiz_rounded,
       };
 

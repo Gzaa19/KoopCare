@@ -12,7 +12,7 @@ class FinStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loanAmount = activeLoan != null && activeLoan!.status != 'PENDING'
-        ? (activeLoan!.approvedAmount ?? activeLoan!.amount)
+        ? (activeLoan!.totalRemaining ?? activeLoan!.approvedAmount ?? activeLoan!.amount)
         : 0.0;
 
     final formatter = NumberFormat.currency(

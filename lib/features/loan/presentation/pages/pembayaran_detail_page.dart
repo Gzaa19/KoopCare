@@ -6,6 +6,10 @@ import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/widgets/app_widgets.dart';
 import 'package:koopcare/features/loan/domain/entities/loan.dart';
 import 'package:koopcare/features/loan/domain/entities/installment.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+import '../bloc/loan_bloc.dart';
+import '../bloc/loan_event.dart';
 import '../bloc/installment/installment_bloc.dart';
 import '../bloc/installment/installment_event.dart';
 import '../bloc/installment/installment_state.dart';
@@ -102,6 +106,8 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Cicilan berhasil dibayar')),
             );
+            context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+            getIt<LoanBloc>().add(const FetchLoans());
             setState(() => _selectedCicilan = null);
           } else if (state is InstallmentError) {
             ScaffoldMessenger.of(
@@ -145,6 +151,9 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
           final bool isLoading = state is InstallmentLoading;
           final bool isPaying = state is InstallmentPaying;
           final int paidCount = installments.where((i) => i.isPaid).length;
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          final bool hasOverdue = installments.any((i) => !i.isPaid && i.dueDate.isBefore(today));
 
           return Scaffold(
             backgroundColor: kScaffold,
@@ -167,8 +176,10 @@ class _PembayaranDetailPageState extends State<PembayaranDetailPage>
                                   loan: widget.loan,
                                   paidIndicesCount: paidCount,
                                 ),
-                                const SizedBox(height: 12),
-                                const WarningBanner(),
+                                if (hasOverdue) ...[
+                                  const SizedBox(height: 12),
+                                  const WarningBanner(),
+                                ],
                               ],
                             ),
                           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/router/route_args.dart';
 import 'package:koopcare/core/router/route_names.dart';
@@ -7,6 +8,10 @@ import 'package:koopcare/core/widgets/app_widgets.dart';
 import 'package:koopcare/core/widgets/dashed_border_painter.dart';
 import 'package:koopcare/features/auth/domain/entities/auth_user.dart';
 import 'package:koopcare/features/loan/domain/entities/loan.dart';
+import 'package:koopcare/features/loan/presentation/bloc/loan_bloc.dart';
+import 'package:koopcare/features/loan/presentation/bloc/loan_event.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:koopcare/features/auth/presentation/bloc/auth_event.dart';
 
 class LoanStatusWidget extends StatelessWidget {
   final Loan? loan;
@@ -38,6 +43,8 @@ class LoanStatusWidget extends StatelessWidget {
     final isPending = loan.status == 'PENDING';
     final isApproved = loan.status == 'APPROVED';
     final isActive = loan.status == 'ACTIVE';
+    final isPaidOff = loan.status == 'PAID_OFF';
+    final isRejected = loan.status == 'REJECTED';
 
     Color statusColor = const Color(0xFF888888);
     Color statusBgColor = const Color(0xFFEEEEEE);
@@ -55,6 +62,23 @@ class LoanStatusWidget extends StatelessWidget {
       statusColor = Colors.green.shade700;
       statusBgColor = Colors.green.shade50;
       statusLabel = "Pembiayaan Aktif";
+    } else if (isPaidOff) {
+      statusColor = Colors.teal.shade700;
+      statusBgColor = Colors.teal.shade50;
+      statusLabel = "Lunas";
+    } else if (isRejected) {
+      statusColor = Colors.red.shade700;
+      statusBgColor = Colors.red.shade50;
+      statusLabel = "Ditolak";
+    } else {
+      statusLabel = switch (loan.status) {
+        'PENDING' => 'Menunggu',
+        'APPROVED' => 'Disetujui',
+        'ACTIVE' => 'Aktif',
+        'PAID_OFF' => 'Lunas',
+        'REJECTED' => 'Ditolak',
+        _ => loan.status,
+      };
     }
 
     final amountToDisplay = loan.approvedAmount ?? loan.amount;
@@ -158,24 +182,50 @@ class LoanStatusWidget extends StatelessWidget {
                 color: Colors.grey.shade600,
                 height: 1.4,
               ),
+            )
+          else if (isPaidOff)
+            Text(
+              "Pembiayaan Anda telah lunas. Terima kasih telah menjaga kelayakan kredit Anda dengan baik.",
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
+            )
+          else if (isRejected)
+            Text(
+              "Mohon maaf, pengajuan pembiayaan Anda ditolak oleh admin.",
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
             ),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
-                if (isActive || isApproved) {
-                  Navigator.pushNamed(
+              onPressed: () async {
+                if (isActive || isApproved || isPaidOff) {
+                  await Navigator.pushNamed(
                     context,
                     RouteNames.pembayaranDetail,
                     arguments: PembayaranDetailArgs(loan: loan),
                   );
+                  if (context.mounted) {
+                    context.read<LoanBloc>().add(const FetchLoans());
+                    context.read<AuthBloc>().add(const AuthProfileRefreshRequested());
+                  }
                 } else {
                   ScaffoldMessenger.of(context).clearSnackBars();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text("Pengajuan pinjaman masih menunggu review admin."),
-                      backgroundColor: kHijauTua,
+                      content: Text(
+                        isRejected
+                            ? "Pengajuan pinjaman Anda ditolak oleh admin."
+                            : "Pengajuan pinjaman masih menunggu review admin.",
+                      ),
+                      backgroundColor: isRejected ? Colors.red.shade800 : kHijauTua,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -192,7 +242,11 @@ class LoanStatusWidget extends StatelessWidget {
                 elevation: 0,
               ),
               child: Text(
-                isActive ? 'Detail Pembayaran & Cicilan' : (isApproved ? 'Lihat Kontrak Detail' : 'Menunggu Review'),
+                isActive
+                    ? 'Detail Pembayaran & Cicilan'
+                    : (isApproved
+                        ? 'Lihat Kontrak Detail'
+                        : (isPaidOff ? 'Detail Pembiayaan' : (isRejected ? 'Ditolak' : 'Menunggu Review'))),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,

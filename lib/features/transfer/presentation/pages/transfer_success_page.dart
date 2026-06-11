@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/widgets/app_widgets.dart';
-import 'package:koopcare/features/transfer/presentation/pages/transfer_page.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 
 class TransferSuccessPage extends StatefulWidget {
   final int amount;
   final String bank;
   final String rekening;
+  final int? remainingBalance;
 
   const TransferSuccessPage({
     super.key,
     required this.amount,
     required this.bank,
     required this.rekening,
+    this.remainingBalance,
   });
 
   @override
@@ -37,7 +41,12 @@ class _TransferSuccessPageState extends State<TransferSuccessPage>
     return 'Rp. ${buf.toString()}';
   }
 
-  int get _remainingBalance => kSaldoBisaDitarik - widget.amount;
+  int _remainingBalance(double currentBalance) {
+    if (widget.remainingBalance != null) {
+      return widget.remainingBalance!;
+    }
+    return (currentBalance - widget.amount).toInt();
+  }
 
   @override
   void initState() {
@@ -76,161 +85,167 @@ class _TransferSuccessPageState extends State<TransferSuccessPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kScaffold,
-      body: Stack(
-        children: [
-          const AmbientOrbBackground(),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Spacer(),
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        final double currentBalance = authState.user?.balance ?? 0.0;
 
-                  FadeTransition(
-                    opacity: _illustFade,
-                    child: ScaleTransition(
-                      scale: _illustScale,
-                      child: _buildIllustration(),
-                    ),
-                  ),
+        return Scaffold(
+          backgroundColor: kScaffold,
+          body: Stack(
+            children: [
+              const AmbientOrbBackground(),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
 
-                  const SizedBox(height: 32),
+                      FadeTransition(
+                        opacity: _illustFade,
+                        child: ScaleTransition(
+                          scale: _illustScale,
+                          child: _buildIllustration(),
+                        ),
+                      ),
 
-                  FadeTransition(
-                    opacity: _contentFade,
-                    child: SlideTransition(
-                      position: _contentSlide,
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Transfer Berhasil',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1D2E14),
-                              letterSpacing: 0.1,
-                            ),
+                      const SizedBox(height: 32),
+
+                      FadeTransition(
+                        opacity: _contentFade,
+                        child: SlideTransition(
+                          position: _contentSlide,
+                          child: Column(
+                            children: [
+                              const Text(
+                                'Transfer Berhasil',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1D2E14),
+                                  letterSpacing: 0.1,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                '${_formatRupiah(widget.amount)} telah berhasil\nditransfer ke ${widget.bank}',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  color: Color(0xFF666666),
+                                  height: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 28),
+
+                              Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: kPutih,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                    width: 1.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.04),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Summary',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1D2E14),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    const Divider(
+                                        height: 1, color: Color(0xFFEEEEEE)),
+                                    const SizedBox(height: 12),
+                                    _summaryRow('Jumlah Transfer',
+                                        _formatRupiah(widget.amount)),
+                                    const SizedBox(height: 10),
+                                    _summaryRow(
+                                        'Bank Tujuan', widget.bank),
+                                    const SizedBox(height: 10),
+                                    _summaryRow('Nomor Rekening',
+                                        widget.rekening),
+                                    const SizedBox(height: 10),
+                                    _summaryRow('Sisa Saldo',
+                                        _formatRupiah(_remainingBalance(currentBalance))),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            '${_formatRupiah(widget.amount)} telah berhasil\nditransfer ke ${widget.bank}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 13.5,
-                              color: Color(0xFF666666),
-                              height: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: 28),
+                        ),
+                      ),
 
-                          Container(
+                      const Spacer(),
+
+                      FadeTransition(
+                        opacity: _contentFade,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: Container(
                             width: double.infinity,
+                            height: 52,
                             decoration: BoxDecoration(
-                              color: kPutih,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                width: 1.5,
+                              borderRadius: BorderRadius.circular(16),
+                              gradient: const LinearGradient(
+                                colors: [kHijauMuda, kHijauTua],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
+                                  color: kHijauTua.withValues(alpha: 0.2),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Summary',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1D2E14),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () =>
+                                    Navigator.of(context)
+                                        .popUntil((r) => r.isFirst),
+                                borderRadius: BorderRadius.circular(16),
+                                child: const Center(
+                                  child: Text(
+                                    'Ke Beranda (Halaman Utama)',
+                                    style: TextStyle(
+                                      fontSize: 15.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: kPutih,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 12),
-                                const Divider(
-                                    height: 1, color: Color(0xFFEEEEEE)),
-                                const SizedBox(height: 12),
-                                _summaryRow('Jumlah Transfer',
-                                    _formatRupiah(widget.amount)),
-                                const SizedBox(height: 10),
-                                _summaryRow(
-                                    'Bank Tujuan', widget.bank),
-                                const SizedBox(height: 10),
-                                _summaryRow('Nomor Rekening',
-                                    widget.rekening),
-                                const SizedBox(height: 10),
-                                _summaryRow('Sisa Saldo',
-                                    _formatRupiah(_remainingBalance)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  FadeTransition(
-                    opacity: _contentFade,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Container(
-                        width: double.infinity,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: const LinearGradient(
-                            colors: [kHijauMuda, kHijauTua],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: kHijauTua.withValues(alpha: 0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () =>
-                                Navigator.of(context)
-                                    .popUntil((r) => r.isFirst),
-                            borderRadius: BorderRadius.circular(16),
-                            child: const Center(
-                              child: Text(
-                                'Ke Beranda (Halaman Utama)',
-                                style: TextStyle(
-                                  fontSize: 15.5,
-                                  fontWeight: FontWeight.bold,
-                                  color: kPutih,
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -12,6 +12,10 @@ class LoanInputField extends StatelessWidget {
   final String? prefixText;
   final ValueChanged<String>? onChanged;
 
+  /// Custom input formatters. Jika disediakan, akan menggantikan default
+  /// [FilteringTextInputFormatter.digitsOnly] saat [isNumeric] = true.
+  final List<TextInputFormatter>? inputFormatters;
+
   const LoanInputField({
     super.key,
     required this.label,
@@ -22,11 +26,17 @@ class LoanInputField extends StatelessWidget {
     this.isNumeric = false,
     this.prefixText,
     this.onChanged,
+    this.inputFormatters,
   });
 
   @override
   Widget build(BuildContext context) {
     final prefix = prefixText;
+
+    // Gunakan formatter kustom jika ada, otherwise fallback ke digitsOnly
+    final effectiveFormatters = inputFormatters ??
+        (isNumeric ? [FilteringTextInputFormatter.digitsOnly] : null);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -83,9 +93,7 @@ class LoanInputField extends StatelessWidget {
                   focusNode: focusNode,
                   keyboardType:
                       isNumeric ? TextInputType.number : TextInputType.text,
-                  inputFormatters: isNumeric
-                      ? [FilteringTextInputFormatter.digitsOnly]
-                      : null,
+                  inputFormatters: effectiveFormatters,
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,

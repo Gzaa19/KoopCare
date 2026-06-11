@@ -31,6 +31,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await localDataSource.cacheToken(result.token);
       await localDataSource.cacheUser(result.user);
+      await localDataSource.cachePin(pin);
       return result.user;
     });
   }
@@ -55,6 +56,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await localDataSource.cacheToken(result.token);
       await localDataSource.cacheUser(result.user);
+      await localDataSource.cachePin(pin);
       return result.user;
     });
   }
@@ -77,6 +79,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthUser?> getCachedUser() => localDataSource.readUser();
+
+  @override
+  Future<String?> getCachedPin() => localDataSource.readPin();
 
   @override
   Future<Either<Failure, AuthUser>> refreshProfile() {

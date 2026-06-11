@@ -16,6 +16,7 @@ import '../../features/loan/presentation/pages/pembayaran_detail_page.dart';
 import '../../features/loan/presentation/pages/pengajuan_pembiayaan_page.dart';
 import '../../features/loan/presentation/pages/pin_verification.dart';
 import '../../features/transfer/presentation/pages/transfer_page.dart';
+import '../../features/transfer/presentation/pages/transfer_success_page.dart';
 import '../../features/wallet/presentation/pages/topup_page.dart';
 import '../../features/wallet/presentation/pages/topup_success_page.dart';
 import '../../features/faq/presentation/pages/faq_page.dart';
@@ -81,10 +82,20 @@ abstract class AppRouter {
         return _slide(const TopUpPage());
 
       case RouteNames.topupSuccess:
-        return _fade(const TopUpSuccessPage());
+        final amount = settings.arguments as int? ?? 1000000;
+        return _fade(TopUpSuccessPage(amount: amount));
 
       case RouteNames.transfer:
         return _slide(const TransferPage());
+
+      case RouteNames.transferSuccess:
+        final args = settings.arguments as Map<String, dynamic>;
+        return _fade(TransferSuccessPage(
+          amount: args['amount'] as int,
+          bank: args['bank'] as String,
+          rekening: args['rekening'] as String,
+          remainingBalance: args['remainingBalance'] as int?,
+        ));
 
       case RouteNames.pinVerify:
         return _slide(const PinVerificationPage());

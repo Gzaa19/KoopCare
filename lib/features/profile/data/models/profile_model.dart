@@ -13,6 +13,7 @@ class ProfileModel extends Profile {
     super.birthDate,
     super.education,
     super.occupation,
+    super.incomeType,
     super.codeGender,
     super.familyStatus,
     super.ownCar,
@@ -23,6 +24,8 @@ class ProfileModel extends Profile {
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
+    final ownCarVal = json['own_car'];
+    final ownRealtyVal = json['own_realty'];
     return ProfileModel(
       id: json['id'] as int,
       fullName: json['full_name'] as String? ?? '',
@@ -30,17 +33,18 @@ class ProfileModel extends Profile {
       phone: json['phone'] as String? ?? '',
       email: json['email'] as String?,
       status: json['status'] as String? ?? 'ACTIVE',
-      balance: (json['balance'] as num?)?.toDouble() ?? 0,
-      monthlyIncome: (json['monthly_income'] as num?)?.toDouble(),
+      balance: double.tryParse(json['balance']?.toString() ?? '') ?? 0.0,
+      monthlyIncome: double.tryParse(json['monthly_income']?.toString() ?? ''),
       birthDate: _parseDate(json['birth_date']),
       education: json['education'] as String?,
       occupation: json['occupation'] as String?,
+      incomeType: json['income_type'] as String?,
       codeGender: json['code_gender'] as String?,
       familyStatus: json['family_status'] as String?,
-      ownCar: json['own_car'] as bool? ?? false,
-      ownRealty: json['own_realty'] as bool? ?? false,
-      childrenCount: (json['children_count'] as num?)?.toInt(),
-      familyMembers: (json['family_members'] as num?)?.toInt(),
+      ownCar: ownCarVal == true || ownCarVal == 1 || ownCarVal == '1',
+      ownRealty: ownRealtyVal == true || ownRealtyVal == 1 || ownRealtyVal == '1',
+      childrenCount: int.tryParse(json['children_count']?.toString() ?? ''),
+      familyMembers: int.tryParse(json['family_members']?.toString() ?? ''),
       createdAt: _parseDate(json['created_at']),
     );
   }

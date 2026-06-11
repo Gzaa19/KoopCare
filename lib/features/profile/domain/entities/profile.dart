@@ -13,6 +13,7 @@ class Profile extends Equatable {
   final DateTime? birthDate;
   final String? education;
   final String? occupation;
+  final String? incomeType;
 
   final String? codeGender;
   final String? familyStatus;
@@ -34,6 +35,7 @@ class Profile extends Equatable {
     this.birthDate,
     this.education,
     this.occupation,
+    this.incomeType,
     this.codeGender,
     this.familyStatus,
     this.ownCar = false,
@@ -56,6 +58,7 @@ class Profile extends Equatable {
     birthDate,
     education,
     occupation,
+    incomeType,
     codeGender,
     familyStatus,
     ownCar,

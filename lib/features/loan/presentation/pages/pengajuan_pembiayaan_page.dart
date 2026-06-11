@@ -3,6 +3,7 @@ import 'package:koopcare/core/app_colors.dart';
 import 'package:koopcare/core/app_constants.dart';
 import 'package:koopcare/core/router/route_args.dart';
 import 'package:koopcare/core/router/route_names.dart';
+import 'package:koopcare/core/utils/rupiah_input_formatter.dart';
 import 'package:koopcare/core/widgets/app_widgets.dart';
 import '../widgets/loan_input_field.dart';
 import '../widgets/cicilan_card.dart';
@@ -31,18 +32,36 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
   late final List<Animation<double>> _fades;
   late final List<Animation<Offset>>  _slides;
 
+  // ── Batas nominal pinjaman ──────────────────────────────────────
+  static const int _minAmount = 100000;       // Rp 100.000
+  static const int _maxAmount = 500000000;    // Rp 500.000.000
+
+  /// Ambil nilai integer murni dari field jumlah (hapus titik)
+  int get _rawAmount => RupiahInputFormatter.rawValue(_jumlahCtrl.text);
+
   String get _cicilanEstimasi {
-    final raw   = int.tryParse(_jumlahCtrl.text.trim());
+    final raw   = _rawAmount;
     final tenor = _selectedTenor;
-    if (raw == null || raw == 0 || tenor == null) return '-';
+    if (raw == 0 || tenor == null) return '-';
     return _formatRp((raw / tenor).ceil());
+  }
+
+  /// Validasi apakah nominal dalam batas wajar
+  String? get _amountError {
+    final raw = _rawAmount;
+    if (_jumlahCtrl.text.isEmpty) return null;
+    if (raw < _minAmount) return 'Minimal Rp 100.000';
+    if (raw > _maxAmount) return 'Maksimal Rp 500.000.000';
+    return null;
   }
 
   bool get _canSubmit =>
       _selectedProdukId != null &&
       _jumlahCtrl.text.trim().isNotEmpty &&
       _tujuanCtrl.text.trim().isNotEmpty &&
-      _selectedTenor != null;
+      _selectedTenor != null &&
+      _amountError == null &&
+      _rawAmount >= _minAmount;
 
   @override
   void initState() {
@@ -104,7 +123,7 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
       if (i > 0 && (s.length - i) % 3 == 0) buf.write('.');
       buf.write(s[i]);
     }
-    return 'Rp. ${buf.toString()}';
+    return 'Rp ${buf.toString()}';
   }
 
   @override
@@ -130,18 +149,7 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
                         _animated(1, _buildPilihProduk()),
                         const SizedBox(height: 22),
 
-                        _animated(2,
-                          LoanInputField(
-                            label: 'Jumlah Pembiayaan (Rp)',
-                            controller: _jumlahCtrl,
-                            focusNode: _jumlahFocus,
-                            isFocused: _jumlahHasFocus,
-                            hint: 'Masukkan nominal pembiayaan',
-                            isNumeric: true,
-                            prefixText: _jumlahCtrl.text.isNotEmpty ? 'Rp. ' : null,
-                            onChanged: (_) => setState(() {}),
-                          ),
-                        ),
+                        _animated(2, _buildJumlahField()),
                         const SizedBox(height: 22),
 
                         _animated(3,
@@ -177,6 +185,54 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
           ),
         ],
       ),
+    );
+  }
+
+  /// Field jumlah pembiayaan dengan format Rupiah real-time
+  Widget _buildJumlahField() {
+    final error = _amountError;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LoanInputField(
+          label: 'Jumlah Pembiayaan',
+          controller: _jumlahCtrl,
+          focusNode: _jumlahFocus,
+          isFocused: _jumlahHasFocus,
+          hint: 'Contoh: 5.000.000',
+          isNumeric: true,
+          prefixText: _jumlahCtrl.text.isNotEmpty ? 'Rp ' : null,
+          inputFormatters: [RupiahInputFormatter()],
+          onChanged: (_) => setState(() {}),
+        ),
+        // Pesan error / hint nominal
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: error != null
+              ? Padding(
+                  key: const ValueKey('error'),
+                  padding: const EdgeInsets.only(top: 6, left: 4),
+                  child: Text(
+                    error,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFFCC4444),
+                    ),
+                  ),
+                )
+              : Padding(
+                  key: const ValueKey('hint'),
+                  padding: const EdgeInsets.only(top: 6, left: 4),
+                  child: Text(
+                    'Min Rp 100.000 – Maks Rp 500.000.000',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ),
+        ),
+      ],
     );
   }
 
@@ -370,8 +426,8 @@ class _PengajuanPembiayaanPageState extends State<PengajuanPembiayaanPage>
       child: ElevatedButton(
         onPressed: _canSubmit
             ? () {
-                final amount =
-                    double.tryParse(_jumlahCtrl.text.trim()) ?? 0;
+                // Ambil nilai murni (tanpa titik) lalu kirim sebagai double
+                final amount = _rawAmount.toDouble();
                 final type = _selectedProdukId == 'QARDHUL_HASAN'
                     ? 'QARDHUL_HASAN'
                     : 'MURABAHAH';
